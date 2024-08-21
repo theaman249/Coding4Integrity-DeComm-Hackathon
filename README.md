@@ -1,4 +1,6 @@
-# Oxford-Hackathon Corruption Combat Coders
+# Pretoria-South-Africa-Hackathon 
+
+### Corruption Combat Coders
 
 Welcome to the Decomm (decentralized e-commerice) project and to the internet computer development community.
 
@@ -27,7 +29,7 @@ This project utilizes The DFINITY command-line execution environment (dfx). The 
 In order to use dfx on a Windows machine you'll need to download the Windows Subsystem for Linux (WSL). Refer to Microsoft's official guide [here](https://learn.microsoft.com/en-us/windows/wsl/install), and [here](https://learn.microsoft.com/en-us/windows/wsl/setup/environment)
 
 
-### Installing IC SDK and DFX
+### Installing IC SDK, DFX, and MOPS
 
 To install dfx run the following:
 
@@ -48,53 +50,78 @@ dfx identity new
 
 Learn more about dfx identities here - [dfx identity](https://internetcomputer.org/docs/current/references/cli-reference/dfx-identity)
 
+Mops a package manager needs to be installed on the system rather then on the working directory. In root run this command:
+
+Through curl
+
+```bash
+curl -fsSL cli.mops.one/install.sh | sh
+```
+
+or through npm:
+
+```bash
+npm i -g ic-mops
+```
+
+**Note that the installation of mops will take some time. Approximately five minutes, or more depending on your system and network connection.**
 
 ## Starting the project
 
 install the relevant packages needed to run the frontend for the first time by running:
 
 ```bash
+cd /Pretoria-South-Africa
 npm install
 ```
 
+
+Running the Project
 --------------------------------------
+
 If you want to start working on your project, run the following commands:
 
-Open two separate terminals and in each terminal run:
-
 
 ```bash
-# Terminal 1
-cd /Oxford
-npm run generate
+# Terminal
+
+cd /Pretoria-South-Africa
 npm run startdfx
-```
-
-```bash
-# Terminal 2
 npm run deploy
+npm run generate 
 ```
 
-This will build and deploy the project locally.
+
+This will build and deploy the project locally. 
+
+###### **Note** running npm run generate at the end is optional. It generates decleration files, but is done through npm run deploy. Although, it will be useful if you update the backend/frontend and want to reference a function you will generate rather than deploy as it takes less time.
 
 ## Running the project locally with Hot Module Replacement
 
 If you want to test your project locally with Hot Module Replacement (HMR), you can use the following commands:
 
 ```bash
-# Terminal 1
-cd /Oxford
-npm run generate
-npm run startdfx
-```
+# If you ran the command above
 
-```bash
-# Terminal 2
+npm run dev
+
+# If you are starting the project again and want HMR
+cd /Pretoria-South-Africa
+npm run startdfx
 npm run deploy
+npm run generate
 npm run dev
 ```
 
 Using svelte's native localhost:5173 local server you can now edit your code with HMR without the need to rebuild the files to see changes.
+
+Don't forget to shutdown the dfx network once you finish with coding!
+
+```bash
+
+dfx stop
+
+```
 
 ## Deploying to IC
 

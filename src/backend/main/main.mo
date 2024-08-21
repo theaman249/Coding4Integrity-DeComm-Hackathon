@@ -2,11 +2,12 @@ import Buffer "mo:base/Buffer";
 import Cycles "mo:base/ExperimentalCycles";
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
+import Array "mo:base/Array";
 
 import Types "../commons/Types";
 import Product "Product";
 //Import not used Ali* - Hamad
-//import Transaction "Transaction";
+import Transaction "Transaction";
 import User "User";
 
 //Actor
@@ -14,9 +15,12 @@ actor class Main() {
     stable var usersArray : [User.User] = [];
     stable var productsArray : [Product.Product] = [];
     stable var productIDNum : Nat = 0;
+    stable var transactionsArray :[Transaction.Transaction]=[];
+    stable var transactionIDNum:Nat =0;
 
     var userBuffer = Buffer.fromArray<User.User>(usersArray);
     var productBuffer = Buffer.fromArray<Product.Product>(productsArray);
+    var transactionBuffer=Buffer.fromArray<Transaction.Transaction>(transactionsArray);
 
     public func getAllUserNames() : async [Text] {
         let namebuffer = Buffer.Buffer<Text>(0);
@@ -163,5 +167,76 @@ actor class Main() {
 
     private func splitCycles<system>() {
         Cycles.add<system>(200000000000); // no warning or error
-    }
+    };
+
+    public func addToUserCart(userName: Text, product: Types.Product) : async Bool {
+        for (user in userBuffer.vals()) { // check this or use the user array
+          if (Text.equal(await user.getName(), userName)) {
+              await user.addToCart(product);
+              return true;
+            };
+        };
+        return false;
+    };
+
+    public func clearUserCart(userName: Text) : async Bool {
+        for (user in userBuffer.vals()) {
+            if (Text.equal(await user.getName(), userName)) {
+                await user.setBuyersCart([]);
+                return true;
+            };
+        };
+        return false; // User does not exist
+    };
+
+    public func removeFromUserCart(userName: Text, productID: Nat) : async Bool {
+        for (user in userBuffer.vals()) {
+            if (Text.equal(await user.getName(), userName)) {
+                var currentCart = await user.getBuyersCart();
+                let updatedCart = Array.filter(currentCart, func (p: Types.Product) : Bool { 
+                    p.productID != productID 
+                });
+                if (currentCart.size() != updatedCart.size()) {
+                    await user.setBuyersCart(updatedCart);
+                    return true;
+                };
+                return false; // Product does not exist in cart
+            };
+        };
+        return false; // User does not exist
+    };
+
+    public func clearDB(): async() {
+        usersArray := [];
+        productsArray := [];
+        transactionsArray :=[];
+        productIDNum := 0;
+        transactionIDNum:=0;
+        userBuffer := Buffer.fromArray<User.User>(usersArray);
+        productBuffer:= Buffer.fromArray<Product.Product>(productsArray);
+        transactionBuffer:=Buffer.fromArray<Transaction.Transaction>(transactionsArray); 
+    };
+
+    public func createTestEnv(): async(){
+        await clearDB();
+        let user1=await createUser("user1");
+        //await loginUser(user1);
+        let user2=await createUser("user2");
+        let price:Types.Price={
+            currency = #usd;
+            amount = 10;
+        };
+        let price2:Types.Price={
+            currency = #usd;
+            amount = 15;
+        };
+        let product1 =await createProduct("user1","prod1","cat1",price,"short","long",true,"null");
+        let product2 =await createProduct("user2","prod2","cat1",price,"short","long",true,"null");
+        let product3 =await createProduct("user2","prod3","cat1",price2,"short","long",true,"null");
+        await purchase(user2,price,product1);
+        await purchase(user2,price,product2);
+        await purchase(user1,price,product3);
+    };
+
+
 };

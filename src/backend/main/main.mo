@@ -16,7 +16,7 @@ actor class Main() {
     stable var productsArray : [Product.Product] = [];
     stable var productIDNum : Nat = 0;
     stable var transactionsArray :[Transaction.Transaction]=[];
-    stable var transactionIDNum:Nat =0;
+    stable var transactionIDNum:Nat = 0;
 
     var userBuffer = Buffer.fromArray<User.User>(usersArray);
     var productBuffer = Buffer.fromArray<Product.Product>(productsArray);

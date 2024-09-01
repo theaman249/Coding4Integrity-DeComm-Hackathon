@@ -86,7 +86,6 @@ If you want to start working on your project, run the following commands:
 
 ```bash
 export NODE_OPTIONS="--max-old-space-size=4096"
-
 ```
 
 

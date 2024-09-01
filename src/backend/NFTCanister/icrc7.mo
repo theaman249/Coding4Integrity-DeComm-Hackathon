@@ -6,7 +6,7 @@ module {
       symbol = ?"KT";
       name = ?"Knowledge Token";
       description = ?"A collection of Knowledge Tokens for e-commerce";
-      logo = ?"https://example.com/logo.png";
+      logo = ?"https://knowledgefound.org/images/lightbulb-large.png";
       supply_cap = ?1000000;
       allow_transfers = ?true;
       max_query_batch_size = ?100;
@@ -18,7 +18,8 @@ module {
       burn_account = null;
       deployer = caller;
       supported_standards = null;
-      tx_window = null
+      tx_window = null;
+      override = true;
     };
   };
 };

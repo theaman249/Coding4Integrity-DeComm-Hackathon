@@ -1,25 +1,22 @@
 <script lang="ts">
 	import { loggedIn, accountType, cartPage } from "$lib/data/stores/stores";
-    import Cards from "./Cards/Cards.svelte";
-	import Cart from "./cart/Cart.svelte"
+    import ProductCards from "$lib/components/modules/app/ProductCards/ProductCards.svelte";
 	import { onMount } from 'svelte';
 
 	let loaded = false;
 
 	onMount (async ()=>{
 		if($accountType.value !== "undefined"){
-			$accountType.value = "Personal"
+			$accountType.value = "Personal Account"
 			loaded = true;
 		}
 	})
 </script>
 
-<main>
+<main class="bg-zinc-50 min-h-screen">
 	{#if $loggedIn.value !== false}
-		{#if loaded == true && $cartPage.value == false}
-            <Cards />
-		{:else if loaded == true && $cartPage.value == true}
-			<Cart />
+		{#if loaded == true }
+            <ProductCards />
 		{/if}
 	{/if}
 </main>

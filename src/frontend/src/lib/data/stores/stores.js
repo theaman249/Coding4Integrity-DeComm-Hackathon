@@ -6,7 +6,7 @@ export const loggedIn = persisted('loggedIn', {
 });
 
 export const accountType = persisted('accountType', {
-  value: 'Personal',
+  value: 'Personal Account',
 });
 
 export const registerStore = persisted('registerStore', {

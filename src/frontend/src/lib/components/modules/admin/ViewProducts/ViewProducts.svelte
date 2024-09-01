@@ -11,7 +11,6 @@
     import { superForm, defaults } from "sveltekit-superforms/client"
     import { z } from "zod"
     import { zod } from 'sveltekit-superforms/adapters'
-    import Reload from "svelte-radix/Reload.svelte";
     import * as Select from "$lib/components/ui/select";
     import { Textarea } from "$lib/components/ui/textarea/";
 
@@ -66,7 +65,6 @@
     onMount(async () => {
         try {
             products = await actorBackend.getAllProductTypes();
-            console.log(products)
             showSkeleton = false;
             loaded = true;
         } catch (err: unknown) {

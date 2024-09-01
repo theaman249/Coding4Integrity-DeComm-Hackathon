@@ -5,7 +5,7 @@
     import { loggedIn, registerStore, accountType } from "$lib/data/stores/stores";
     import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import Login from "./(app)/login/+page.svelte"
+    import Header from "$lib/components/modules/Header/Header.svelte"
 
     let loaded = false;
 
@@ -21,13 +21,13 @@
 
     onMount (async ()=>{
         if($accountType.value !== "undefined"){
-            $accountType.value = "Personal"
+            $accountType.value = "Personal Account"
             loaded = true;
         }
 
         if(loaded == true){
             if($loggedIn.value === true){
-                if($accountType.value === "Personal"){
+                if($accountType.value === "Personal Account"){
                     redirectTo('/')
                 }else if($accountType.value === "Bussiness"){
                     redirectTo('/admin')
@@ -41,11 +41,14 @@
         }
     })
 
-
     function redirectTo(path: string) {
         goto(path);
     }
 </script>
+
+{#if $loggedIn.value !== false}
+  <Header />
+{/if}
 
 <Toaster />
 

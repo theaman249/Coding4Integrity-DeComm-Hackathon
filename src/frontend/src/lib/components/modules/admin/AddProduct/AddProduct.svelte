@@ -87,19 +87,16 @@
     })
 
     const uploadChunk = async ({ batch_name, chunk }) => {
-      console.log("Uploading chunk data:", chunk);
       const res = await actorFileUpload.create_chunk({
         batch_name,
         content: [...new Uint8Array(await chunk.arrayBuffer())],
       });
 
-      console.log("Res" + res.chunk_id)
       return res
     };
 
 
     const uploadImage = async (formName : any, formPrice : any, formsDesc : any, formlDesc : any) =>{
-      console.log(formName, formPrice, formlDesc, formsDesc)
       let batch_name: string;
       let isUnique: boolean = false;
       const promises = [];
@@ -117,10 +114,6 @@
 
       const chunkIds = await Promise.all(promises);
       const chunkIdsArray = chunkIds.map((chunk_id) => chunk_id.chunk_id);
-
-      console.log(batch_name);
-      console.log(chunkIdsArray);
-      console.log(files.accepted[0].type);
 
       const batch = await actorFileUpload.commit_batch({
         batch_name,

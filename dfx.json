@@ -26,6 +26,10 @@
 				"build/"
 			],
 			"type": "assets"
+		},
+		"NFT_canister":{
+			"main" : "src/backend/NFTCanister/main.mo",
+			"type" : "motoko"
 		}
 	},
 	"defaults": {

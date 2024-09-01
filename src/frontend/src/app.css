@@ -42,15 +42,15 @@
 
 
   /* static fonts */
-  @font-face { font-family: "Geist"; font-style: normal; font-weight: 100; font-display: swap; src: url("/Geist-Thin.woff2") format("woff2"); }
-  @font-face { font-family: "Geist"; font-style: normal; font-weight: 200; font-display: swap; src: url("/Geist-ExtraLight.woff2") format("woff2"); }
-  @font-face { font-family: "Geist"; font-style: normal; font-weight: 300; font-display: swap; src: url("/Geist-Light.woff2") format("woff2"); }
-  @font-face { font-family: "Geist"; font-style: normal; font-weight: 400; font-display: swap; src: url("/Geist-Regular.woff2") format("woff2"); }
-  @font-face { font-family: "Geist"; font-style: normal; font-weight: 500; font-display: swap; src: url("/Geist-Medium.woff2") format("woff2"); }
-  @font-face { font-family: "Geist"; font-style: normal; font-weight: 600; font-display: swap; src: url("/Geist-SemiBold.woff2") format("woff2"); }
-  @font-face { font-family: "Geist"; font-style: normal; font-weight: 700; font-display: swap; src: url("/Geist-Bold.woff2") format("woff2"); }
-  @font-face { font-family: "Geist"; font-style: normal; font-weight: 800; font-display: swap; src: url("/Geist-ExtraBold.woff2") format("woff2"); }
-  @font-face { font-family: "Geist"; font-style: normal; font-weight: 900; font-display: swap; src: url("/Geist-Black.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 100; font-display: swap; src: url("$lib/fonts/Geist-Thin.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 200; font-display: swap; src: url("$lib/fonts/Geist-UltraLight.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 300; font-display: swap; src: url("$lib/fonts/Geist-Light.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 400; font-display: swap; src: url("$lib/fonts/Geist-Regular.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 500; font-display: swap; src: url("$lib/fonts/Geist-Medium.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 600; font-display: swap; src: url("$lib/fonts/Geist-SemiBold.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 700; font-display: swap; src: url("$lib/fonts/Geist-Bold.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 800; font-display: swap; src: url("$lib/fonts/Geist-Black.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 900; font-display: swap; src: url("$lib/fonts/Geist-UltraBlack.woff2") format("woff2"); }
 
   * {
     @apply border-border;
@@ -120,3 +120,51 @@
 			slide-from-right;
 }
 
+@keyframes slideIn {
+  from {
+    max-height: 100vh;
+  }
+  to {
+    max-height: 90vh;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    max-height: 90vh;
+  }
+  to {
+    max-height: 100vh;
+  }
+}
+
+body {
+  transition: transform 0.4s ease;
+}
+
+body.nav-open {
+  transform: translateX(-80%) scale(0.9) translateY(5%);
+  animation: slideIn 0.4s ease forwards;
+}
+
+body:not(.nav-open) {
+  animation: slideOut 0.4s ease forwards;
+}
+
+body.nav-open .nonNav:not(.thisIsNav) {
+  overflow: hidden;
+  max-height: 80vh;
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+
+#searchingBox{
+  background-image: url("$lib/images/BG-Desktop2.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}

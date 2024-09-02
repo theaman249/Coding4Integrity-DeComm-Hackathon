@@ -59,7 +59,7 @@
     }
 
     async function bAccount(){
-        $accountType.value = "Bussiness Account";
+        $accountType.value = "Business Account";
         await goto('/admin')
     }
 
@@ -71,14 +71,14 @@
     }
 
     async function navBAccount(){
-        $accountType.value = "Bussiness Account";
+        $accountType.value = "Business Account";
         await goto('/admin')
         sideNavBar = false;
         document.body.classList.toggle('nav-open', sideNavBar);
     }
 
     async function navCart(){
-        $accountType.value = "Bussiness Account";
+        $accountType.value = "Business Account";
         await goto('/cart')
         sideNavBar = false;
         document.body.classList.toggle('nav-open', sideNavBar);
@@ -95,7 +95,7 @@
     <div class="h-[75%]">
         <div class="grid grid-rows-4 grid-flow-col gap-10 justify-center items-center content-center h-full text-4xl font-semibold">
             <a href="#homeSection" on:click|preventDefault={navPAccount}>Personal Profile &#8594;</a>
-            <a href="#homeSection" on:click|preventDefault={navBAccount}>Bussiness Profile &#8594;</a>
+            <a href="#homeSection" on:click|preventDefault={navBAccount}>Business Profile &#8594;</a>
             <a href="#homeSection" on:click|preventDefault={navCart} >Cart &#8594;</a>
         </div>
     </div>

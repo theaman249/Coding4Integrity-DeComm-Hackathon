@@ -23,33 +23,37 @@
     }
 </script>
 
-<div class="grid grid-cols-12 mt-22 pt-20 lg:pt-0 xl:mt-0 bg-zinc-50">
+<div class="grid grid-cols-12 mt-22 pt-20 lg:pt-0 xl:mt-0 bg-zinc-50 w-full">
+    {#if !posts}
+    <div class="col-span-12 grid grid-cols-12 justify-center items-center w-full">
+        <div class="col-span-12 flex h-full w-full justify-center items-center text-3xl lg:text-7xl font-medium">
+            Loading Items....
+        </div>
+    </div>
+    {:else if posts && converted.length > 1}
     <div class="min-h-screen col-span-12 grid grid-cols-12 justify-center gap-10 p-5 mb-28 lg:mb-0 md:p-8 xl:p-5 2xl:px-40 2xl:mt-40 2xl:mb-10 h-fit w-full overflow-hidden">
-        {#if !posts}
-            <div class="col-span-12 flex h-full w-full justify-center items-center text-3xl lg:text-7xl font-medium">
-                Loading Items....
+               {#each converted as post}
+            <div class="col-span-12 md:col-span-6 lg:col-span-3 w-full h-1/6 border-zinc-300">
+                <Card 
+                    name={post.name} 
+                    productLongDesc={post.productLongDesc}
+                    productCategory={post.productCategory}
+                    productShortDesc={post.productShortDesc}
+                    productID={post.productID}
+                    isSold={post.isSold}
+                    isVisible={post.isVisible}
+                    sellerID={post.sellerID}
+                    productPrice={post.productPrice}
+                    productPicture={post.productPicture} 
+                /> 
             </div>
-        {:else if posts && converted.length > 1}
-            {#each converted as post}
-                <div class="col-span-12 md:col-span-6 lg:col-span-3 w-full h-1/6 border-zinc-300">
-                    <Card 
-                        name={post.name} 
-                        productLongDesc={post.productLongDesc}
-                        productCategory={post.productCategory}
-                        productShortDesc={post.productShortDesc}
-                        productID={post.productID}
-                        isSold={post.isSold}
-                        isVisible={post.isVisible}
-                        sellerID={post.sellerID}
-                        productPrice={post.productPrice}
-                        productPicture={post.productPicture} 
-                    /> 
-                </div>
-            {/each}
-        {:else if posts && converted.length <= 0}
+        {/each}
+    </div>
+    {:else if posts && converted.length <= 0}
+        <div class="col-span-12 grid grid-cols-12 justify-center items-center w-full">
             <div class="col-span-12 flex h-full w-full justify-center items-center text-3xl lg:text-7xl font-medium">
                 No Products Found....
             </div>
-        {/if}
-    </div>
+        </div>
+    {/if}
 </div>

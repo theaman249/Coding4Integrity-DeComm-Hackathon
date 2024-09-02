@@ -29,7 +29,7 @@
             if($loggedIn.value === true){
                 if($accountType.value === "Personal Account"){
                     redirectTo('/')
-                }else if($accountType.value === "Bussiness"){
+                }else if($accountType.value === "Business"){
                     redirectTo('/admin')
                 }
             }else if ($loggedIn.value === false){

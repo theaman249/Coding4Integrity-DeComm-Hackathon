@@ -13,7 +13,7 @@
 	})
 </script>
 
-<main class="bg-zinc-50 min-h-screen">
+<main class="bg-zinc-50 min-h-screen flex justify-center items-center">
 	{#if $loggedIn.value !== false}
 		{#if loaded == true }
             <ProductCards />

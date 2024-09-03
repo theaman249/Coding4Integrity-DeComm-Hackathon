@@ -25,6 +25,7 @@
       usd : {"usd": null},
       eur : {"eur": null},
       gbp : {"gbp": null},
+      kt : {"kt": null},
     }
 
     interface Price {
@@ -38,12 +39,7 @@
     };
 
     const currencies = [
-    { value: "USD", label: "USD" },
-    { value: "Euro", label: "Euro" },
-    { value: "BGP", label: "BGP" },
-    { value: "BTC", label: "BTC" },
-    { value: "ETH", label: "ETH" },
-    { value: "ICP", label: "ICP" },
+    { value: "Knowledge Token", label: "Knowledge Token" },
   ];
 
   const categories = [
@@ -65,7 +61,7 @@
       files.rejected = [...files.rejected, ...fileRejections];
     }
 
-    $: selectedCurrency = "USD";
+    $: selectedCurrency = "KT";
     $: selectedCategory = "Electronics";
 
     const newContactSchema = z.object({
@@ -103,7 +99,7 @@
       const chunkSize = 500000;
 
       while (!isUnique) {
-        batch_name = uuidv4();
+        batch_name = await uuidv4();
         isUnique = await actorFileUpload.check_unique(batch_name);
       }
 
@@ -131,23 +127,9 @@
       };
 
       try {
-        if(selectedCurrency === "USD"){
-          await actorBackend.createProduct($fullName, formName, selectedCategory, {currency :{"usd": null} , amount : Number.parseInt(formPrice)}, formsDesc, formlDesc, true, img)
-        }else if(selectedCurrency === "Euro"){
-          await actorBackend.createProduct($fullName, formName, selectedCategory, {currency :{"eur": null} , amount : Number.parseInt(formPrice)}, formsDesc, formlDesc, true, img)
-
-        }else if(selectedCurrency === "BGP"){
-          await actorBackend.createProduct($fullName, formName, selectedCategory, {currency :{"gbp": null} , amount : Number.parseInt(formPrice)}, formsDesc, formlDesc, true, img)
-
-        }else if(selectedCurrency === "BTC"){
-          await actorBackend.createProduct($fullName, formName, selectedCategory, {currency :{"btc": null} , amount : Number.parseInt(formPrice)}, formsDesc, formlDesc, true, img)
-
-        }else if(selectedCurrency === "ETH"){
-          await actorBackend.createProduct($fullName, formName, selectedCategory, {currency :{"eth": null} , amount : Number.parseInt(formPrice)}, formsDesc, formlDesc, true, img)
-
-        }else if(selectedCurrency === "ICP"){
-          await actorBackend.createProduct($fullName, formName, selectedCategory, {currency :{"icp": null} , amount : Number.parseInt(formPrice)}, formsDesc, formlDesc, true, img)
-        };
+        if(selectedCurrency === "Knowledge Token"){
+          await actorBackend.createProduct($fullName, formName, selectedCategory, {currency : {"kt": null} , amount : Number.parseInt(formPrice)}, formsDesc, formlDesc, true, img)
+        }
         toast.success("Product has been added", {description: getFormattedDateTime(),})
         formSubmitted = false;
       } catch (err: unknown) {
@@ -228,18 +210,8 @@
       </div>
       <div class="grid w-full max-w-sm items-center gap-1.5 mt-10">
         <Label for="price">Price</Label>
-        {#if selectedCurrency === "USD"}
-          <Input type="number" id="price" placeholder="$120" bind:value={$form.price} {...$constraints.price} />
-        {:else if selectedCurrency === "BGP"}
-          <Input type="number" id="price" placeholder="£120" bind:value={$form.price} {...$constraints.price} />
-        {:else if selectedCurrency === "Euro"}
-          <Input type="number" id="price" placeholder="€120" bind:value={$form.price} {...$constraints.price} />
-        {:else if selectedCurrency === "BTC"}
-          <Input type="number" id="price" placeholder="120 BTC" bind:value={$form.price} {...$constraints.price} />
-        {:else if selectedCurrency === "ETH"}
-          <Input type="number" id="price" placeholder="120 ETH" bind:value={$form.price} {...$constraints.price} />
-        {:else if selectedCurrency === "ICP"}
-          <Input type="number" id="price" placeholder="120 ICP" bind:value={$form.price} {...$constraints.price} />
+        {#if selectedCurrency === "Knowledge Token"}
+          <Input type="number" id="price" placeholder="120 KT" bind:value={$form.price} {...$constraints.price} />
         {/if}
         <p class="text-sm text-muted-foreground">Enter the desired selling price for your product</p>
       </div>
@@ -257,14 +229,14 @@
       </div>
       <div class="grid w-full gap-1.5 mt-16">
           <Label>Insert Product Image</Label>
-          <Dropzone on:drop={handleFilesSelect}/>
+          <Dropzone on:drop={handleFilesSelect} multiple={false} accept="image/*"/>
           <ol>
             {#each files.accepted as item}
               <li>{item.name}</li>
             {/each}
           </ol>
       </div>
-      <div class="w-full flex justify-end mb-20 mt-10">
+      <div class="w-full flex justify-end mt-10">
         {#if !formSubmitted}
           <Button type="submit">Add Product</Button>
         {:else}

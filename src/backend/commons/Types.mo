@@ -10,6 +10,7 @@ module Types {
         #usd;
         #eur;
         #gbp;
+        #kt;
     };
 
     public type Price = {
@@ -33,7 +34,7 @@ module Types {
 
     public type Transaction = {
         id : Nat;
-        productID : Text;
+        productID : Nat;
         buyerID : Text;
         paidPrice : Types.Price;
     };

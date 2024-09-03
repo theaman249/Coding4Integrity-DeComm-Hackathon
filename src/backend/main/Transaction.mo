@@ -3,9 +3,9 @@ import Text "mo:base/Text";
 
 import Types "../commons/Types";
 
-actor class Transaction(id : Nat, productID : Text, buyerID : Text, paidPrice : Types.Price) {
+actor class Transaction(id : Nat, productID : Nat, buyerID : Text, paidPrice : Types.Price) {
     var transactionID : Nat = id;
-    var transactionProductID : Text = productID;
+    var transactionProductID : Nat = productID;
     var transactionBuyerID : Text = buyerID;
     var transactionPaidPrice : Types.Price = paidPrice;
 
@@ -13,7 +13,7 @@ actor class Transaction(id : Nat, productID : Text, buyerID : Text, paidPrice : 
         return transactionID;
     };
 
-    public query func getProductID() : async Text {
+    public query func getProductID() : async Nat {
         return transactionProductID;
     };
 
@@ -25,7 +25,7 @@ actor class Transaction(id : Nat, productID : Text, buyerID : Text, paidPrice : 
         return transactionPaidPrice;
     };
 
-    public func setProductID(newProductID : Text) : async () {
+    public func setProductID(newProductID : Nat) : async () {
         transactionProductID := newProductID;
     };
 

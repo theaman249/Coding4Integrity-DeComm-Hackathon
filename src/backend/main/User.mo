@@ -1,7 +1,7 @@
 import Buffer "mo:base/Buffer";
 import Text "mo:base/Text";
 import Result "mo:base/Result";
-
+import Debug "mo:base/Debug";
 import Types "../commons/Types";
 
 actor class User(
@@ -13,7 +13,7 @@ actor class User(
     wallet : [Types.Price],
 ) {
 
-    var userName : Text = name;
+    stable var userName : Text = name;
     stable var userBuyersCart : [Types.Product] = buyersCart;
     stable var userSellersStock : [Types.Product] = sellersStock;
     stable var userPurchases : [Types.Transaction] = purchases;
@@ -24,13 +24,10 @@ actor class User(
     var sellersStockBuffer = Buffer.fromArray<Types.Product>(userSellersStock);
     var purchasesBuffer = Buffer.fromArray<Types.Transaction>(userPurchases);
     var soldItemsBuffer = Buffer.fromArray<Types.Transaction>(userSoldItems);
-    // var walletBuffer = Buffer.fromArray<Types.Price>(userWallet);
+    var _walletBuffer = Buffer.fromArray<Types.Price>(userWallet);
 
     public query func getName() : async Text {
         return userName;
-    };
-    public query func getBuyersCart() : async [Types.Product] {
-        return userBuyersCart;
     };
 
     public query func getSellersStock() : async [Types.Product] {
@@ -73,11 +70,6 @@ actor class User(
         userWallet := newWallet;
     };
 
-    public func addToCart(product : Types.Product) : async () {
-        buyersCartBuffer.add(product);
-        await setBuyersCart(Buffer.toArray(buyersCartBuffer));
-    };
-
     public func listItem(product : Types.Product) : async () {
         sellersStockBuffer.add(product);
         await setSellersStock(Buffer.toArray(sellersStockBuffer));
@@ -107,10 +99,10 @@ actor class User(
                 newWallet.add(j);
             };
         };
-        await setWallet(Buffer.toArray(newWallet));
+       await setWallet(Buffer.toArray(newWallet));
     };
 
-    public func takeFromWallet(price : Types.Price) : async Result.Result<(), Text> {
+     public func takeFromWallet(price : Types.Price) : async Result.Result<(), Text> {
         var newWallet = Buffer.Buffer<Types.Price>(0);
         for (j in userWallet.vals()) {
             if (price.currency == j.currency) {
@@ -132,14 +124,30 @@ actor class User(
         #ok(())
     };
 
-    //  public func changeWalletInfo(newWallet: [Types.Price]): async(){
+    public func addToCart(product : Types.Product) : async () {
+        buyersCartBuffer.add(product);
+        userBuyersCart := Buffer.toArray(buyersCartBuffer);
+        Debug.print("User " # userName # " added product to cart: " # debug_show(product.productID));
+    };
 
-    //     for (i in newWallet.vals()){
-    //         for (j in userWallet.vals()){
-    //             if (Text.equal(i.currency, j.currency)){
-    //                 j.amount:=i.amount;
-    //             }
-    //         };
-    //     };
-    // };
+    public func removeFromCart(productID : Nat) : async () {
+        let beforeSize = buyersCartBuffer.size();
+        buyersCartBuffer.filterEntries(func (index: Nat, p: Types.Product) : Bool { 
+            p.productID != productID 
+        });
+        userBuyersCart := Buffer.toArray(buyersCartBuffer);
+        let removed = buyersCartBuffer.size() < beforeSize;
+        Debug.print("User " # userName # " removed product from cart: " # debug_show(productID) # " Success: " # debug_show(removed));
+    };
+
+    public func clearCart() : async () {
+        buyersCartBuffer.clear();
+        userBuyersCart := [];
+        Debug.print("User " # userName # " cleared cart");
+    };
+
+    public query func getBuyersCart() : async [Types.Product] {
+        Debug.print("Retrieved cart for user " # userName # ": " # debug_show(userBuyersCart.size()) # " items");
+        return userBuyersCart;
+    };
 };

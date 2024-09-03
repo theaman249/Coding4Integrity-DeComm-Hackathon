@@ -1,146 +1,143 @@
 <script lang="ts">
-    import { cartProducts, cart, removeFromCart, cartPage, clearCart } from "$lib/data/stores/stores";
+    import { cart, cartPage, fullName } from "$lib/data/stores/stores";
     import { Button } from "$lib/components/ui/button/index.js";
     import { toast } from "svelte-sonner";
-    import { Label } from "$lib/components/ui/label/";
-    import * as Select from "$lib/components/ui/select";
-    import { httpOutcalls } from "$lib/motokoImports/backend"
-    import { onDestroy } from 'svelte';
-    import { writable } from 'svelte/store';
     import Reload from "svelte-radix/Reload.svelte"
     import { goto } from '$app/navigation';
+    import { actorBackend } from "$lib/motokoImports/backend";
+    import { onMount } from "svelte"
 
     let checkout = false;
-    $: selectedCurrency = "";
-    let exchangeRate = [];
-    let totalCost = 0;
-    let timeLeft = writable(600);
     let buttonClicked = false;
+    let posts = false;
+    $: converted = [];
+    let formSubmitted = false;
+    let formCleared = false;
+    let totalCost = 0;
+    $: totalCost = total();
 
-    $: interval = setInterval(() => {
-        timeLeft.update(value => {
-            if (value > 0) {
-                return value - 1;
-            } else {
-                return 600;
-            }
-        });
-    }, 1000);
-
-
-    onDestroy(() => clearInterval(interval));
-
-    const Currency : any ={
-      btc : {"btc": null},
-      eth : {"eth": null},
-      icp : {"icp": null},
-      usd : {"usd": null},
-      eur : {"eur": null},
-      gbp : {"gbp": null},
-    }
-
-    const currencies = [
-    { value: "USD", label: "USD" },
-    { value: "EUR", label: "Euro" },
-    { value: "GBP", label: "BGP" },
-    { value: "BTC", label: "BTC" },
-    { value: "ETH", label: "ETH" },
-    { value: "ICP", label: "ICP" },
-  ];
-
-    const carts = $cartProducts;
-
-    function removeProduct(product) {
-        $cart.value = $cart.value - 1;
-        removeFromCart(product.productID)
-        toast("Removed " + product.name + " from cart");
-    }
-
-    function removeAllProducts(){
-        $cart.value = 0;
-        clearCart()
-        toast("Removed All produts from cart");
-    }
-
-    async function getRates(desiredCurrency) {
+    async function removeProduct(product) {
         try {
-            const res = await httpOutcalls.getConfirmationDetails(desiredCurrency);
-            const filteredRates = res.filter(
-                (item) =>
-                item.currency === "USD" ||
-                item.currency === "EUR" ||
-                item.currency === "GBP" ||
-                item.currency === "BTC" ||
-                item.currency === "ETH" ||
-                item.currency === "ICP"
-            );
-
-            exchangeRate = filteredRates.slice(0, 6);
-            return exchangeRate;
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    function convertPrice(price, currency) {
-        if(currency.eur === null){
-            const rate = findRateByCurrency("EUR", exchangeRate)
-            const calculatedPrice = (price / rate);
-            totalCost = totalCost + calculatedPrice;
-            return calculatedPrice;
-        }else if(currency.gbp === null){
-            const rate = findRateByCurrency("GBP", exchangeRate)
-            const calculatedPrice = (price / rate);
-            totalCost = totalCost + calculatedPrice;
-            return calculatedPrice;
-        }else if(currency.btc === null){
-            const rate = findRateByCurrency("BTC", exchangeRate)
-            const calculatedPrice = (price / rate);
-            totalCost = totalCost + calculatedPrice;
-            return calculatedPrice;
-        }else if(currency.usd === null){
-            const rate = findRateByCurrency("USD", exchangeRate)
-            const calculatedPrice = (price / rate);
-            totalCost = totalCost + calculatedPrice;
-            return calculatedPrice;
-        }else if(currency.icp === null){
-            const rate = findRateByCurrency("ICP", exchangeRate)
-            const calculatedPrice = (price / rate);
-            totalCost = totalCost + calculatedPrice;
-            return calculatedPrice;
-        }else if(currency.eth === null){
-            const rate = findRateByCurrency("ETH", exchangeRate)
-            const calculatedPrice = (price / rate);
-            totalCost = totalCost + calculatedPrice;
-            return calculatedPrice;
-        }
-    }
-
-    function findRateByCurrency(currency: string, data: { rate: string, currency: string }[]): string | null {
-        for (const item of data) {
-            if (item.currency === currency) {
-            return item.rate;
+            formSubmitted = true;
+            const result = await actorBackend.removeFromUserCart($fullName, product.productID);
+            if (result) {
+                toast("Removed " + product.name + " from cart");
+                $cart.value = $cart.value - 1;
+                converted = converted.filter(p => p.productID !== product.productID);
+            } else {
+                toast.error("Failed to remove product from cart");
             }
+        } catch(error) {
+            toast.error("There was an error removing the product. Please try again", {description: getFormattedDateTime(),});
+        } finally {
+            formSubmitted = false;
         }
-        return null;
+    }
+
+    async function removeAllProducts() {
+        try {
+            formCleared = true;
+            const result = await actorBackend.clearUserCart($fullName);
+            if (result) {
+                toast("Removed all products from cart");
+                $cart.value = 0;
+                // Clear the local cart state
+                converted = [];
+            } else {
+                toast.error("Failed to clear the cart");
+            }
+        } catch(error) {
+            toast.error("There was an error removing all the products. Please try again", {description: getFormattedDateTime(),});
+        } finally {
+            formCleared = false;
+        }
+    }
+
+    function total() {
+        let totalPrice = 0;
+        console.log("Starting total calculation...");
+
+        if (converted.length === 0) {
+            console.log("No products found in converted.");
+            return totalPrice;
+        }
+
+        converted.forEach((product) => {
+            console.log("Processing product:", product);
+
+            if (!product.productPrice || !product.productPrice.currency) {
+                console.log("Product has no price or currency:", product);
+                return; // Skip this product
+            }
+
+            Object.keys(product.productPrice.currency).forEach((currency) => {
+                if (product.productPrice.currency.hasOwnProperty(currency)) {
+                    console.log("Currency:", currency);
+                    console.log("Amount before adding:", product.productPrice.amount);
+                    totalPrice += product.productPrice.amount;
+                    console.log("Running total:", totalPrice);
+                } else {
+                    console.log("Currency not found in product:", currency);
+                }
+            });
+        });
+
+        console.log("Final totalPrice:", totalPrice);
+        return totalPrice;
     }
 
     async function purchase(){
-        for (const product of carts){
-            try {
-                // await actorBackend.purchase($fullName, product.productPrice, product);
-            } catch (error) {
-                throw error;
+        try{
+            for (const product of converted){
+                try {
+                    await actorBackend.purchase($fullName, product.productPrice, product);
+                } catch (error) {
+                    console.log(error)
+                    throw error;
+                }
             }
+            removeAllProducts();
+            checkout = false;
+            $cartPage.value == false;
+            toast("Items Purchased");
+        }catch(error){
+            toast.error("There was an error purchasing all the products. Please try again", {description: getFormattedDateTime(),});
         }
-        removeAllProducts();
-        checkout = false;
-        $cartPage.value == false;
-        toast("Items Purchased");
+
+        
     };
 
     async function homePage(){
         await goto('/')
+    }
+
+    onMount(async () => {
+        const resProduct = await actorBackend.getUserCartProductTypes($fullName);
+        converted = await convertBigIntToNumber(resProduct);
+        console.log(converted);
+        posts = true;
+    });
+    
+    async function convertBigIntToNumber(products: any[]) {
+        return products.map(product => ({
+            ...product,
+            productPrice: {
+                ...product.productPrice,
+                amount: Number(product.productPrice.amount)
+            },
+            productID: Number(product.productID)
+        }));
+    }
+
+    
+    function getFormattedDateTime() {
+      const now = new Date();
+      const dayOfWeek = now.toLocaleDateString("en-US", { weekday: 'long' });
+      const monthDay = now.toLocaleDateString("en-US", { month: 'long', day: 'numeric' });
+      const year = now.getFullYear();
+      const time = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+
+      return `${dayOfWeek}, ${monthDay} ${year} at ${time}`;
     }
 </script>
 
@@ -158,16 +155,28 @@
             <div class="col-span-12 mb-10 flex flex-col lg:flex-row lg:items-center justify-between">
                 <h1 class="text-3xl font-semibold mb-5 lg:mb-0">Shopping Cart</h1>
                 <div class="col-span-12 lg:col-span-auto flex flex-col lg:flex-row lg:gap-x-2">
-                    <Button variant="destructive" class="mb-2 lg:mb-0" on:click={() => removeAllProducts()}>Clear Cart</Button>
+                    {#if !formCleared}
+                        <Button variant="destructive" class="mb-2 lg:mb-0" on:click={() => removeAllProducts()}>Clear Cart</Button>
+                    {:else}
+                        <Button class="mb-2 lg:mb-0" disabled>
+                            <Reload class="flex justify-center h-4/5 animate-spin" />
+                            Clearing Cart
+                        </Button>
+                    {/if}
                     <Button on:click={()=> checkout = true}>Proceed to Checkout</Button>
                 </div>
             </div>        
-            <div class="col-span-12 grid grid-cols-12">
-                {#each carts as product}
-                    <div class="col-span-4 lg:col-span-2 lg:ml-5 mb-12 border-y-2 border-l-2 border-gray-200">
+            <div class="col-span-12 grid grid-cols-12 {!posts ? "justify-center items-center w-full" : ""}">
+                {#if !posts}
+                    <div class="col-span-12 flex h-full w-full justify-center items-center text-3xl lg:text-7xl font-medium mt-40 2xl:mt-52">
+                        Loading Cart Items....
+                    </div>
+                {:else if posts && converted.length >= 1}
+                    {#each converted as product}
+                    <div class="col-span-4 lg:col-span-2 lg:ml-5 mb-12 border-y-4 border-l-4 border-zinc-600">
                         <img class="h-52 w-52 object-cover p-2" src={product.productPicture} alt={product.name}/>
                     </div>
-                    <div class="col-span-8 lg:col-span-10 border-y-2 border-r-2 border-gray-200 h-[13.25rem] w-full">
+                    <div class="col-span-8 lg:col-span-10 border-y-4 border-r-4 border-gray-600 h-[13.5rem] w-full">
                         <div class="block relative">
                             <p class="text-2xl font-semibold mt-12">{product.name}</p>
                             <p class="opacity-75">{product.productCategory}</p>
@@ -181,15 +190,27 @@
                             {:else}
                                 <p class="text-red-500">Out of Stock</p>
                             {/if}
-                            <Button variant="destructive" class="mt-2 absolute right-2" on:click={() => removeProduct(product)}>Remove Product</Button>
+                            {#if !formSubmitted}
+                                <Button variant="destructive" class="mt-2 absolute right-2" on:click={() => removeProduct(product)}>Remove Product</Button>
+                            {:else}
+                                <Button class="mt-2 absolute right-2" disabled>
+                                    <Reload class="flex justify-center h-4/5 animate-spin" />
+                                    Removing from Cart
+                                </Button>
+                            {/if}
                         </div>
                     </div>
-                {/each}
+                    {/each}
+                {:else if posts && converted.length <= 0}
+                    <div class="col-span-12 flex h-full w-full justify-center items-center text-3xl lg:text-7xl font-medium mt-40 2xl:mt-52">
+                        No Products Found In Cart....
+                    </div>
+                {/if}
             </div>
         </div>
     </div>
 {:else if checkout}
-    <div class="grid grid-cols-12 w-full mt-5 lg:mt-28 p-2">
+    <div class="grid grid-cols-12 w-full mt-32 lg:mt-40 p-2">
         <div class="col-span-12 grid grid-cols-12 px-2 lg:px-10">
             <div class="col-span-12 mb-5">
                 <a href="/" class="flex" on:click|preventDefault={() => checkout = false}>
@@ -203,60 +224,30 @@
                 <h1 class="text-3xl font-semibold mb-5 lg:mb-0">Checkout</h1>
             </div> 
             <div class="grid grid-cols-12 col-span-12 justify-center items-center border-[3px] border-gray-200 p-4">
-                <div class="col-span-12 mb-5">
-                    <div class="grid w-full max-w-sm items-center gap-1.5 mt-5">
-                        <Label for="price">Currency</Label>
-                        <Select.Root
-                          onSelectedChange={(v) =>{
-                            v && (selectedCurrency = v.value)
-                          }}
-                        >
-                            <Select.Trigger class="w-[180px]">
-                              <Select.Value placeholder="Select a currency" />
-                            </Select.Trigger>
-                            <Select.Content>
-                              <Select.Group>
-                                <Select.Label>Currency</Select.Label>
-                                {#each currencies as currency}
-                                  <Select.Item value={currency.value} label={currency.label}
-                                    >{currency.label}</Select.Item
-                                  >
-                                {/each}
-                              </Select.Group>
-                            </Select.Content>
-                            <Select.Input name="favoriteFruit" />
-                          </Select.Root>
-                        <p class="text-sm text-muted-foreground">Select the desired currency you'd like to pay with.</p>
-                    </div>
-                </div>
-                {#if selectedCurrency !== ""}
-                    {#await getRates(selectedCurrency)}
-                        <div class="col-span-12 mt-5">Calculating Price...</div>
-                    {:then}
-                        <div class="col-span-12 text-yellow-500 my-2">NOTE the prices change every {$timeLeft} seconds</div>
-                        {#each carts as product}
-                            <div class="col-span-12 my-2">{product.name}: {convertPrice(product.productPrice.amount, product.productPrice.currency) } {selectedCurrency.toUpperCase()}</div>
-                        {/each}
-                        <div class="col-span-12 my-2">Total Price of all products are {totalCost} {selectedCurrency}</div>
-                        <div class="col-span-12 my-2 flex items-end justify-end place-items-end">
-                            {#if !buttonClicked}
-                                <Button on:click={() => purchase()}>Purchase</Button>
-                            {:else}
-                                <Button disabled>
-                                    <Reload class="mr-2 h-4 w-4 animate-spin" />
-                                    Purchasing Product
-                                </Button>
+                {#each converted as product}
+                    <div class="col-span-12 my-2">{product.name}: 
+                        {#each Object.keys(product.productPrice.currency) as currency}
+                            {#if (product.productPrice.currency).hasOwnProperty(currency)}
+                            Price: {product.productPrice.amount} {currency.toUpperCase()}
                             {/if}
-                        </div>
-                    {:catch}
-                        <div class="text-red-500">Error fetching Exchange rates</div>
-                    {/await}
-                {/if}
+                        {/each}
+                    </div>
+                {/each}
+                <div class="col-span-12 my-2">Total Price of all products are {totalCost} KT</div>
+                <div class="col-span-12 my-2 flex items-end justify-end place-items-end">
+                    {#if !buttonClicked}
+                        <Button on:click={() => purchase()}>Purchase</Button>
+                    {:else}
+                        <Button disabled>
+                            <Reload class="mr-2 h-4 w-4 animate-spin" />
+                            Purchasing Product
+                        </Button>
+                    {/if}
+                </div>
             </div>
         </div>
     </div>
 {/if}
-
 
 <style>
     .arrow-icon {

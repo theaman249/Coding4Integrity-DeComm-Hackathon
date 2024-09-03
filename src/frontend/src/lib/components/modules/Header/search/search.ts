@@ -7,6 +7,7 @@ const Currency : any ={
 	usd : {"usd": null},
 	eur : {"eur": null},
 	gbp : {"gbp": null},
+	kt : {"kt": null},
   }
 
 export type Post = {

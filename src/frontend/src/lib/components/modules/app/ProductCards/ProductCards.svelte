@@ -5,9 +5,11 @@
 
     let posts = false;
     let converted;
+
 	onMount(async () => {
         const resProduct = await actorBackend.getAllProductTypes();
         converted = await convertBigIntToNumber(resProduct);
+        console.log(converted)
         posts = true;
 	})
 
@@ -30,10 +32,10 @@
             Loading Items....
         </div>
     </div>
-    {:else if posts && converted.length > 1}
-    <div class="min-h-screen col-span-12 grid grid-cols-12 justify-center gap-10 p-5 mb-28 lg:mb-0 md:p-8 xl:p-5 2xl:px-40 2xl:mt-40 2xl:mb-10 h-fit w-full overflow-hidden">
-               {#each converted as post}
-            <div class="col-span-12 md:col-span-6 lg:col-span-3 w-full h-1/6 border-zinc-300">
+    {:else if posts && converted.length >= 1}
+    <div class="min-h-full bg-zinc-50 col-span-12 grid grid-cols-12 justify-center gap-10 lg:mb-0 md:p-8 xl:p-5 2xl:px-40 h-fit w-full overflow-hidden">
+        {#each converted as post, i}
+            <div class="col-span-12 bg-zinc-50 md:col-span-6 lg:col-span-3 w-full h-1/6 border-zinc-300 {i >=4 ? "2xl:mt-44" : "2xl:mt-44"}">
                 <Card 
                     name={post.name} 
                     productLongDesc={post.productLongDesc}

@@ -3,8 +3,10 @@
     import * as Carousel from "$lib/components/ui/carousel";
     import * as Drawer from "$lib/components/ui/drawer";
     import { toast } from "svelte-sonner";
-    import { cart, addToCart } from "$lib/data/stores/stores";
-    
+    import { fullName, cart } from "$lib/data/stores/stores";
+    import Reload from "svelte-radix/Reload.svelte";
+    import { actorBackend } from "$lib/motokoImports/backend";
+
     const Currency : any ={
       btc : {"btc": null},
       eth : {"eth": null},
@@ -12,6 +14,7 @@
       usd : {"usd": null},
       eur : {"eur": null},
       gbp : {"gbp": null},
+      kt : {"kt": null},
     }
 
     export type productPrice = {
@@ -29,6 +32,8 @@
     export let sellerID : string
     export let productPrice : productPrice
     export let productPicture : string
+    let formSubmitted = false;
+
     
     export let product = {
       name: name,
@@ -43,10 +48,27 @@
       productPicture: productPicture,
     };
 
-    function add() {
-        $cart.value = $cart.value + 1;
-        addToCart(product)
-        toast("Added " + product.name + " to cart");
+    async function add() {
+        formSubmitted = true;
+        try{
+          await actorBackend.addToUserCart($fullName, product)
+          toast("Added " + product.name + " to cart");
+          $cart.value = $cart.value + 1;
+          formSubmitted = false;
+        }catch(error){
+          toast.error("There was an error adding the product. Please try again", {description: getFormattedDateTime(),})
+          formSubmitted = false;
+        }
+    }
+
+    function getFormattedDateTime() {
+      const now = new Date();
+      const dayOfWeek = now.toLocaleDateString("en-US", { weekday: 'long' });
+      const monthDay = now.toLocaleDateString("en-US", { month: 'long', day: 'numeric' });
+      const year = now.getFullYear();
+      const time = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+
+      return `${dayOfWeek}, ${monthDay} ${year} at ${time}`;
     }
 </script>
   
@@ -74,7 +96,7 @@
     <div class="p-4 absolute bottom-0 w-full">
       <div class="flex justify-between gap-x-2">
         <Drawer.Root>
-          <Drawer.Trigger class="border-2 border-zinc-200 p-1 w-3/5 h-full rounded-md hover:bg-zinc-300 hover:border-zinc-600">More details</Drawer.Trigger>
+          <Drawer.Trigger class="border-2 border-zinc-200 p-1 w-3/5 h-full rounded-md hover:bg-zinc-300 hover:border-zinc-400">More details</Drawer.Trigger>
           <Drawer.Content>
             <div class="mx-auto w-full max-w-sm h-full">
               <Drawer.Header>
@@ -106,16 +128,44 @@
                     </div>
                   </div>
               </div>
-              <Drawer.Footer>
-                <Button on:click={() => add()}>Add to cart</Button>
+              {#if product.sellerID !== $fullName}
+                <Drawer.Footer>
+                  {#if !formSubmitted}
+                    <Button on:click={() => add()}>Add to cart</Button>
+                  {:else}
+                    <Button class="w-full" disabled>
+                      <Reload class="flex justify-center h-4/5 animate-spin" />
+                      Adding to Cart
+                    </Button>
+                  {/if}
                 <Drawer.Close asChild let:builder>
                   <Button builders={[builder]} variant="outline">Close</Button>
                 </Drawer.Close>
               </Drawer.Footer>
+              {:else}
+              <Drawer.Footer>
+                <Button disabled>You already own this product</Button>
+              <Drawer.Close asChild let:builder>
+                <Button builders={[builder]} variant="outline">Close</Button>
+              </Drawer.Close>
+            </Drawer.Footer>
+              {/if}
+
             </div>
           </Drawer.Content>
         </Drawer.Root>
-        <Button class="w-3/5 h-full" variant="default" on:click={() => add()}>Add to cart</Button>
+        {#if product.sellerID !== $fullName}
+          {#if !formSubmitted}
+            <Button class="w-3/5" variant="default" on:click={() => add()}>Add to cart</Button>
+          {:else}
+            <Button class="w-3/5" disabled>
+                <Reload class="w-full h-4/5 animate-spin" />
+                Adding to Cart
+            </Button>
+          {/if}
+        {:else}
+            <Button class="w-3/5" variant="destructive" disabled>You're the owner</Button>
+        {/if}
       </div>
     </div>
   </div>

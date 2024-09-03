@@ -30,6 +30,10 @@
 		"NFT_canister":{
 			"main" : "src/backend/NFTCanister/main.mo",
 			"type" : "motoko"
+		},
+		"sortingFiltering":{
+			"main" : "src/backend/sorting/main.mo",
+			"type" : "motoko"
 		}
 	},
 	"defaults": {

@@ -83,6 +83,10 @@ actor class Product(
         productLongDesc := newLongDesc;
     };
 
+    public func setCategory(newCategory : Text) : async () {
+        productCategory := newCategory;
+    };
+
     public func setPicture(picture : Text) : async () {
         productPicture := picture;
     };

@@ -1,12 +1,15 @@
 <script lang="ts">
     import Search from "./search";
-    import { fullName, loggedIn, loginStore, accountType, cart } from '$lib/data/stores/stores';
+    import { loggedIn, loginStore, accountType, cart, fullName } from '$lib/data/stores/stores';
     import { goto } from '$app/navigation';
     import * as Select from "$lib/components/ui/select";
     import { Button } from "$lib/components/ui/button";
     import { page } from '$app/stores'
     import { tweened } from 'svelte/motion';
     import { IconShoppingCart } from '@tabler/icons-svelte'
+    import { onMount } from "svelte";
+    import { actorBackend } from "$lib/motokoImports/backend";
+
 
     $: innerWidth = 0
     let sideNavBar = false;
@@ -83,6 +86,12 @@
         sideNavBar = false;
         document.body.classList.toggle('nav-open', sideNavBar);
     }
+
+    onMount(async()=>{
+        const count = await actorBackend.getUserCartCount($fullName);
+        $cart.value = Number(count);
+        console.log(count)
+    })
 </script>
 
 <svelte:window bind:innerWidth />

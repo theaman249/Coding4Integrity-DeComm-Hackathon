@@ -18,9 +18,9 @@
     let products : any[] = [];
     let loaded = false;
     let formSubmitted = false;
-    $: selectedCurrency = "USD";
+    $: selectedCurrency = "KT";
     $: selectedCategory = "Electronics";
-    const supportedCurrencies = ["usd", "gbp", "eur", "icp", "btc", "eth"];
+    const supportedCurrencies = ["usd", "gbp", "eur", "icp", "btc", "eth", "kt"];
 
     const currencies = [
         { value: "USD", label: "USD" },
@@ -29,6 +29,7 @@
         { value: "BTC", label: "BTC" },
         { value: "ETH", label: "ETH" },
         { value: "ICP", label: "ICP" },
+        { value: "KT", label: "KT"}
     ];
 
     const categories = [

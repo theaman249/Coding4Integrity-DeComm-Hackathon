@@ -90,14 +90,13 @@
     onMount(async()=>{
         const count = await actorBackend.getUserCartCount($fullName);
         $cart.value = Number(count);
-        console.log(count)
     })
 </script>
 
 <svelte:window bind:innerWidth />
 
 
-<div class="text-black fixed lg:hidden inset-0 z-50 top-0 right-0 h-full w-80svw bg-white transform translate-x-full transition-transform duration-300 navbarVisible pointer-events-auto thisIsNav">
+<div class="text-black fixed lg:hidden inset-0 z-40 top-0 right-0 h-full w-80svw bg-white transform translate-x-full transition-transform duration-300 navbarVisible pointer-events-auto thisIsNav">
     <div class="flex justify-end h-[20%] item-center content-center max-[500px]:mb-10" style="width: 80%; overflow: hidden">
         <button class="flex justify-center h-full text-6xl text-black cursor-pointer" on:click={closeNav} aria-label="Close Navigation">&times;</button>
     </div>

@@ -3,7 +3,7 @@
     import { Label } from "$lib/components/ui/label/index.js";
     import { Button } from "$lib/components/ui/button";
     import BG from "$lib/images/bg-1.webp"
-    import { fullName, loggedIn, loginStore, registerStore } from "$lib/data/stores/stores.js";
+    import { fullName, loggedIn, loginStore, registerStore, isValidUser} from "$lib/data/stores/stores.js";
     import { goto } from '$app/navigation';
     import { actorBackend } from "$lib/motokoImports/backend"
 	import { superForm, defaults } from "sveltekit-superforms/client"
@@ -41,7 +41,8 @@
                 await actorBackend.loginUser(form.data.fullName);
                 $fullName = form.data.fullName;
                 $loginStore = false;
-                $loggedIn.value = true;
+                $loggedIn = true;
+                $isValidUser = true;
                 formSubmitted = false;
                 goto("/");
             }

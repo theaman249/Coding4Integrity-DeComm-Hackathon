@@ -13,23 +13,19 @@
     import { zod } from 'sveltekit-superforms/adapters'
     import * as Select from "$lib/components/ui/select";
     import { Textarea } from "$lib/components/ui/textarea/";
+    import { toast } from "svelte-sonner";
+    import Reload from "svelte-radix/Reload.svelte";
 
     let showSkeleton = true;
     let products : any[] = [];
     let loaded = false;
     let formSubmitted = false;
+    let currentProduct: any = null;
     $: selectedCurrency = "KT";
     $: selectedCategory = "Electronics";
-    const supportedCurrencies = ["usd", "gbp", "eur", "icp", "btc", "eth", "kt"];
 
     const currencies = [
-        { value: "USD", label: "USD" },
-        { value: "Euro", label: "Euro" },
-        { value: "BGP", label: "BGP" },
-        { value: "BTC", label: "BTC" },
-        { value: "ETH", label: "ETH" },
-        { value: "ICP", label: "ICP" },
-        { value: "KT", label: "KT"}
+        { value: "KT", label: "Knowledge Token"}
     ];
 
     const categories = [
@@ -45,23 +41,23 @@
         { value: "Musical Instruments", label: "Musical Instruments" },
     ];
 
-    const newContactSchema = z.object({
+    const editProductSchema = z.object({
         Name: z.string().min(2).max(15),
         sDesc: z.string().min(10).max(200),
         lDesc: z.string().min(50).max(2069),
         price: z.number().min(1).max(100000),
-    })
+    });
 
-    const { form, enhance, constraints } = superForm(defaults(zod(newContactSchema)), {
+    const { form, enhance, constraints } = superForm(defaults(zod(editProductSchema)), {
         SPA: true,
-        validators: zod(newContactSchema),
-            onSubmit(){
-                formSubmitted = true;
-            },
-            onUpdated({ form }) {
-
-            },
-    })
+        validators: zod(editProductSchema),
+        onSubmit() {
+            formSubmitted = true;
+        },
+        onUpdated({ form }) {
+            handleEditProduct(form.data);
+        },
+    });
 
     onMount(async () => {
         try {
@@ -73,17 +69,54 @@
         };
     });
 
-    function handlelDesc(event) {
-        product.productLongDesc = event.target.value;
-        $form.lDesc = event.target.value;
+    async function handleEditProduct(formData) {
+        if (!currentProduct) {
+            console.error("No product selected for editing");
+            return;
+        }
+
+        if (!formData.Name || !selectedCategory || !formData.price || !formData.sDesc || !formData.lDesc) {
+            toast.error("All fields are required", { description: getFormattedDateTime() });
+            formSubmitted = false;
+            return;
+        }
+
+        try {
+            const result = await actorBackend.editProduct(
+                BigInt(currentProduct.productID),
+                $fullName,
+                formData.Name,
+                selectedCategory,
+                { currency: { "kt": null }, amount: BigInt(formData.price) },
+                formData.sDesc,
+                formData.lDesc,
+                true
+            );
+
+            if ('ok' in result) {
+                toast.success("Product updated successfully", { description: getFormattedDateTime() });
+                products = await actorBackend.getAllProductTypes();
+            } else {
+                toast.error("Failed to update product: " + result.err, { description: getFormattedDateTime() });
+            }
+        } catch (error) {
+            console.error("Error updating product:", error);
+            toast.error("An error occurred while updating the product: " + error.message, { description: getFormattedDateTime() });
+        } finally {
+            formSubmitted = false;
+        }
     }
 
-    function handlelSDesc(event) {
-        product.productShortDesc = event.target.value;
-        $form.SDesc = event.target.value;
+    function getFormattedDateTime() {
+        const now = new Date();
+        const dayOfWeek = now.toLocaleDateString("en-US", { weekday: 'long' });
+        const monthDay = now.toLocaleDateString("en-US", { month: 'long', day: 'numeric' });
+        const year = now.getFullYear();
+        const time = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+
+        return `${dayOfWeek}, ${monthDay} ${year} at ${time}`;
     }
 </script>
-
 
 <h2 class="text-xl font-semibold ml-2 mb-5">Products</h2>
 {#if showSkeleton}
@@ -114,7 +147,6 @@
                             <Table.Cell>
                                 <Skeleton class="w-[60%] h-[27px]" />
                             </Table.Cell>
-                            
                         {/if}
                         <Table.Cell class="flex justify-end items-end">
                             <Skeleton class="w-[40%] h-[27px]" />
@@ -127,7 +159,7 @@
     <div class="col-span-1"></div>
 {:else}
 <div class="col-span-1"></div>
-<div class="col-span-10">
+<div class="col-span-12">
     {#if loaded}
         {#if products.length > 0}
             <Table.Root>
@@ -158,32 +190,40 @@
                                     </Table.Cell>
                                 {/if}
                                 <Table.Cell class="flex justify-end items-end">
-                                    <form method="POST" use:enhance>
-                                        <Sheet.Root>
-                                            <Sheet.Trigger asChild let:builder>
-                                            <Button builders={[builder]} variant="outline">View More Details</Button>
-                                            </Sheet.Trigger>
-                                            <Sheet.Content side="right">
-                                            <Sheet.Header>
-                                                <Sheet.Title>Edit Product</Sheet.Title>
-                                                <Sheet.Description>
-                                                Make changes to your products here. Click save when you're done.
-                                                </Sheet.Description>
-                                            </Sheet.Header>
-                                            <div class="grid gap-4 py-4">
-                                                <div class="grid grid-cols-4 items-center gap-4">
-                                                    <Label for="name">Name</Label>
-                                                    <Input class="col-span-3" type="text" id="Name" name="Name" placeholder={product.name} bind:value={$form.Name} {...$constraints.Name} />
+                                    <Sheet.Root>
+                                        <Sheet.Trigger asChild let:builder>
+                                        <Button builders={[builder]} variant="outline" on:click={() => {
+                                            currentProduct = product;
+                                            $form.Name = product.name;
+                                            $form.price = product.productPrice.amount;
+                                            $form.sDesc = product.productShortDesc;
+                                            $form.lDesc = product.productLongDesc;
+                                            selectedCategory = product.productCategory;
+                                            selectedCurrency = Object.keys(product.productPrice.currency)[0].toUpperCase();
+                                        }}>View More Details</Button>
+                                        </Sheet.Trigger>
+                                        <Sheet.Content side="right" class="w-[400px] sm:w-[540px]">
+                                        <Sheet.Header>
+                                            <Sheet.Title>Edit Product</Sheet.Title>
+                                            <Sheet.Description>
+                                            Make changes to your products here. Click save when you're done.
+                                            </Sheet.Description>
+                                        </Sheet.Header>
+                                        <form method="POST" use:enhance class="space-y-6">
+                                            <div class="space-y-4">
+                                                <div class="space-y-2">
+                                                    <Label for="Name">Name</Label>
+                                                    <Input type="text" id="Name" name="Name" bind:value={$form.Name} {...$constraints.Name} class="w-full" />
                                                 </div>
-                                                <div class="grid grid-cols-4 items-center gap-4">
-                                                    <Label for="price">Category</Label>
+                                                <div class="space-y-2">
+                                                    <Label for="category">Category</Label>
                                                     <Select.Root
                                                     onSelectedChange={(v) =>{
                                                         v && (selectedCategory = v.value)
                                                     }}
                                                     >
-                                                        <Select.Trigger class="col-span-3">
-                                                        <Select.Value placeholder="{product.productCategory}" />
+                                                        <Select.Trigger class="w-full">
+                                                        <Select.Value placeholder={selectedCategory} />
                                                         </Select.Trigger>
                                                         <Select.Content>
                                                         <Select.Group>
@@ -195,51 +235,34 @@
                                                             {/each}
                                                         </Select.Group>
                                                         </Select.Content>
-                                                        <Select.Input name="favoriteFruit" />
                                                     </Select.Root>
                                                 </div>
-                                                <div class="grid grid-cols-4 items-center gap-4">
-                                                    <Label for="price">Currency</Label>
-                                                    <Select.Root
-                                                    onSelectedChange={(v) =>{
-                                                        v && (selectedCurrency = v.value)
-                                                    }}
-                                                    >
-                                                        <Select.Trigger class="col-span-3">
-                                                        <Select.Value />
-                                                        </Select.Trigger>
-                                                        <Select.Content>
-                                                        <Select.Group>
-                                                            <Select.Label>Currency</Select.Label>
-                                                            {#each currencies as currency}
-                                                            <Select.Item value={currency.value} label={currency.label}
-                                                                >{currency.label}</Select.Item
-                                                            >
-                                                            {/each}
-                                                        </Select.Group>
-                                                        </Select.Content>
-                                                        <Select.Input name="favoriteFruit" />
-                                                    </Select.Root>
+                                                <div class="space-y-2">
+                                                    <Label for="price">Price (KT)</Label>
+                                                    <Input type="number" id="price" bind:value={$form.price} {...$constraints.price} class="w-full" />
                                                 </div>
-                                                <div class="grid grid-cols-4 items-center gap-4">
-                                                    <Label for="price">Price</Label>
-                                                    <Input class="col-span-3" type="number" id="price" placeholder={product.productPrice.amount} />
-                                                </div>
-                                                <div class="grid grid-cols-4 items-center gap-4">
+                                                <div class="space-y-2">
                                                     <Label for="sDesc">Short Description</Label>
-                                                    <Input class="col-span-3" type="text" id="sDesc" name="sDesc" on:input={handlelSDesc} {...$constraints.sDesc} value={product.productShortDesc} />
+                                                    <Input type="text" id="sDesc" name="sDesc" bind:value={$form.sDesc} {...$constraints.sDesc} class="w-full" />
                                                 </div>
-                                                <div class="grid grid-cols-4 items-center gap-4">
-                                                    <Label for="lDesk">Full Description</Label>
-                                                    <Textarea class="col-span-3" id="lDesc" name="lDesc"value={product.productLongDesc} on:input={handlelDesc} {...$constraints.lDesc}  />
+                                                <div class="space-y-2">
+                                                    <Label for="lDesc">Full Description</Label>
+                                                    <Textarea id="lDesc" name="lDesc" bind:value={$form.lDesc} {...$constraints.lDesc} class="w-full" />
                                                 </div>
                                             </div>
                                             <Sheet.Footer>
-                                                <Button type="submit">Save changes</Button>
+                                                {#if !formSubmitted}
+                                                    <Button type="submit" class="w-full">Save changes</Button>
+                                                {:else}
+                                                    <Button disabled class="w-full">
+                                                        <Reload class="mr-2 h-4 w-4 animate-spin" />
+                                                        Updating Product
+                                                    </Button>
+                                                {/if}
                                             </Sheet.Footer>
-                                            </Sheet.Content>
-                                        </Sheet.Root>
-                                    </form>
+                                        </form>
+                                        </Sheet.Content>
+                                    </Sheet.Root>
                                 </Table.Cell>
                             </Table.Row>
                         {/if}

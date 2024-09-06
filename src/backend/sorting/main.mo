@@ -1,16 +1,17 @@
 import Main "canister:backend";
-import Product "../main/Product";
-import User "../main/User";
-import Transaction "../main/Transaction";
-import Types "../commons/Types";
+
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
-import Iter "mo:base/Iter";
-import Text "mo:base/Text";
-import Nat "mo:base/Nat";
-import Cycles "mo:base/ExperimentalCycles";
 import Float "mo:base/Float";
-import List "mo:base/List";
+import Int "mo:base/Int";
+import Iter "mo:base/Iter";
+import Nat "mo:base/Nat";
+import Text "mo:base/Text";
+
+import Types "../commons/Types";
+import Product "../main/Product";
+import Transaction "../main/Transaction";
+import User "../main/User";
 
 actor class sortingFiltering() {
     type ProductTypeShared = Types.Product;
@@ -34,18 +35,19 @@ actor class sortingFiltering() {
     stable var transactionBuyerArrayASC : [TransactionTypeShared] = [];
     stable var transactionBuyerArrayDESC : [TransactionTypeShared] = [];
 
-    stable var amountArrayASC : [UserTypeShared] = [];
-    stable var amountArrayDESC : [UserTypeShared] = [];
+    stable var _amountArrayASC : [UserTypeShared] = [];
+    stable var _amountArrayDESC : [UserTypeShared] = [];
     stable var iDArrayASC : [UserTypeShared] = [];
     stable var iDArrayDESC : [UserTypeShared] = [];
 
-
     //Product Filtering
 
-    public func productFilterGetAllProductsSubset(pageNumber: Nat, pageSize: Nat): async [ProductTypeShared] {
+    public func productFilterGetAllProductsSubset(pageNumber : Nat, pageSize : Nat) : async [ProductTypeShared] {
         let reversedTotalProducts = await Main.getAllProducts();
         let totalProducts = Array.size(reversedTotalProducts);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
         var endIndex = Nat.min(startIndex + pageSize, totalProducts);
         if (startIndex >= totalProducts) {
             let outOfBoundsArray = await productFilteringGetProductTypeListFromNonNullable(reversedTotalProducts);
@@ -56,9 +58,11 @@ actor class sortingFiltering() {
         return await productFilteringGetProductTypeListFromNonNullable(filteredReversedArray);
     };
 
-    public func productFilteringGetAllProductsSubsetArrayArgs(filteredSliced: [ProductTypeShared], pageNumber: Nat, pageSize: Nat): async [ProductTypeShared] {
+    public func productFilteringGetAllProductsSubsetArrayArgs(filteredSliced : [ProductTypeShared], pageNumber : Nat, pageSize : Nat) : async [ProductTypeShared] {
         let totalProducts = Array.size(filteredSliced);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
         var endIndex = Nat.min(startIndex + pageSize, totalProducts);
         if (startIndex >= totalProducts) {
             return filteredSliced;
@@ -68,53 +72,65 @@ actor class sortingFiltering() {
         return filteredReversedArray;
     };
 
-    public func getAllProductTypes(pageNumber: Nat, pageSize: Nat): async [ProductTypeShared] {
+    public func getAllProductTypes(pageNumber : Nat, pageSize : Nat) : async [ProductTypeShared] {
         let slicedProducts = await productFilterGetAllProductsSubset(pageNumber, pageSize);
         return slicedProducts;
     };
 
-    public func filterBySellerID(sellerID: Text, pageNumber: Nat, pageSize: Nat): async [ProductTypeShared] {
+    public func filterBySellerID(sellerID : Text, pageNumber : Nat, pageSize : Nat) : async [ProductTypeShared] {
         let products = await getAllProductTypes(pageNumber, pageSize);
-        let filtered = Iter.filter<ProductTypeShared>(products.vals(), func (product: ProductTypeShared): Bool  {
-            return (Text.equal(product.sellerID, sellerID));
-        });
+        let filtered = Iter.filter<ProductTypeShared>(
+            products.vals(),
+            func(product : ProductTypeShared) : Bool {
+                return (Text.equal(product.sellerID, sellerID));
+            },
+        );
         let filteredArray = Iter.toArray(filtered);
-        if(Array.size(filteredArray)!=0){
+        if (Array.size(filteredArray) != 0) {
             return await productFilteringGetAllProductsSubsetArrayArgs(filteredArray, pageNumber, pageSize);
         };
         return await productFilteringGetAllProductsSubsetArrayArgs([], pageNumber, pageSize);
     };
 
-    public func filterByCategory(category: Text, pageNumber: Nat, pageSize: Nat): async [ProductTypeShared] {
+    public func filterByCategory(category : Text, pageNumber : Nat, pageSize : Nat) : async [ProductTypeShared] {
         let products = await getAllProductTypes(pageNumber, pageSize);
-        let filtered = Iter.filter<ProductTypeShared>(products.vals(), func (product: ProductTypeShared): Bool  {
-            return (Text.equal(product.productCategory, category));
-        });
+        let filtered = Iter.filter<ProductTypeShared>(
+            products.vals(),
+            func(product : ProductTypeShared) : Bool {
+                return (Text.equal(product.productCategory, category));
+            },
+        );
         let filteredArray = Iter.toArray(filtered);
-        if(Array.size(filteredArray)!=0){
+        if (Array.size(filteredArray) != 0) {
             return await productFilteringGetAllProductsSubsetArrayArgs(filteredArray, pageNumber, pageSize);
         };
         return await productFilteringGetAllProductsSubsetArrayArgs([], pageNumber, pageSize);
     };
 
-    public func productFilterByPriceRange(minPrice: Nat, maxPrice: Nat, currency: Types.Currency, pageNumber: Nat, pageSize: Nat): async [ProductTypeShared] {
+    public func productFilterByPriceRange(minPrice : Nat, maxPrice : Nat, _currency : Types.Currency, pageNumber : Nat, pageSize : Nat) : async [ProductTypeShared] {
         let products = await getAllProductTypes(pageNumber, pageSize);
-        let filtered = Iter.filter<ProductTypeShared>(products.vals(), func (product: ProductTypeShared): Bool  {
-            // Add currency conversion code if needed
-            return product.productPrice.amount >= minPrice and product.productPrice.amount <= maxPrice;
-        });
+        let filtered = Iter.filter<ProductTypeShared>(
+            products.vals(),
+            func(product : ProductTypeShared) : Bool {
+                // Add currency conversion code if needed
+                return product.productPrice.amount >= minPrice and product.productPrice.amount <= maxPrice;
+            },
+        );
         let filteredArray = Iter.toArray(filtered);
-        if(Array.size(filteredArray)!=0){
+        if (Array.size(filteredArray) != 0) {
             return await productFilteringGetAllProductsSubsetArrayArgs(filteredArray, pageNumber, pageSize);
         };
         return await productFilteringGetAllProductsSubsetArrayArgs([], pageNumber, pageSize);
     };
 
-     public func productFilterByName(name: Text, pageNumber: Nat, pageSize: Nat): async [ProductTypeShared] {
+    public func productFilterByName(name : Text, pageNumber : Nat, pageSize : Nat) : async [ProductTypeShared] {
         let products = await getAllProductTypes(pageNumber, pageSize);
-        let filtered = Iter.filter<ProductTypeShared>(products.vals(), func (product: ProductTypeShared): Bool {
-            return (Text.equal(product.name, name));
-        });
+        let filtered = Iter.filter<ProductTypeShared>(
+            products.vals(),
+            func(product : ProductTypeShared) : Bool {
+                return (Text.equal(product.name, name));
+            },
+        );
         let filteredArray = Iter.toArray(filtered);
         if (Array.size(filteredArray) != 0) {
             return await productFilteringGetAllProductsSubsetArrayArgs(filteredArray, pageNumber, pageSize);
@@ -123,7 +139,7 @@ actor class sortingFiltering() {
     };
 
     // Helper functions
-    public func productFilteringGetProductTypeListFromNonNullable(products: [Product.Product]): async [ProductTypeShared] {
+    public func productFilteringGetProductTypeListFromNonNullable(products : [Product.Product]) : async [ProductTypeShared] {
         let productTypeBuffer = Buffer.Buffer<ProductTypeShared>(0);
         for (product in products.vals()) {
             productTypeBuffer.add(await Main.convertProductToType(product));
@@ -132,10 +148,14 @@ actor class sortingFiltering() {
     };
 
     //Transaction Filtering
-    public func getAllTransactionsSubsetFiltering(pageNumber: Nat, pageSize: Nat): async [TransactionTypeShared] {
+    public func getAllTransactionsSubsetFiltering(pageNumber : Nat, pageSize : Nat) : async [TransactionTypeShared] {
         let reversedTotalTransactions = await Main.getAllTransactions();
         let totalTransactions = Array.size(reversedTotalTransactions);
-        var startIndex = (pageNumber - 1) * pageSize;
+
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
+
         var endIndex = Nat.min(startIndex + pageSize, totalTransactions);
         if (startIndex >= totalTransactions) {
             let outOfBoundsArray = await getTransactionTypeListFromNonNullableFiltering(reversedTotalTransactions);
@@ -146,9 +166,11 @@ actor class sortingFiltering() {
         return await getTransactionTypeListFromNonNullableFiltering(filteredReversedArray);
     };
 
-    public func getAllTransactionsSubsetArrayArgsFiltering(filteredSliced: [TransactionTypeShared], pageNumber: Nat, pageSize: Nat): async [TransactionTypeShared] {
+    public func getAllTransactionsSubsetArrayArgsFiltering(filteredSliced : [TransactionTypeShared], pageNumber : Nat, pageSize : Nat) : async [TransactionTypeShared] {
         let totalTransactions = Array.size(filteredSliced);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
         var endIndex = Nat.min(startIndex + pageSize, totalTransactions);
         if (startIndex >= totalTransactions) {
             return filteredSliced;
@@ -158,52 +180,59 @@ actor class sortingFiltering() {
         return filteredReversedArray;
     };
 
-    public func getAllTransactionTypes(pageNumber: Nat, pageSize: Nat): async [TransactionTypeShared] {
+    public func getAllTransactionTypes(pageNumber : Nat, pageSize : Nat) : async [TransactionTypeShared] {
         let slicedTransactions = await getAllTransactionsSubsetFiltering(pageNumber, pageSize);
         return slicedTransactions;
     };
 
-    public func filterByBuyerID(buyerID: Text, pageNumber: Nat, pageSize: Nat): async [TransactionTypeShared] {
-        let transactions = await getAllTransactionTypes(pageNumber,pageSize );
-        let filtered = Iter.filter<TransactionTypeShared>(transactions.vals(), func (transaction: TransactionTypeShared): Bool  {
-            return (Text.equal(transaction.buyerID, buyerID));
-        });
-        let filteredArray = Iter.toArray(filtered);
-        if(Array.size(filteredArray)!=0){
-        return await getAllTransactionsSubsetArrayArgsFiltering(filteredArray, pageNumber, pageSize);
-        };
-        return await getAllTransactionsSubsetArrayArgsFiltering([], pageNumber, pageSize);
-    };
-
-    public func filterByProductID(productID: Nat, pageNumber: Nat, pageSize: Nat): async [TransactionTypeShared] {
+    public func filterByBuyerID(buyerID : Text, pageNumber : Nat, pageSize : Nat) : async [TransactionTypeShared] {
         let transactions = await getAllTransactionTypes(pageNumber, pageSize);
-        let filtered = Iter.filter<TransactionTypeShared>(transactions.vals(), func (transaction: TransactionTypeShared): Bool {
-            return transaction.productID == productID;
-        });
+        let filtered = Iter.filter<TransactionTypeShared>(
+            transactions.vals(),
+            func(transaction : TransactionTypeShared) : Bool {
+                return (Text.equal(transaction.buyerID, buyerID));
+            },
+        );
         let filteredArray = Iter.toArray(filtered);
-        if(Array.size(filteredArray)!=0){
+        if (Array.size(filteredArray) != 0) {
             return await getAllTransactionsSubsetArrayArgsFiltering(filteredArray, pageNumber, pageSize);
         };
         return await getAllTransactionsSubsetArrayArgsFiltering([], pageNumber, pageSize);
     };
 
-
-    public func transactionFilterByPriceRange(minPrice: Nat, maxPrice: Nat, currency: Types.Currency ,pageNumber: Nat, pageSize: Nat): async [TransactionTypeShared] {
+    public func filterByProductID(productID : Nat, pageNumber : Nat, pageSize : Nat) : async [TransactionTypeShared] {
         let transactions = await getAllTransactionTypes(pageNumber, pageSize);
-        let filtered = Iter.filter<TransactionTypeShared>(transactions.vals(), func (transaction: TransactionTypeShared): Bool {
-            //add curr conversion code
-            return transaction.paidPrice.amount >= minPrice and transaction.paidPrice.amount <= maxPrice;
-        });
+        let filtered = Iter.filter<TransactionTypeShared>(
+            transactions.vals(),
+            func(transaction : TransactionTypeShared) : Bool {
+                return transaction.productID == productID;
+            },
+        );
         let filteredArray = Iter.toArray(filtered);
-        if(Array.size(filteredArray)!=0){
+        if (Array.size(filteredArray) != 0) {
             return await getAllTransactionsSubsetArrayArgsFiltering(filteredArray, pageNumber, pageSize);
         };
         return await getAllTransactionsSubsetArrayArgsFiltering([], pageNumber, pageSize);
     };
 
+    public func transactionFilterByPriceRange(minPrice : Nat, maxPrice : Nat, _currency : Types.Currency, pageNumber : Nat, pageSize : Nat) : async [TransactionTypeShared] {
+        let transactions = await getAllTransactionTypes(pageNumber, pageSize);
+        let filtered = Iter.filter<TransactionTypeShared>(
+            transactions.vals(),
+            func(transaction : TransactionTypeShared) : Bool {
+                //add curr conversion code
+                return transaction.paidPrice.amount >= minPrice and transaction.paidPrice.amount <= maxPrice;
+            },
+        );
+        let filteredArray = Iter.toArray(filtered);
+        if (Array.size(filteredArray) != 0) {
+            return await getAllTransactionsSubsetArrayArgsFiltering(filteredArray, pageNumber, pageSize);
+        };
+        return await getAllTransactionsSubsetArrayArgsFiltering([], pageNumber, pageSize);
+    };
 
     // // Helper functions
-    public func getTransactionTypeListFromNonNullableFiltering(transactions: [Transaction.Transaction]): async [TransactionTypeShared] {
+    public func getTransactionTypeListFromNonNullableFiltering(transactions : [Transaction.Transaction]) : async [TransactionTypeShared] {
         let transactionTypeBuffer = Buffer.Buffer<TransactionTypeShared>(0);
         for (transaction in transactions.vals()) {
             transactionTypeBuffer.add(await Main.convertTransactionToType(transaction));
@@ -213,10 +242,13 @@ actor class sortingFiltering() {
 
     //User Filtering
 
-    public func getAllUsersSubsetFiltering(pageNumber: Nat, pageSize: Nat): async [UserTypeShared] {
+    public func getAllUsersSubsetFiltering(pageNumber : Nat, pageSize : Nat) : async [UserTypeShared] {
         let reversedTotalUsers = await Main.getAllUsers();
         let totalUsers = Array.size(reversedTotalUsers);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
+
         var endIndex = Nat.min(startIndex + pageSize, totalUsers);
         if (startIndex >= totalUsers) {
             let outOfBoundsArray = await getUserTypeListFromNonNullableFiltering(reversedTotalUsers);
@@ -227,14 +259,17 @@ actor class sortingFiltering() {
         return await getUserTypeListFromNonNullableFiltering(filteredReversedArray);
     };
 
-    public func getCountOfAllUsers(): async Nat {
+    public func getCountOfAllUsers() : async Nat {
         let array = await Main.getAllUsers();
         return array.size();
     };
 
-    public func getAllUsersSubsetArrayArgsFiltering(filteredSliced: [UserTypeShared], pageNumber: Nat, pageSize: Nat): async [UserTypeShared] {
+    public func getAllUsersSubsetArrayArgsFiltering(filteredSliced : [UserTypeShared], pageNumber : Nat, pageSize : Nat) : async [UserTypeShared] {
         let totalUsers = Array.size(filteredSliced);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
+
         var endIndex = Nat.min(startIndex + pageSize, totalUsers);
         if (startIndex >= totalUsers) {
             return filteredSliced;
@@ -244,63 +279,72 @@ actor class sortingFiltering() {
         return filteredReversedArray;
     };
 
-    public func getAllUserTypesFiltering(pageNumber: Nat, pageSize: Nat): async [UserTypeShared] {
+    public func getAllUserTypesFiltering(pageNumber : Nat, pageSize : Nat) : async [UserTypeShared] {
         let slicedUsers = await getAllUsersSubsetFiltering(pageNumber, pageSize);
         return slicedUsers;
     };
 
-    public func userFilterByName(name: Text, pageNumber: Nat, pageSize: Nat): async [UserTypeShared] {
+    public func userFilterByName(name : Text, pageNumber : Nat, pageSize : Nat) : async [UserTypeShared] {
         let users = await getAllUserTypesFiltering(pageNumber, pageSize);
-        let filtered = Iter.filter<UserTypeShared>(users.vals(), func (user: UserTypeShared): Bool  {
-            return (Text.equal(user.name, name));
-        });
+        let filtered = Iter.filter<UserTypeShared>(
+            users.vals(),
+            func(user : UserTypeShared) : Bool {
+                return (Text.equal(user.name, name));
+            },
+        );
         let filteredArray = Iter.toArray(filtered);
-        if(Array.size(filteredArray) != 0){
+        if (Array.size(filteredArray) != 0) {
             return await getAllUsersSubsetArrayArgsFiltering(filteredArray, pageNumber, pageSize);
         };
         return await getAllUsersSubsetArrayArgsFiltering([], pageNumber, pageSize);
     };
 
-    public func filterByProductInCart(productID: Nat, pageNumber: Nat, pageSize: Nat): async [UserTypeShared] {
+    public func filterByProductInCart(productID : Nat, pageNumber : Nat, pageSize : Nat) : async [UserTypeShared] {
         let users = await getAllUserTypesFiltering(pageNumber, pageSize);
-        let filtered = Iter.filter<UserTypeShared>(users.vals(), func (user: UserTypeShared): Bool  {
-            var found = false;
-            for (product in user.buyersCart.vals()) {
-                if (product.productID == productID) {
-                    found := true;
-                    return found;
+        let filtered = Iter.filter<UserTypeShared>(
+            users.vals(),
+            func(user : UserTypeShared) : Bool {
+                var found = false;
+                for (product in user.buyersCart.vals()) {
+                    if (product.productID == productID) {
+                        found := true;
+                        return found;
+                    };
                 };
-            };
-            return found;
-        });
+                return found;
+            },
+        );
         let filteredArray = Iter.toArray(filtered);
-        if(Array.size(filteredArray) != 0){
+        if (Array.size(filteredArray) != 0) {
             return await getAllUsersSubsetArrayArgsFiltering(filteredArray, pageNumber, pageSize);
         };
         return await getAllUsersSubsetArrayArgsFiltering([], pageNumber, pageSize);
     };
 
-    public func filterByProductInStock(productID: Nat, pageNumber: Nat, pageSize: Nat): async [UserTypeShared] {
+    public func filterByProductInStock(productID : Nat, pageNumber : Nat, pageSize : Nat) : async [UserTypeShared] {
         let users = await getAllUserTypesFiltering(pageNumber, pageSize);
-        let filtered = Iter.filter<UserTypeShared>(users.vals(), func (user: UserTypeShared): Bool  {
-            var found = false;
-            for (product in user.sellersStock.vals()) {
-                if (product.productID == productID) {
-                    found := true;
-                    return found;
+        let filtered = Iter.filter<UserTypeShared>(
+            users.vals(),
+            func(user : UserTypeShared) : Bool {
+                var found = false;
+                for (product in user.sellersStock.vals()) {
+                    if (product.productID == productID) {
+                        found := true;
+                        return found;
+                    };
                 };
-            };
-            return found;
-        });
+                return found;
+            },
+        );
         let filteredArray = Iter.toArray(filtered);
-        if(Array.size(filteredArray) != 0){
+        if (Array.size(filteredArray) != 0) {
             return await getAllUsersSubsetArrayArgsFiltering(filteredArray, pageNumber, pageSize);
         };
         return await getAllUsersSubsetArrayArgsFiltering([], pageNumber, pageSize);
     };
 
     // Helper functions
-    public func getUserTypeListFromNonNullableFiltering(users: [User.User]): async [UserTypeShared] {
+    public func getUserTypeListFromNonNullableFiltering(users : [User.User]) : async [UserTypeShared] {
         let userTypeBuffer = Buffer.Buffer<UserTypeShared>(0);
         for (user in users.vals()) {
             userTypeBuffer.add(await Main.convertUserToType(user));
@@ -310,9 +354,12 @@ actor class sortingFiltering() {
 
     //Product Sorting
     public func productSortingGetAllProductsSubset(pageNumber : Nat, pageSize : Nat) : async [ProductTypeShared] {
-        let reversedTotalProducts =  await Main.getAllProducts();
+        let reversedTotalProducts = await Main.getAllProducts();
         let totalProducts = Array.size(reversedTotalProducts);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
+
         var endIndex = Nat.min(startIndex + pageSize, totalProducts);
         if (startIndex >= totalProducts) {
             let outOfBoundsArray = productFilteringGetProductTypeListFromNonNullable(reversedTotalProducts);
@@ -330,7 +377,10 @@ actor class sortingFiltering() {
 
     public func productSortingGetAllProductsSubsetArrayArgs(sortedSliced : [ProductTypeShared], pageNumber : Nat, pageSize : Nat) : async [ProductTypeShared] {
         let totalProducts = Array.size(sortedSliced);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
+
         var endIndex = Nat.min(startIndex + pageSize, totalProducts);
         if (startIndex >= totalProducts) {
             return sortedSliced;
@@ -359,7 +409,7 @@ actor class sortingFiltering() {
                     productAmountArrayDESC := productArray;
                     return productAmountArrayDESC;
                 };
-                 case ("Name", true) {
+                case ("Name", true) {
                     productNameArrayASC := productArray;
                     return productNameArrayASC;
                 };
@@ -376,7 +426,7 @@ actor class sortingFiltering() {
     };
 
     public func updateSortingArrayProduct(array : [ProductTypeShared], sortField : Text, isAscending : Bool, productArray : [ProductTypeShared]) : async [ProductTypeShared] {
-        let productArrayCase : [ProductTypeShared] = switch (sortField, isAscending) {
+        let _productArrayCase : [ProductTypeShared] = switch (sortField, isAscending) {
             case ("ID", true) {
                 productIDArrayASC := array;
                 return productIDArrayASC;
@@ -393,7 +443,7 @@ actor class sortingFiltering() {
                 productAmountArrayDESC := array;
                 return productAmountArrayDESC;
             };
-             case ("Name", true) {
+            case ("Name", true) {
                 productNameArrayASC := array;
                 return productNameArrayASC;
             };
@@ -411,8 +461,12 @@ actor class sortingFiltering() {
         let sortedArray : [ProductTypeShared] = switch (sortField, isAscending) {
             case ("ID", true) { productIDArrayASC };
             case ("ID", false) { productIDArrayDESC };
-            case ("Price#kt" or "Price#usd" or "Price#gbp" or "Price#eur", true) { productAmountArrayASC };
-            case ("Price#kt" or "Price#usd" or "Price#gbp" or "Price#eur", false) { productAmountArrayDESC };
+            case ("Price#kt" or "Price#usd" or "Price#gbp" or "Price#eur", true) {
+                productAmountArrayASC;
+            };
+            case ("Price#kt" or "Price#usd" or "Price#gbp" or "Price#eur", false) {
+                productAmountArrayDESC;
+            };
             case ("Name", true) { productNameArrayASC };
             case ("Name", false) { productNameArrayDESC };
             case (_, _) { productArray };
@@ -495,7 +549,7 @@ actor class sortingFiltering() {
                     case ("Price#gbp") {
                         return getPaidPricePerCurrencyProduct(t1, #gbp) < getPaidPricePerCurrencyProduct(t2, #gbp);
                     };
-                    case ("Name"){
+                    case ("Name") {
                         return getNameFromProduct(t1) < getNameFromProduct(t2);
                     };
                     case (_) { false };
@@ -522,26 +576,29 @@ actor class sortingFiltering() {
     private func getIdFromProduct(product : ProductTypeShared) : Nat {
         return product.productID;
     };
-     
+
     private func getNameFromProduct(product : ProductTypeShared) : Text {
         return product.name;
     };
 
     private func getBuyerIDFromProduct(product : ProductTypeShared) : Text {
-       return product.sellerID;
+        return product.sellerID;
     };
 
-    private func getPaidPricePerCurrencyProduct(product : ProductTypeShared, currency : Types.Currency) : Float {
-                //function to get the rate to the wanted currency (maybe use the http call)
-                return Float.fromInt(product.productPrice.amount);
-    
+    private func getPaidPricePerCurrencyProduct(product : ProductTypeShared, _currency : Types.Currency) : Float {
+        //function to get the rate to the wanted currency (maybe use the http call)
+        return Float.fromInt(product.productPrice.amount);
+
     };
 
     //Transaction Sorting
     public func getAllTransactionsSubsetSorting(pageNumber : Nat, pageSize : Nat) : async [TransactionTypeShared] {
-        let reversedTotalTransactions =  await Main.getAllTransactions();
+        let reversedTotalTransactions = await Main.getAllTransactions();
         let totalTransactions = Array.size(reversedTotalTransactions);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
+
         var endIndex = Nat.min(startIndex + pageSize, totalTransactions);
         if (startIndex >= totalTransactions) {
             let outOfBoundsArray = getTransactionTypeListFromNonNullableSorting(reversedTotalTransactions);
@@ -559,7 +616,9 @@ actor class sortingFiltering() {
 
     public func getAllTransactionsSubsetArrayArgsSorting(sortedSliced : [TransactionTypeShared], pageNumber : Nat, pageSize : Nat) : async [TransactionTypeShared] {
         let totalTransactions = Array.size(sortedSliced);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
         var endIndex = Nat.min(startIndex + pageSize, totalTransactions);
         if (startIndex >= totalTransactions) {
             return sortedSliced;
@@ -604,7 +663,7 @@ actor class sortingFiltering() {
     };
 
     public func updateSortingArrayTransaction(array : [TransactionTypeShared], sortField : Text, isAscending : Bool, transactionArray : [TransactionTypeShared]) : async [TransactionTypeShared] {
-        let transactionArrayCase : [TransactionTypeShared] = switch (sortField, isAscending) {
+        let _transactionArrayCase : [TransactionTypeShared] = switch (sortField, isAscending) {
             case ("ID", true) {
                 transactionIDArrayASC := array;
                 return transactionIDArrayASC;
@@ -639,8 +698,12 @@ actor class sortingFiltering() {
         let sortedArray : [TransactionTypeShared] = switch (sortField, isAscending) {
             case ("ID", true) { transactionIDArrayASC };
             case ("ID", false) { transactionIDArrayDESC };
-            case ("PricePaid#kt" or "PricePaid#usd" or "PricePaid#gbp" or "PricePaid#eur", true){ transactionAmountArrayASC };
-            case ("PricePaid#kt" or "PricePaid#usd" or "PricePaid#gbp" or "PricePaid#eur", false) { transactionAmountArrayDESC };
+            case ("PricePaid#kt" or "PricePaid#usd" or "PricePaid#gbp" or "PricePaid#eur", true) {
+                transactionAmountArrayASC;
+            };
+            case ("PricePaid#kt" or "PricePaid#usd" or "PricePaid#gbp" or "PricePaid#eur", false) {
+                transactionAmountArrayDESC;
+            };
             case ("Buyer", true) { transactionBuyerArrayASC };
             case ("Buyer", false) { transactionBuyerArrayDESC };
             case (_, _) { transactionArray };
@@ -723,7 +786,7 @@ actor class sortingFiltering() {
                     case ("PricePaid#gbp") {
                         return getPaidPricePerCurrencyTransaction(t1, #gbp) < getPaidPricePerCurrencyTransaction(t2, #gbp);
                     };
-                   
+
                     case (_) { false };
                 };
             };
@@ -750,19 +813,21 @@ actor class sortingFiltering() {
     };
 
     private func getBuyerIDFromTransaction(transaction : TransactionTypeShared) : Text {
-       return transaction.buyerID;
+        return transaction.buyerID;
     };
 
-    private func getPaidPricePerCurrencyTransaction(transaction : TransactionTypeShared, currency : Types.Currency) : Float {
-                //function to get the rate to the wanted currency (maybe use the http call)
-                return Float.fromInt(transaction.paidPrice.amount);
+    private func getPaidPricePerCurrencyTransaction(transaction : TransactionTypeShared, _currency : Types.Currency) : Float {
+        //function to get the rate to the wanted currency (maybe use the http call)
+        return Float.fromInt(transaction.paidPrice.amount);
     };
 
     //UserSorting
     public func getAllUsersSubsetSorting(pageNumber : Nat, pageSize : Nat) : async [UserTypeShared] {
-        let reversedTotalUsers =  await Main.getAllUsers();
+        let reversedTotalUsers = await Main.getAllUsers();
         let totalUsers = Array.size(reversedTotalUsers);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
         var endIndex = Nat.min(startIndex + pageSize, totalUsers);
         if (startIndex >= totalUsers) {
             let outOfBoundsArray = getUserTypeListFromNonNullableSorting(reversedTotalUsers);
@@ -775,7 +840,9 @@ actor class sortingFiltering() {
 
     public func getAllUsersSubsetArrayArgsSorting(sortedSliced : [UserTypeShared], pageNumber : Nat, pageSize : Nat) : async [UserTypeShared] {
         let totalUsers = Array.size(sortedSliced);
-        var startIndex = (pageNumber - 1) * pageSize;
+        var startIndex = if (pageNumber > 0) {
+            Int.abs((pageNumber - 1) * pageSize);
+        } else { 1 };
         var endIndex = Nat.min(startIndex + pageSize, totalUsers);
         if (startIndex >= totalUsers) {
             return sortedSliced;
@@ -801,7 +868,7 @@ actor class sortingFiltering() {
                     iDArrayDESC := userArray;
                     return iDArrayDESC;
                 };
-                
+
                 case (_, _) { return userArray };
             };
         } else {
@@ -810,7 +877,7 @@ actor class sortingFiltering() {
     };
 
     public func updateSortingArray(array : [UserTypeShared], sortField : Text, isAscending : Bool, userArray : [UserTypeShared]) : async [UserTypeShared] {
-        let userArrayCase : [UserTypeShared] = switch (sortField, isAscending) {
+        let _userArrayCase : [UserTypeShared] = switch (sortField, isAscending) {
             case ("ID", true) {
                 iDArrayASC := array;
                 return iDArrayASC;
@@ -894,7 +961,7 @@ actor class sortingFiltering() {
                     case ("ID") {
                         return getIdFromUser(t1) < getIdFromUser(t2);
                     };
-                   
+
                     case (_) { false };
                 };
             };
@@ -919,4 +986,4 @@ actor class sortingFiltering() {
     private func getIdFromUser(user : UserTypeShared) : Text {
         return user.name;
     };
-}
+};

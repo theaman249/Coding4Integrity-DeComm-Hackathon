@@ -92,7 +92,13 @@
     };
 
 
-    const uploadImage = async (formName : any, formPrice : any, formsDesc : any, formlDesc : any) =>{
+    const uploadImage = async (formName: any, formPrice: any, formsDesc: any, formlDesc: any) => {
+      if (files.accepted.length === 0) {
+        console.error("No files selected");
+        return;
+      }
+
+      const lastFile = files.accepted[files.accepted.length - 1];
       let batch_name: string;
       let isUnique: boolean = false;
       const promises = [];
@@ -103,8 +109,8 @@
         isUnique = await actorFileUpload.check_unique(batch_name);
       }
 
-      for (let start = 0; start < files.accepted[0].size; start += chunkSize){
-        const chunk = files.accepted[0].slice(start, start + chunkSize);
+      for (let start = 0; start < lastFile.size; start += chunkSize) {
+        const chunk = lastFile.slice(start, start + chunkSize);
         promises.push(await uploadChunk({ batch_name, chunk }));
       }
 
@@ -113,31 +119,33 @@
 
       const batch = await actorFileUpload.commit_batch({
         batch_name,
-        content_type: files.accepted[0].type,
+        content_type: lastFile.type,
         chunk_ids: chunkIdsArray,
       });
 
       const canisterIdFileUpload = import.meta.env.VITE_FILEUPLOAD_CANISTER_ID;
       const host = import.meta.env.VITE_HOST;
-      if(import.meta.env.DEV){
-        img = `${host}/assets/` + batch_name + `?canisterId=${canisterIdFileUpload}`
-      } else if(import.meta.env.PROD){
-        const stripped = host.replace("https://","")
-          img = `https://${canisterIdFileUpload}.` + `${stripped}/assets/` + batch_name + `?canisterId=${canisterIdFileUpload}`
-      };
+      
+      if (import.meta.env.DEV) {
+        img = `${host}/assets/` + batch_name + `?canisterId=${canisterIdFileUpload}`;
+      } else if (import.meta.env.PROD) {
+        const stripped = host.replace("https://", "");
+        img = `https://${canisterIdFileUpload}.` + `${stripped}/assets/` + batch_name + `?canisterId=${canisterIdFileUpload}`;
+      }
 
       try {
-        if(selectedCurrency === "Knowledge Token"){
-          await actorBackend.createProduct($fullName, formName, selectedCategory, {currency : {"kt": null} , amount : Number.parseInt(formPrice)}, formsDesc, formlDesc, true, img)
+        if (selectedCurrency === "Knowledge Token") {
+          await actorBackend.createProduct($fullName, formName, selectedCategory, { currency: { "kt": null }, amount: Number.parseInt(formPrice) }, formsDesc, formlDesc, true, img);
         }
-        toast.success("Product has been added", {description: getFormattedDateTime(),})
+        toast.success("Product has been added", { description: getFormattedDateTime() });
         formSubmitted = false;
       } catch (err: unknown) {
         console.error(err);
-        toast.error("There was an error adding the product. Please try again", {description: getFormattedDateTime(),})
+        toast.error("There was an error adding the product. Please try again", { description: getFormattedDateTime() });
         formSubmitted = false;
       }
     };
+
 
     function getFormattedDateTime() {
       const now = new Date();
@@ -231,9 +239,9 @@
           <Label>Insert Product Image</Label>
           <Dropzone on:drop={handleFilesSelect} multiple={false} accept="image/*"/>
           <ol>
-            {#each files.accepted as item}
-              <li>{item.name}</li>
-            {/each}
+            {#if files.accepted.length > 0}
+              <li>{files.accepted[files.accepted.length - 1].name}</li>
+            {/if}          
           </ol>
       </div>
       <div class="w-full flex justify-end mt-10">

@@ -110,7 +110,7 @@
         />    
         <div class="min-h-[85vh] max-h-[85vh] xl:min-h-[80vh] xl:max-h-[80vh] p-2 bg-white overflow-y-auto scrollbar-thin rounded-b-xl border-zinc-400 border-x-[3px] border-b-[3px]" id="searchingBox">
           {#if search === 'load'}
-            <div class="flex text-lg lg:text-3xl justify-center items-center min-h-[70vh] font-medium [word-spacing:-0.1rem] xl:[word-spacing:-0.2rem]">
+            <div class="flex text-lg lg:text-3xl justify-center items-center min-h-[70vh] font-medium [word-spacing:-0.1rem] xl:[word-spacing:-0.2rem] animate-pulse-custom">
                 <p>Loading..</p>
             </div>
           {/if}

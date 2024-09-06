@@ -22,7 +22,7 @@
                 <div><Button class="w-full my-1 justify-start hover:underline {chosen === "Add Products" ? "bg-stone-100" : ""}" variant="ghost" on:click={()=> chosen = "Add Products"}>Add Producs</Button></div>
                 <div><Button class="w-full my-1 justify-start hover:underline {chosen === "View Products" ? "bg-stone-100" : ""}" variant="ghost" on:click={()=> chosen = "View Products"}>View Products</Button></div>
             </div>
-            <div class="col-span-12 lg:col-span-10 mt-10 px-2 lg:px-20 h-fit overflow-scroll">
+            <div class="col-span-12 lg:col-span-10 mt-10 px-2 h-fit overflow-scroll lg:pl-10">
                 {#if chosen === "Add Products" }
                     <AddProduct />
                 {:else if chosen === "View Products"}

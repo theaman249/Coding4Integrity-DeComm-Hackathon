@@ -3,7 +3,7 @@
     import { Label } from "$lib/components/ui/label/index.js";
     import { Button } from "$lib/components/ui/button";
     import BG from "$lib/images/bg-2.jpg"
-    import { loggedIn, registerStore, fullName, loginStore } from "$lib/data/stores/stores.js";
+    import { loggedIn, registerStore, fullName, loginStore, isValidUser } from "$lib/data/stores/stores.js";
 	import { superForm, defaults } from "sveltekit-superforms/client"
 	import { z } from "zod"
     import { zod } from 'sveltekit-superforms/adapters'
@@ -29,7 +29,8 @@
                 await actorBackend.createUser(form.data.fullName)
                 $fullName = form.data.fullName;
                 $registerStore = false;
-                $loggedIn.value = true;
+                $loggedIn = true;
+                $isValidUser = true;
                 formSubmitted = false;
                 goto("/")
             }

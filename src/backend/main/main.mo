@@ -1,9 +1,9 @@
 import Buffer "mo:base/Buffer";
+import Debug "mo:base/Debug";
 import Cycles "mo:base/ExperimentalCycles";
 import Nat "mo:base/Nat";
+import Result "mo:base/Result";
 import Text "mo:base/Text";
-import Array "mo:base/Array";
-import Debug "mo:base/Debug";
 
 import Types "../commons/Types";
 import Product "Product";
@@ -15,36 +15,38 @@ actor class Main() {
     stable var usersArray : [User.User] = [];
     stable var productsArray : [Product.Product] = [];
     stable var productIDNum : Nat = 0;
-    stable var transactionsArray :[Transaction.Transaction]=[];
-    stable var transactionIDNum:Nat = 0;
+    stable var transactionsArray : [Transaction.Transaction] = [];
+    stable var transactionIDNum : Nat = 0;
 
     var userBuffer = Buffer.fromArray<User.User>(usersArray);
     var productBuffer = Buffer.fromArray<Product.Product>(productsArray);
-    var transactionBuffer=Buffer.fromArray<Transaction.Transaction>(transactionsArray);
+    var transactionBuffer = Buffer.fromArray<Transaction.Transaction>(transactionsArray);
     private var inCarts : Buffer.Buffer<(Text, Nat)> = Buffer.Buffer<(Text, Nat)>(0);
 
-    public func addToCart(userID: Text, productID: Nat) : async Bool {
-        if (not Buffer.contains(inCarts, (userID, productID), func(a: (Text, Nat), b: (Text, Nat)) : Bool { a.0 == b.0 and a.1 == b.1 })) {
+    public func addToCart(userID : Text, productID : Nat) : async Bool {
+        if (not Buffer.contains(inCarts, (userID, productID), func(a : (Text, Nat), b : (Text, Nat)) : Bool { a.0 == b.0 and a.1 == b.1 })) {
             inCarts.add((userID, productID));
-            Debug.print("Added to cart: " # debug_show((userID, productID)));
+            Debug.print("Added to cart: " # debug_show ((userID, productID)));
             return true;
         };
-        Debug.print("Product already in cart: " # debug_show((userID, productID)));
+        Debug.print("Product already in cart: " # debug_show ((userID, productID)));
         return false;
     };
 
-    public func removeFromCart(userID: Text, productID: Nat) : async Bool {
+    public func removeFromCart(userID : Text, productID : Nat) : async Bool {
         let beforeSize = inCarts.size();
-        inCarts.filterEntries(func(index: Nat, item: (Text, Nat)) : Bool { 
-            not (item.0 == userID and item.1 == productID)
-        });
+        inCarts.filterEntries(
+            func(index : Nat, item : (Text, Nat)) : Bool {
+                not (item.0 == userID and item.1 == productID);
+            }
+        );
         let removed = inCarts.size() < beforeSize;
-        Debug.print("Removed from cart: " # debug_show((userID, productID)) # " Success: " # debug_show(removed));
+        Debug.print("Removed from cart: " # debug_show ((userID, productID)) # " Success: " # debug_show (removed));
         return removed;
     };
 
-    public func isInCart(userID: Text, productID: Nat) : async Bool {
-        Buffer.contains(inCarts, (userID, productID), func(a: (Text, Nat), b: (Text, Nat)) : Bool { a.0 == b.0 and a.1 == b.1 })
+    public func isInCart(userID : Text, productID : Nat) : async Bool {
+        Buffer.contains(inCarts, (userID, productID), func(a : (Text, Nat), b : (Text, Nat)) : Bool { a.0 == b.0 and a.1 == b.1 });
     };
 
     public func getAllUserNames() : async [Text] {
@@ -68,15 +70,33 @@ actor class Main() {
     public func createUser<system>(name : Text) : async User.User {
         let fullNameSplits = await numberOfSplits(name, " ");
         if (fullNameSplits != 1) {
+            var flag : Bool = false;
             let usernames = await getAllUserNames();
             for (username in usernames.vals()) {
                 if (Text.equal(name, username)) {
-                   return await loginUser(name);
+                    flag := true;
                 };
             };
         };
         splitCycles<system>();
-        let user = await User.User(name, [], [], [], [], [{ currency = #eth; amount = 0 }, { currency = #btc; amount = 0 }, { currency = #icp; amount = 0 }, { currency = #usd; amount = 0 }, { currency = #gbp; amount = 0 }, { currency = #eur; amount = 0 }]);
+
+        let user = await User.User(
+            name,
+            [],
+            [],
+            [],
+            [],
+            [
+                { currency = #eth; amount = 1000000000000 },
+                { currency = #btc; amount = 1000000000000 },
+                { currency = #icp; amount = 1000000000000 },
+                { currency = #usd; amount = 1000000000000 },
+                { currency = #gbp; amount = 1000000000000 },
+                { currency = #eur; amount = 1000000000000 },
+                { currency = #kt; amount = 1000000000000 },
+            ],
+        );
+
         await updateUserArray(user);
         return user;
     };
@@ -110,7 +130,6 @@ actor class Main() {
         return await (getAllUsersTypesFromObjectArray(await getAllUsers()));
     };
 
-    
     public func convertUserToType(user : User.User) : async Types.User {
         return {
             name = await user.getName();
@@ -121,7 +140,6 @@ actor class Main() {
             wallet = await user.getWallet();
         };
     };
-
 
     public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product {
         splitCycles<system>();
@@ -152,22 +170,30 @@ actor class Main() {
         return await (getAllProductTypesFromObjectArray(await getAllProducts()));
     };
 
-    public func editProduct(productID : Nat, username: Text, newData:Types.Product) : async Bool{
-        for(product in productsArray.vals()){
-            let prod=await convertProductToType(product);
-            if (prod.productID==productID and Text.equal(username, prod.sellerID)){
-                if(newData.name.size()!=0) await product.setName(newData.name);
-                if(newData.productLongDesc.size()!=0) await product.setLongDesc(newData.productLongDesc);
-                if(newData.productShortDesc.size()!=0) await product.setShortDesc(newData.productShortDesc);
-                if(newData.productCategory.size()!=0) await product.setCategory(newData.productCategory);
-                if ((newData.isVisible and not prod.isVisible) or (not newData.isVisible and prod.isVisible)) await product.setIsVisible(newData.isVisible);
-                if(prod.productPrice.currency!=newData.productPrice.currency or prod.productPrice.amount!=newData.productPrice.amount) await product.setPrice(newData.productPrice);
-                return true;
+    public func editProduct(
+        productID : Nat,
+        username : Text,
+        newName : Text,
+        newCategory : Text,
+        newPrice : Types.Price,
+        newShortDesc : Text,
+        newLongDesc : Text,
+        newIsVisible : Bool
+    ) : async Result.Result<(), Text> {
+        for (product in productsArray.vals()) {
+            let prod = await convertProductToType(product);
+            if (prod.productID == productID and Text.equal(username, prod.sellerID)) {
+                await product.setName(newName);
+                await product.setCategory(newCategory);
+                await product.setPrice(newPrice);
+                await product.setShortDesc(newShortDesc);
+                await product.setLongDesc(newLongDesc);
+                await product.setIsVisible(newIsVisible);
+                return #ok(());
             };
         };
-        return false;
+        return #err("Product not found or user is not the seller");
     };
-
 
     public func convertProductToType(product : Product.Product) : async Types.Product {
         return {
@@ -184,8 +210,7 @@ actor class Main() {
         };
     };
 
-
-    public func createTransaction<system>(productID: Nat, buyerID: Text, paidPrice: Types.Price): async Transaction.Transaction {
+    public func createTransaction<system>(productID : Nat, buyerID : Text, paidPrice : Types.Price) : async Transaction.Transaction {
         Cycles.add<system>(200000000000);
         var transaction = await Transaction.Transaction(transactionIDNum, productID, buyerID, paidPrice);
         transactionIDNum := transactionIDNum + 1;
@@ -193,12 +218,12 @@ actor class Main() {
         return transaction;
     };
 
-    private func updateTransactionArray(transaction: Transaction.Transaction): async () {
+    private func updateTransactionArray(transaction : Transaction.Transaction) : async () {
         transactionBuffer.add(transaction);
         transactionsArray := Buffer.toArray<Transaction.Transaction>(transactionBuffer);
     };
 
-    public query func getAllTransactions(): async [Transaction.Transaction] {
+    public query func getAllTransactions() : async [Transaction.Transaction] {
         return transactionsArray;
     };
 
@@ -211,7 +236,7 @@ actor class Main() {
         };
     };
 
-    public func getAllTransactionTypesFromObjectArray(transactionObjList: [Transaction.Transaction]): async [Types.Transaction] {
+    public func getAllTransactionTypesFromObjectArray(transactionObjList : [Transaction.Transaction]) : async [Types.Transaction] {
         let typeBuffer = Buffer.Buffer<Types.Transaction>(0);
         for (transaction in transactionObjList.vals()) {
             typeBuffer.add(await convertTransactionToType(transaction));
@@ -219,25 +244,24 @@ actor class Main() {
         return Buffer.toArray(typeBuffer);
     };
 
-    public func getAllTransactionTypes(): async [Types.Transaction] {
+    public func getAllTransactionTypes() : async [Types.Transaction] {
         return await getAllTransactionTypesFromObjectArray(await getAllTransactions());
     };
-
 
     private func splitCycles<system>() {
         Cycles.add<system>(200000000000);
     };
 
-    public func addToUserCart(userName: Text, product: Types.Product) : async Bool {
+    public func addToUserCart(userName : Text, product : Types.Product) : async Bool {
         let userOpt = await findUser(userName);
         switch (userOpt) {
             case (?user) {
                 if (await addToCart(userName, product.productID)) {
                     await user.addToCart(product);
-                    Debug.print("Added to user cart: " # userName # ", Product: " # debug_show(product.productID));
+                    Debug.print("Added to user cart: " # userName # ", Product: " # debug_show (product.productID));
                     return true;
                 } else {
-                    Debug.print("Failed to add to user cart: " # userName # ", Product: " # debug_show(product.productID));
+                    Debug.print("Failed to add to user cart: " # userName # ", Product: " # debug_show (product.productID));
                     return false;
                 };
             };
@@ -248,16 +272,16 @@ actor class Main() {
         };
     };
 
-    public func removeFromUserCart(userName: Text, productID: Nat) : async Bool {
+    public func removeFromUserCart(userName : Text, productID : Nat) : async Bool {
         let userOpt = await findUser(userName);
         switch (userOpt) {
             case (?user) {
                 if (await removeFromCart(userName, productID)) {
                     await user.removeFromCart(productID);
-                    Debug.print("Removed from user cart: " # userName # ", Product: " # debug_show(productID));
+                    Debug.print("Removed from user cart: " # userName # ", Product: " # debug_show (productID));
                     return true;
                 } else {
-                    Debug.print("Failed to remove from user cart: " # userName # ", Product: " # debug_show(productID));
+                    Debug.print("Failed to remove from user cart: " # userName # ", Product: " # debug_show (productID));
                     return false;
                 };
             };
@@ -268,7 +292,7 @@ actor class Main() {
         };
     };
 
-    public func clearUserCart(userName: Text) : async Bool {
+    public func clearUserCart(userName : Text) : async Bool {
         let userOpt = await findUser(userName);
         switch (userOpt) {
             case (?user) {
@@ -292,7 +316,7 @@ actor class Main() {
         switch (userOpt) {
             case (?user) {
                 let cart = await user.getBuyersCart();
-                Debug.print("User cart count: " # userName # ", Count: " # debug_show(cart.size()));
+                Debug.print("User cart count: " # userName # ", Count: " # debug_show (cart.size()));
                 return cart.size();
             };
             case (null) {
@@ -307,7 +331,7 @@ actor class Main() {
         switch (userOpt) {
             case (?user) {
                 let cartProducts = await user.getBuyersCart();
-                Debug.print("Retrieved user cart: " # userName # ", Items: " # debug_show(cartProducts.size()));
+                Debug.print("Retrieved user cart: " # userName # ", Items: " # debug_show (cartProducts.size()));
                 return cartProducts;
             };
             case (null) {
@@ -317,7 +341,7 @@ actor class Main() {
         };
     };
 
-    private func getUserCartProductTypesFromObjectArray(cartProducts : [Types.Product]) : async [Types.Product] {
+    private func _getUserCartProductTypesFromObjectArray(cartProducts : [Types.Product]) : async [Types.Product] {
         let typeBuffer = Buffer.Buffer<Types.Product>(0);
         for (product in cartProducts.vals()) {
             typeBuffer.add(product);
@@ -325,74 +349,119 @@ actor class Main() {
         return Buffer.toArray(typeBuffer);
     };
 
-    public func purchase(user : User.User, price : Types.Price, product : Product.Product) : async () {
-        let sellerName = await product.getSellerID();
-        let productPrice = await product.getPrice();
-        let productID = await product.getProductID();
-        let buyerID = await user.getName();
-        for (index in usersArray.vals()) {
-            let target = await index.getName();
-            if (Text.equal(target, sellerName)) {
-                let boolean = await user.takeFromWallet(productPrice);
-                 if(boolean==#ok(())){
-                let transaction= await createTransaction(productID,buyerID,price);
-                let transactionType=await  convertTransactionToType(transaction);
-                await index.addToWallet(productPrice);
-                await index.addToSoldItems(transactionType);
-                // await user.takeFromWallet(price);
-                await user.addToPurchases(transactionType);
-                }
+    public func getUserByName(name : Text) : async ?User.User {
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let username = await user.getName();
+            if (Text.equal(name, username)) {
+                return ?user;
+            };
+        };
+        return null;
+    };
+
+    public func getProductById(productID : Nat) : async Result.Result<Product.Product, Text> {
+        for (product in productsArray.vals()) {
+            let id = await product.getProductID();
+            if (id == productID) {
+                return #ok(product);
+            };
+        };
+        return #err("Product not found");
+    };
+
+    public func purchase(name : Text, productID : Nat) : async Result.Result<(), Text> {
+        let userObjOpt = await getUserByName(name);
+
+        switch (userObjOpt) {
+            case (null) {
+                return #err("User not found");
+            };
+            case (?userObj) {
+                let productResult = await getProductById(productID);
+
+                switch (productResult) {
+                    case (#err(errorMsg)) {
+                        return #err(errorMsg);
+                    };
+                    case (#ok(product)) {
+                        let sellerName = await product.getSellerID();
+                        let productPrice = await product.getPrice();
+                        let buyerID = await userObj.getName();
+
+                        for (index in usersArray.vals()) {
+                            let target = await index.getName();
+                            if (Text.equal(target, sellerName)) {
+                                let walletResult = await userObj.takeFromWallet(productPrice);
+                                switch (walletResult) {
+                                    case (#ok(())) {
+                                        let transaction = await createTransaction(productID, buyerID, productPrice);
+                                        let transactionType = await convertTransactionToType(transaction);
+                                        await index.addToWallet(productPrice);
+                                        await index.addToSoldItems(transactionType);
+                                        await userObj.addToPurchases(transactionType);
+                                        return #ok(());
+                                    };
+                                    case (#err(errorMsg)) {
+                                        return #err("Error taking from wallet: " # errorMsg);
+                                    };
+                                };
+                            };
+                        };
+                        return #err("Seller not found");
+                    };
+                };
             };
         };
     };
 
-    public func clearDB(): async() {
+    public func clearDB() : async () {
         usersArray := [];
         productsArray := [];
-        transactionsArray :=[];
+        transactionsArray := [];
         productIDNum := 0;
-        transactionIDNum:=0;
+        transactionIDNum := 0;
         userBuffer := Buffer.fromArray<User.User>(usersArray);
-        productBuffer:= Buffer.fromArray<Product.Product>(productsArray);
-        transactionBuffer:=Buffer.fromArray<Transaction.Transaction>(transactionsArray); 
+        productBuffer := Buffer.fromArray<Product.Product>(productsArray);
+        transactionBuffer := Buffer.fromArray<Transaction.Transaction>(transactionsArray);
     };
 
-    public func createTestEnv(): async(){
-        await clearDB();
-        let user1= await createUser("user1");
-        let user2= await createUser("user2");
-        let price1:Types.Price={
-        currency = #usd;
-        amount = 10;
-        };
-        let price2:Types.Price={
-        currency = #usd;
-        amount = 15;
-        };
-        let price3:Types.Price={
-        currency = #usd;
-        amount = 5;
-        };
+    // public func createTestEnv() : async () {
+    //     await clearDB();
+    //     let user1 = await createUser("user1");
+    //     let user2 = await createUser("user2");
+    //     let price1 : Types.Price = {
+    //         currency = #usd;
+    //         amount = 10;
+    //     };
+    //     let price2 : Types.Price = {
+    //         currency = #usd;
+    //         amount = 15;
+    //     };
+    //     let price3 : Types.Price = {
+    //         currency = #usd;
+    //         amount = 5;
+    //     };
 
-        let product1 = await createProduct("user1","prod1","cat1",price1,"short","long",true,"null");
-        let _product2 = await createProduct("user2","prod2","cat1",price1,"short","long",true,"null");
-        let product3 = await createProduct("user2","prod3","cat1",price2,"short","long",true,"null");
-        let _product4 = await createProduct("user2","prod4","cat1",price3,"short","long",true,"null");
-        
-        await purchase(user2,price1,product1);
-        await user2.addToWallet(price1);
-        await purchase(user2,price1,product1);
-        await user2.addToWallet(price1);
-        await purchase(user2,price1,product1);
-        await purchase(user1,price2,product3);
-    };
+    //     let product1 = await createProduct("user1", "prod1", "cat1", price1, "short", "long", true, "null");
+    //     let _product2 = await createProduct("user2", "prod2", "cat1", price1, "short", "long", true, "null");
+    //     let product3 = await createProduct("user2", "prod3", "cat1", price2, "short", "long", true, "null");
+    //     let _product4 = await createProduct("user2", "prod4", "cat1", price3, "short", "long", true, "null");
 
-    private func findUser(userName: Text) : async ?User.User {
+    //     await purchase(user2, price1, product1);
+    //     await user2.addToWallet(price1);
+    //     await purchase(user2, price1, product1);
+    //     await user2.addToWallet(price1);
+    //     await purchase(user2, price1, product1);
+    //     await purchase(user1, price2, product3);
+    // };
+
+    private func findUser(userName : Text) : async ?User.User {
         for (user in usersArray.vals()) {
             if (Text.equal(userName, await user.getName())) {
                 return ?user;
             };
         };
-        null
+        null;
     };
 };

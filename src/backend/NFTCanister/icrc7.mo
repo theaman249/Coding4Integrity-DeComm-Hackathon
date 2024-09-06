@@ -1,7 +1,7 @@
 import ICRC7 "mo:icrc7-mo";
 
 module {
-  public let defaultConfig = func(caller: Principal) : ICRC7.InitArgs {
+  public let defaultConfig = func(caller : Principal) : ICRC7.InitArgs {
     ?{
       symbol = ?"KT";
       name = ?"Knowledge Token";

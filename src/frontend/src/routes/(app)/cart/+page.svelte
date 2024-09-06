@@ -10,11 +10,16 @@
     let checkout = false;
     let buttonClicked = false;
     let posts = false;
-    $: converted = [];
+    let converted: any[] = [];
     let formSubmitted = false;
     let formCleared = false;
     let totalCost = 0;
-    $: totalCost = total();
+
+    $: {
+        if (converted.length > 0) {
+            totalCost = total();
+        }
+    }
 
     async function removeProduct(product) {
         try {
@@ -41,7 +46,6 @@
             if (result) {
                 toast("Removed all products from cart");
                 $cart.value = 0;
-                // Clear the local cart state
                 converted = [];
             } else {
                 toast.error("Failed to clear the cart");
@@ -55,57 +59,55 @@
 
     function total() {
         let totalPrice = 0;
-        console.log("Starting total calculation...");
 
         if (converted.length === 0) {
-            console.log("No products found in converted.");
             return totalPrice;
         }
-
         converted.forEach((product) => {
-            console.log("Processing product:", product);
-
             if (!product.productPrice || !product.productPrice.currency) {
-                console.log("Product has no price or currency:", product);
-                return; // Skip this product
+                return;
             }
 
             Object.keys(product.productPrice.currency).forEach((currency) => {
                 if (product.productPrice.currency.hasOwnProperty(currency)) {
-                    console.log("Currency:", currency);
-                    console.log("Amount before adding:", product.productPrice.amount);
                     totalPrice += product.productPrice.amount;
-                    console.log("Running total:", totalPrice);
                 } else {
-                    console.log("Currency not found in product:", currency);
+                    toast.error("Currency not found in product. Please try again", {description: getFormattedDateTime(),});
                 }
             });
         });
 
-        console.log("Final totalPrice:", totalPrice);
         return totalPrice;
     }
 
-    async function purchase(){
-        try{
-            for (const product of converted){
+    async function purchase() {
+        try {
+            for (const product of converted) {
                 try {
-                    await actorBackend.purchase($fullName, product.productPrice, product);
+                    buttonClicked = true;
+                    const result = await actorBackend.purchase(
+                        $fullName,
+                        product.productID
+                    );
+                    buttonClicked = false;
+                    if ('err' in result) {
+                        throw new Error(result.err);
+                    }
                 } catch (error) {
-                    console.log(error)
+                    console.error("Error in purchase:", error);
                     throw error;
                 }
             }
-            removeAllProducts();
+            await removeAllProducts();
             checkout = false;
-            $cartPage.value == false;
-            toast("Items Purchased");
-        }catch(error){
-            toast.error("There was an error purchasing all the products. Please try again", {description: getFormattedDateTime(),});
+            $cartPage.value = false;
+            toast("Items Purchased", { description: getFormattedDateTime() });
+        } catch (error) {
+            console.error("Error in purchase function:", error);
+            buttonClicked = false;
+            toast.error("There was an error purchasing all the products. Please try again: " + error.message);
         }
-
-        
-    };
+    }
 
     async function homePage(){
         await goto('/')
@@ -114,7 +116,6 @@
     onMount(async () => {
         const resProduct = await actorBackend.getUserCartProductTypes($fullName);
         converted = await convertBigIntToNumber(resProduct);
-        console.log(converted);
         posts = true;
     });
     
@@ -168,7 +169,7 @@
             </div>        
             <div class="col-span-12 grid grid-cols-12 {!posts ? "justify-center items-center w-full" : ""}">
                 {#if !posts}
-                    <div class="col-span-12 flex h-full w-full justify-center items-center text-3xl lg:text-7xl font-medium mt-40 2xl:mt-52">
+                    <div class="col-span-12 flex h-full w-full justify-center items-center text-3xl lg:text-7xl font-medium mt-40 2xl:mt-52 animate-pulse-custom">
                         Loading Cart Items....
                     </div>
                 {:else if posts && converted.length >= 1}
@@ -223,24 +224,28 @@
             <div class="col-span-12 mb-10">
                 <h1 class="text-3xl font-semibold mb-5 lg:mb-0">Checkout</h1>
             </div> 
-            <div class="grid grid-cols-12 col-span-12 justify-center items-center border-[3px] border-gray-200 p-4">
+            <div class="grid grid-cols-12 col-span-12 justify-center items-center border-[3px] border-gray-600 p-4">
                 {#each converted as product}
                     <div class="col-span-12 my-2">{product.name}: 
                         {#each Object.keys(product.productPrice.currency) as currency}
                             {#if (product.productPrice.currency).hasOwnProperty(currency)}
-                            Price: {product.productPrice.amount} {currency.toUpperCase()}
+                                {product.productPrice.amount} {currency.toUpperCase()}
                             {/if}
                         {/each}
                     </div>
                 {/each}
-                <div class="col-span-12 my-2">Total Price of all products are {totalCost} KT</div>
+                <div class="col-span-12 my-2">Total Price of all products are <span class="font-bold">{totalCost}</span> KT</div>
                 <div class="col-span-12 my-2 flex items-end justify-end place-items-end">
                     {#if !buttonClicked}
                         <Button on:click={() => purchase()}>Purchase</Button>
                     {:else}
                         <Button disabled>
                             <Reload class="mr-2 h-4 w-4 animate-spin" />
-                            Purchasing Product
+                            {#if converted.length > 1}
+                                Purchasing Products
+                            {:else}
+                                Purchasing Product
+                            {/if}
                         </Button>
                     {/if}
                 </div>

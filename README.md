@@ -81,10 +81,13 @@ Running the Project
 
 If you want to start working on your project, run the following commands:
 
-***Note building the application requires a large amount of memory. Consider increasing the maximum heap size given to Node.js to 2-4 GB if you run into any build time error***
+***Note due to source mapping, building the frontend application requires a large amount of memory. Increase the maximum heap size given to Node.js to either 3 or 4 GB. Anything above 2GB will work***
 
 
 ```bash
+//3GB
+export NODE_OPTIONS="--max-old-space-size=3072"
+//4GB
 export NODE_OPTIONS="--max-old-space-size=4096"
 ```
 

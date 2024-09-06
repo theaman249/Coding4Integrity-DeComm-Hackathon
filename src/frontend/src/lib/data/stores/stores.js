@@ -5,6 +5,10 @@ export const loggedIn = persisted('loggedIn', {
   value: false,
 });
 
+export const isValidUser = persisted('isValidUser', {
+  value: false,
+});
+
 export const accountType = persisted('accountType', {
   value: 'Personal Account',
 });

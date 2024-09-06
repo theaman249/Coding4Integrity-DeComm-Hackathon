@@ -64,7 +64,7 @@ module HttpTypes {
         content : [Nat8];
     };
 
-        public type Asset = {
+    public type Asset = {
         encoding : AssetEncoding;
         content_type : Text;
     };
@@ -87,7 +87,7 @@ module HttpTypes {
         body : [Nat8];
         headers : [HeaderField];
         status_code : Nat16;
-        streaming_strategy : ?StreamingStrategy
+        streaming_strategy : ?StreamingStrategy;
     };
 
     public type StreamingStrategy = {
@@ -105,6 +105,6 @@ module HttpTypes {
 
     public type StreamingCallbackHttpResponse = {
         body : [Nat8];
-        token: ?StreamingCallbackToken;
+        token : ?StreamingCallbackToken;
     };
 };

@@ -1,23 +1,19 @@
 import {preprocessMeltUI, sequence} from "@melt-ui/pp";
-import {vitePreprocess} from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import adapter from '@sveltejs/adapter-static';
-import autoprefixer from 'autoprefixer';
 import {readFileSync} from 'fs';
-import preprocess from 'svelte-preprocess';
 import {fileURLToPath} from 'url';
+
 const file = fileURLToPath(new URL('package.json', import.meta.url));
 const json = readFileSync(file, 'utf8');
 const {version} = JSON.parse(json);
 const filesPath = path => `src/frontend/${path}`;
+
 /** @type {import('@sveltejs/kit').Config}*/
 const config = {
   // Consult https://github.com/sveltejs/svelte-preprocess
   // for more information about preprocessors
-  preprocess: sequence([preprocess({
-    postcss: {
-      plugins: [autoprefixer, vitePreprocess]
-    }
-  }), preprocessMeltUI()]),
+  preprocess: sequence([vitePreprocess(), preprocessMeltUI()]),
   kit: {
     adapter: adapter({
       fallback: 'index.html',

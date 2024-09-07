@@ -92,6 +92,7 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 ```
 
 
+
 ```bash
 # Terminal
 
@@ -123,7 +124,7 @@ npm run generate
 npm run dev
 ```
 
-Using svelte's native localhost:5173 local server you can now edit your code with HMR without the need to rebuild the files to see changes.
+Using svelte's native localhost:5173 local server you can now edit your code with HMR without the need to rebuild the files to see changes. This might take a few minutes as packages are being optimized on runtime.
 
 Don't forget to shutdown the dfx network once you finish with coding!
 

@@ -7,7 +7,7 @@
     let chosen = "Add Products";
 </script>
 
-<div class="grid grid-cols-12 p-4 mt-24 xl:m-20 xl:p-20 xl:border-4 xl:border-zinc-400 xl:border-solid xl:shadow-2xl">
+<div class="grid grid-cols-12 p-4 mt-24 xl:m-20 xl:p-20 xl:border-4 xl:border-zinc-400 xl:border-solid xl:shadow-2xl max-h-fit">
     <div class="col-span-12 h-fit grid grid-cols-12 w-full overflow-scroll mt-5">
         <div class="col-span-12">
             <h1 class="text-2xl font-bold">Welcome {$fullName}!</h1>

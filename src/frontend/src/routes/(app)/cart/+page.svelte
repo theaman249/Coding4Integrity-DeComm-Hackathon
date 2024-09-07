@@ -143,7 +143,7 @@
 </script>
 
 {#if !checkout}
-    <div class="flex flex-col min-h-screen w-full mt-32 lg:mt-40 p-2">
+    <div class="flex flex-col min-h-screen w-full mt-32 lg:mt-40 p-2 bg-zinc-50">
         <div class="col-span-12 grid grid-cols-12 px-2 lg:px-10 flex-none">
             <div class="col-span-12 mb-5">
                 <a href="/" class="flex" on:click|preventDefault={() => homePage()}>
@@ -174,10 +174,10 @@
                     </div>
                 {:else if posts && converted.length >= 1}
                     {#each converted as product}
-                    <div class="col-span-4 lg:col-span-2 lg:ml-5 mb-12 border-y-4 border-l-4 border-zinc-600">
+                    <div class="col-span-4 lg:col-span-2 lg:ml-5 mb-12 border-y-[3.5px] border-l-[3.5px] border-zinc-400 rounded-tl-lg rounded-bl-lg">
                         <img class="h-52 w-52 object-cover p-2" src={product.productPicture} alt={product.name}/>
                     </div>
-                    <div class="col-span-8 lg:col-span-10 border-y-4 border-r-4 border-gray-600 h-[13.5rem] w-full">
+                    <div class="col-span-8 lg:col-span-10 border-y-[3.5px] border-r-[3.5px] border-gray-400 h-[13.4rem] w-full rounded-tr-lg rounded-br-lg">
                         <div class="block relative">
                             <p class="text-2xl font-semibold mt-12">{product.name}</p>
                             <p class="opacity-75">{product.productCategory}</p>

@@ -2,7 +2,6 @@
     import Card from "$lib/components/modules/app/Card/Card.svelte";
     import { onMount } from "svelte";
     import { actorBackend } from "$lib/motokoImports/backend"
-    import { fade, fly } from 'svelte/transition';
     import { quintOut } from 'svelte/easing';
 
     let posts = false;
@@ -11,7 +10,6 @@
     onMount(async () => {
         const resProduct = await actorBackend.getAllProductTypes();
         converted = await convertBigIntToNumber(resProduct);
-        console.log(converted)
         posts = true;
     })
 

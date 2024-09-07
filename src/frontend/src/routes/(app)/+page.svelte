@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { loggedIn, accountType, cartPage } from "$lib/data/stores/stores";
+	import { loggedIn, accountType } from "$lib/data/stores/stores";
     import ProductCards from "$lib/components/modules/app/ProductCards/ProductCards.svelte";
 	import { onMount } from 'svelte';
 

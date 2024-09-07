@@ -1,7 +1,7 @@
 <script lang="ts">
     import "../app.css";
     import { onNavigate } from '$app/navigation';
-    import { Toaster } from "$lib/components/ui/sonner";
+    import { Toaster } from "svelte-sonner";
     import { loggedIn, registerStore, accountType, loginStore, fullName, isValidUser } from "$lib/data/stores/stores";
     import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';

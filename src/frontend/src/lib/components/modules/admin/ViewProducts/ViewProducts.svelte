@@ -202,7 +202,7 @@
                                             selectedCurrency = Object.keys(product.productPrice.currency)[0].toUpperCase();
                                         }}>View More Details</Button>
                                         </Sheet.Trigger>
-                                        <Sheet.Content side="right" class="w-[400px] sm:w-[540px]">
+                                        <Sheet.Content side="right" class="w-auto xl:w-[400px]">
                                         <Sheet.Header>
                                             <Sheet.Title>Edit Product</Sheet.Title>
                                             <Sheet.Description>

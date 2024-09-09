@@ -7,6 +7,7 @@ This package implements secure hash algorithms for the Motoko programming langua
 ### Usage
 
 Calculate a SHA256 hash.
+
 ```motoko
 public func sha256(data : [Nat8]) : [Nat8]
 ```

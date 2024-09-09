@@ -2,71 +2,72 @@
 
 # THIS IS ALPHA and NOT VALIDATED DO NOT USE IN PROD
 
- A straight line, write only data store designed for icrc3 style ledger archives
- but useful for other situations.
- 
- This library uses the Motoko Stable Region base library under the hood to simplify
- the writing of data to a canister that is not expected to change over time.
+A straight line, write only data store designed for icrc3 style ledger archives
+but useful for other situations.
 
- Memory is allocated auto allocated as objects are written to the stream.  
+This library uses the Motoko Stable Region base library under the hood to simplify
+the writing of data to a canister that is not expected to change over time.
+
+Memory is allocated auto allocated as objects are written to the stream.  
  A max pages(in KiB - 65536 per KiB is provided) and defaults to 62500 worth of pages. (4096000000 bytes)
- 
- More are supported. Please see the Region.mo file in motoko-base for compiler level flags
- that allow for larger regions.
 
- ## Installation:
+More are supported. Please see the Region.mo file in motoko-base for compiler level flags
+that allow for larger regions.
 
- ```
- mops add stable-write-only
- ```
+## Installation:
 
- ## Usage:
+```
+mops add stable-write-only
+```
 
- ```motoko no-repl
- import SW "mo:table-write-only";
- ```
+## Usage:
 
- This Module uses the Class+ pattern discussed at https://forum.dfinity.org/t/writing-motoko-stable-libraries/21201
- It is stable and does not require memory managment.
+```motoko no-repl
+import SW "mo:table-write-only";
+```
 
- ```
-  stable var memStore = SW.init({
-    maxPages = 64;
-    indexType = #Managed;
-  });
+This Module uses the Class+ pattern discussed at https://forum.dfinity.org/t/writing-motoko-stable-libraries/21201
+It is stable and does not require memory managment.
 
-  let mem = SW.StableWriteOnly(?memStore);
- ```
+```
+ stable var memStore = SW.init({
+   maxPages = 64;
+   indexType = #Managed;
+ });
 
- Memory is swappable if you end up in a situation where your objects need to be upgraded
+ let mem = SW.StableWriteOnly(?memStore);
+```
 
- ```
-    let newMem = SW.init({maxPages = 32; indexType=#Managed});
-    let sw = SW.StableWriteOnly(?newMem);
+Memory is swappable if you end up in a situation where your objects need to be upgraded
 
-    let replaceItem = {
-      one = 55;
-      two = "test55";
-      three = 55 : Nat64;
-    };
+```
+   let newMem = SW.init({maxPages = 32; indexType=#Managed});
+   let sw = SW.StableWriteOnly(?newMem);
 
-    let result = sw.write(to_candid(replaceItem));
+   let replaceItem = {
+     one = 55;
+     two = "test55";
+     three = 55 : Nat64;
+   };
 
-    return oldmem.swap(sw.toSwappable());
+   let result = sw.write(to_candid(replaceItem));
 
- Three different types of memory are offered:
-     #Managed - item info is stored in the managed vector and is streamed in and out of 
-         memory. This means your index will eventually overrun its ability to be upgraded 
-         by the standard motoko upgrade process. (Althoug depending on your other data you 
-         may be able to get up to 100M entries)
-     #Stable and #StableTyped - these keep their indexes in another region of stable memory.
-         stable indexes use two less bytes than stable typed as they are unable to track type info
+   return oldmem.swap(sw.toSwappable());
 
- For Managed and StableTyped memoreis the library also keeps track of types such that one can tag each write with a
- type annotation without the library needing to know your types ahead of type. You will need
- to provide your own type parser.
+Three different types of memory are offered:
+    #Managed - item info is stored in the managed vector and is streamed in and out of
+        memory. This means your index will eventually overrun its ability to be upgraded
+        by the standard motoko upgrade process. (Althoug depending on your other data you
+        may be able to get up to 100M entries)
+    #Stable and #StableTyped - these keep their indexes in another region of stable memory.
+        stable indexes use two less bytes than stable typed as they are unable to track type info
 
- ```
+For Managed and StableTyped memoreis the library also keeps track of types such that one can tag each write with a
+type annotation without the library needing to know your types ahead of type. You will need
+to provide your own type parser.
+
+```
+
     let x = mem.writeTyped(to_candid(my_testType23_obj), 1)
     let val = mem.readTyped(x);
     let ?type_of = val.1;
@@ -84,22 +85,27 @@
           case(?val) val;
         });
     };
- ```
 
- The Stable and StableTyped memories are based on Matt Hammer's work at https://github.com/dfinity/motoko/blob/master/doc/md/examples/StableMultiLog.mo
+```
 
- ## Testing
+The Stable and StableTyped memories are based on Matt Hammer's work at https://github.com/dfinity/motoko/blob/master/doc/md/examples/StableMultiLog.mo
 
- At the moment, wasitime does not support system functions like the ones required to manage stable memory, so mops test will fail.
+## Testing
 
- Testing against the replica can be accomplished by running:
+At the moment, wasitime does not support system functions like the ones required to manage stable memory, so mops test will fail.
 
- ```
- //terminal 1
- dfx start --clean --artificial-delay 
+Testing against the replica can be accomplished by running:
 
- //terminal 2
- dfx deploy test_runner
+```
 
- dfx canister call test_runner test
- ```
+//terminal 1
+dfx start --clean --artificial-delay
+
+//terminal 2
+dfx deploy test_runner
+
+dfx canister call test_runner test
+
+```
+
+```

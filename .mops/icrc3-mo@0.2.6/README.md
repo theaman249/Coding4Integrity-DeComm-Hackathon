@@ -1,11 +1,13 @@
 # icrc3.mo
 
 ## Install
+
 ```
 mops add icrc3-mo
 ```
 
 ## Usage
+
 ```motoko
 import ICRC3 "mo:icrc3.mo";
 ```
@@ -46,6 +48,7 @@ stable var icrc3_migration_state = ICRC3.init(ICRC3.initialState() , #v0_1_0(#id
   };
 
 ```
+
 The above pattern will allow your class to call icrc3().XXXXX to easily access the stable state of your class and you will not have to worry about pre or post upgrade methods.
 
 Init args:
@@ -78,15 +81,15 @@ public type Environment = ?{
 
 ## Maintenance and Archival
 
-Each time a transaction is added, the ledger checks to see if it has exceeded its max length. If it has, it sets a timer to run in the next round to run the archive.  It will only attempt to archive a chunk at a time as configured and will set it self to run again if it was unable to reach its settled records.
+Each time a transaction is added, the ledger checks to see if it has exceeded its max length. If it has, it sets a timer to run in the next round to run the archive. It will only attempt to archive a chunk at a time as configured and will set it self to run again if it was unable to reach its settled records.
 
 When the first archive reaches its limit, the class will create a new archive canister and send it the number of configured cycles. It will fail silently if there are not enough cycles.
 
 ## Transaction Log Best Practices
 
-This class supports an ICRC3 style, write only transaction log. It supports archiving to other canisters on the same subnet.  Multi subnet archiving and archive splitting is not yet supported, but is planned for future versions.
+This class supports an ICRC3 style, write only transaction log. It supports archiving to other canisters on the same subnet. Multi subnet archiving and archive splitting is not yet supported, but is planned for future versions.
 
-Typically you want to keep a small number of transactions on your main canister with frequent and often archival of transactions to the archive. For example, the ICP ledger uses 2000 transactions as the max and 1000 as the settle to. If you utilize stable memory, you should be able to write a very large number of transactions to your archive.  We do not yet have benchmarks and have yet to do max out testing, but we feel comfortable saying that 4GB or 62500 pages should be safe.  You will need to determine for your self what the max number of records that can fit into the alloted pages is.  If you have a variable or unbounded transaction type you may need to consider putting your max pages higher and number of transactions lower.
+Typically you want to keep a small number of transactions on your main canister with frequent and often archival of transactions to the archive. For example, the ICP ledger uses 2000 transactions as the max and 1000 as the settle to. If you utilize stable memory, you should be able to write a very large number of transactions to your archive. We do not yet have benchmarks and have yet to do max out testing, but we feel comfortable saying that 4GB or 62500 pages should be safe. You will need to determine for your self what the max number of records that can fit into the alloted pages is. If you have a variable or unbounded transaction type you may need to consider putting your max pages higher and number of transactions lower.
 
 Future versions may make this more dynamic.
 
@@ -96,4 +99,3 @@ Future Todos:
 - Multi-subnet archives
 - Archive Splitting
 - Automatic memory monitoring
-

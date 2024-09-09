@@ -3,11 +3,13 @@
 **Warning: ICRC7 has not been finalized. This is Beta software and should not be used in production until it has been reviewed, audited, and the standard finalized**
 
 ## Install
+
 ```
 mops add icrc7.mo
 ```
 
 ## Usage
+
 ```motoko
 import ICRC7 "mo:icrc7.mo";
 ```
@@ -66,39 +68,38 @@ The environment pattern lets you pass dynamic information about your environment
 
 ### Input Init Args
 
-  - symbol - symbol of your nft
-  - name - name of your collection
-  - description - description of your collection
-  - logo - logo for your collection - Can be a URL or a data URL.
-  - supply_cap - if your NFT has a supply cap. If you try to set a new NFT above the supply cap, it will block the mint.
-  - max_query_batch_size - max query size. defaults to 10,000
-  - max_update_batch_size - max updates a user can request at a time. defaults to 10,000;
-  - default_take_value - default takes a user can request at a time in a query. defaults to 10,000;
-  - max_take_value - max updates a user can request at a time in a query. defaults to 10,000;
-  - max_memo_size - max size in bytes for a memo. defaults to 384.
-  - permitted_drift - time in nanoseconds that a transaction can be created in the future or past. used for deduplication - Defaults to 2 Minutes (120000000000)
-  - allow_transfers - whether this canister allows transfers. defaults to true.
-  - burn_account - set to null to delete burned nft or an opt account to have the NFTs transferred to a black hole.
-  - deployer - the principal deploying, will be the owner of the collection;
+- symbol - symbol of your nft
+- name - name of your collection
+- description - description of your collection
+- logo - logo for your collection - Can be a URL or a data URL.
+- supply_cap - if your NFT has a supply cap. If you try to set a new NFT above the supply cap, it will block the mint.
+- max_query_batch_size - max query size. defaults to 10,000
+- max_update_batch_size - max updates a user can request at a time. defaults to 10,000;
+- default_take_value - default takes a user can request at a time in a query. defaults to 10,000;
+- max_take_value - max updates a user can request at a time in a query. defaults to 10,000;
+- max_memo_size - max size in bytes for a memo. defaults to 384.
+- permitted_drift - time in nanoseconds that a transaction can be created in the future or past. used for deduplication - Defaults to 2 Minutes (120000000000)
+- allow_transfers - whether this canister allows transfers. defaults to true.
+- burn_account - set to null to delete burned nft or an opt account to have the NFTs transferred to a black hole.
+- deployer - the principal deploying, will be the owner of the collection;
 
 ## Metadata
 
-This class stores metadata using ICRC16 compliant hierarchical objects.  It utilizes the CandyLibrary(https://github.com/icdevsorg/candy_library) v0.3.0 to do this.
+This class stores metadata using ICRC16 compliant hierarchical objects. It utilizes the CandyLibrary(https://github.com/icdevsorg/candy_library) v0.3.0 to do this.
 
 Users may use the Value type as well.
 
 When metadata comes out of the class in ICRC7 it is downgraded to the Value type as described by the standard.
 
-Why use ICRC16 as the input? ICRC16 provides the #Class type which allows an immutable flag on a list of properties.  Using the update_nfts endpoint and property updates the user can change nested values in their metadata but provide assurances that immutable properties cannot be changed.  In addition, internally, Maps and Classes are indexed by key and searches across large datasets can be more easily searched.
+Why use ICRC16 as the input? ICRC16 provides the #Class type which allows an immutable flag on a list of properties. Using the update_nfts endpoint and property updates the user can change nested values in their metadata but provide assurances that immutable properties cannot be changed. In addition, internally, Maps and Classes are indexed by key and searches across large datasets can be more easily searched.
 
 Since ICRC16 is a superset of Value, feel free to ignore this functionality and just use the Value Variant options and everything will work as intended.
 
 Updates to existing metadata can be accomplished using the `update_nfts` function and providing a properties update object as specified in the Candy Classes.
 
-
 ## Deduplication
 
-The class uses a Representational Independent Hash map to keep track of duplicate transactions within the permitted drift timeline.  The hash of the "tx" value is used such that provided memos and created_at_time will keep deduplication from triggering.
+The class uses a Representational Independent Hash map to keep track of duplicate transactions within the permitted drift timeline. The hash of the "tx" value is used such that provided memos and created_at_time will keep deduplication from triggering.
 
 ## Event system
 
@@ -108,7 +109,7 @@ The class has a register_token_transferred_listener, register_token_mint_listene
 
 This functionality is used by the ICRC37.mo component to clear approvals whenever a token changes hands or is burned.
 
-The events are synchronous and cannot directly make calls to other canisters.  We suggest using them to set timers if notifications need to be sent using the Timers API.
+The events are synchronous and cannot directly make calls to other canisters. We suggest using them to set timers if notifications need to be sent using the Timers API.
 
 The Mint Notification handles both updates and mints. The `new_token` will be true for new mints.
 
@@ -145,7 +146,7 @@ The Mint Notification handles both updates and mints. The `new_token` will be tr
 
 ### Overrides
 
-The user may assign a function to intercept each transaction type just before it is committed to the transaction log.  These functions are optional. The user may manipulate the values and return them to the processing transaction and the new values will be used for the transaction block information and for notifying subscribed components.
+The user may assign a function to intercept each transaction type just before it is committed to the transaction log. These functions are optional. The user may manipulate the values and return them to the processing transaction and the new values will be used for the transaction block information and for notifying subscribed components.
 
 By returning an #err from these functions you will effectively cancel the transaction and the caller will receive back a #GenericError for that request with the message you provide.
 

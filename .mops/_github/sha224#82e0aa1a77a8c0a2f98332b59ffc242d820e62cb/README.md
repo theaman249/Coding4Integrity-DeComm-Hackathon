@@ -35,15 +35,16 @@ the README.
   [`vessel-package-set`](https://github.com/dfinity/vessel-package-set)
   to make it easy for other to install your library
 
-
 ## Checklist
 
 ### Check the initial setup works
+
 - [ ] Make sure you've installed [`vessel`](https://github.com/dfinity/vessel)
 - [ ] Make sure you've installed [`wasmtime`](https://wasmtime.dev/)
 - [ ] Make sure `make all` runs succesfully. If it doesn't please [open an issue](https://github.com/kritzcreek/motoko-library-template)
 
 ### Licensing
+
 - [ ] This template comes with a copy of the Apache License Version
       2.0, if you'd like to use a different license, replace the
       LICENSE file.
@@ -61,6 +62,7 @@ whenever you push a git tag, follow these steps. Otherwise delete
 - [ ] Change the Url in the `API Documentation` section in your project
 
 ### Finishing touches
+
 - [ ] Check out the "How to develop" and "How to publish" sections in the
       README and finally delete the Checklist section from the
       README

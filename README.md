@@ -1,4 +1,4 @@
-# Pretoria-South-Africa-Hackathon 
+# Pretoria-South-Africa-Hackathon
 
 ### Corruption Combat Coders
 
@@ -17,17 +17,15 @@ To learn more before you start working with back_end and front_end, see the foll
 - [Tailwind Styling System](https://tailwindcss.com/)
 - [Shadcn-Svelte Component Library](https://www.shadcn-svelte.com/)
 
-
 ## The DFINITY Command-Line
-____________________________________
+
+---
 
 This project utilizes The DFINITY command-line execution environment (dfx). The primary tool for creating, deploying, and managing, dapps that are developed in for the Internet Computer.
 
-
-***Note that currently the dfx tool is not natively supported on windows.***
+**_Note that currently the dfx tool is not natively supported on windows._**
 
 In order to use dfx on a Windows machine you'll need to download the Windows Subsystem for Linux (WSL). Refer to Microsoft's official guide [here](https://learn.microsoft.com/en-us/windows/wsl/install), and [here](https://learn.microsoft.com/en-us/windows/wsl/setup/environment)
-
 
 ### Installing IC SDK, DFX, and MOPS
 
@@ -38,6 +36,7 @@ sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 ```
 
 To verify that the IC SDK is successfully installed, run the following command:
+
 ```bash
 dfx --version
 ```
@@ -75,14 +74,11 @@ cd /Pretoria-South-Africa
 npm install
 ```
 
-
-Running the Project
---------------------------------------
+## Running the Project
 
 If you want to start working on your project, run the following commands:
 
-***Note due to source mapping, building the frontend application requires a large amount of memory. Increase the maximum heap size given to Node.js to either 3 or 4 GB. Anything above 2GB will work***
-
+**_Note due to source mapping, building the frontend application requires a large amount of memory. Increase the maximum heap size given to Node.js to either 3 or 4 GB. Anything above 2GB will work_**
 
 ```bash
 //3GB
@@ -91,19 +87,16 @@ export NODE_OPTIONS="--max-old-space-size=3072"
 export NODE_OPTIONS="--max-old-space-size=4096"
 ```
 
-
-
 ```bash
 # Terminal
 
 cd /Pretoria-South-Africa
 npm run startdfx
 npm run deploy
-npm run generate 
+npm run generate
 ```
 
-
-This will build and deploy the project locally. 
+This will build and deploy the project locally.
 
 ###### **Note** running npm run generate at the end is optional. It generates decleration files, but is done through npm run deploy. Although, it will be useful if you update the backend/frontend and want to reference a function you will generate rather than deploy as it takes less time.
 
@@ -149,6 +142,7 @@ dfx deploy --network ic backend && dfx deploy --network ic frontend
 ```
 
 ## Additional Commands
+
 A list of all predefined commands can be found in the package.json file.
 
 Here are some commands that might be useful:
@@ -164,6 +158,7 @@ To check the status of a canister run:
 ```bash
 npm run canisterStatus <Canister ID>
 ```
+
 To rebuild a canisters on the internet computer run:
 
 ```bash
@@ -175,7 +170,6 @@ To get the ID of a canister from the canister name run:
 ```bash
 npm run canisterIDIC <Canister Name>
 ```
-
 
 ## Design Documents
 

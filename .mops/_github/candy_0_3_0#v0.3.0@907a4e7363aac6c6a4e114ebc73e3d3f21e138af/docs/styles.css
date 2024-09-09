@@ -1,4 +1,3 @@
-
 * {
   box-sizing: border-box;
 }
@@ -6,7 +5,9 @@
 body {
   background: #fff;
   color: #222;
-  font-family: Circular Std, sans-serif;
+  font-family:
+    Circular Std,
+    sans-serif;
   line-height: 1.15;
   -webkit-font-smoothing: antialiased;
   margin: 0;
@@ -41,7 +42,7 @@ body {
   bottom: 0;
   overflow: auto;
 
-  background-color: #F1F1F1;
+  background-color: #f1f1f1;
 }
 
 .documentation {
@@ -90,7 +91,7 @@ body {
 h1 {
   font-weight: 500;
   padding-bottom: 6px;
-  border-bottom: 1px #D5D5D5 dashed;
+  border-bottom: 1px #d5d5d5 dashed;
 }
 
 h4.function-declaration {
@@ -159,4 +160,3 @@ h4.class-declaration {
   display: inline;
   white-space: nowrap;
 }
-

@@ -2,13 +2,14 @@
 
 **Warning: ICRC37 has not been finalized. This is Beta software and should not be used in production until it has been reviewed, audited, and the standard finalized**
 
-
 ## Install
+
 ```
 mops add icrc37.mo
 ```
 
 ## Usage
+
 ```motoko
 import Icrc37Mo "mo:icrc37.mo";
 ```
@@ -69,16 +70,17 @@ The environment pattern lets you pass dynamic information about your environment
 
 ### Input Init Args
 
-  max_approvals_per_token_or_collection the maximum number of approvals that can be active for any account, defaults to 10,000;
-  max_revoke_approvals - the maximum number of approvals that can be revoked at one time - defaults to the max_batch_update setting in your icrc7 class
-  collection_approval_requires_token - will require that any user making a collection approval has a token in ownership;
-  max_approvals - the max approvals allowed on the canister - defaults to 100,000;
-  settle_to_approvals - the number of approvals that the cleanup will seek to reach if max_approvals is exceeded. Defaults to 99,750(So the default state is that 250 approvals(oldest first) will be removed if 100,001 approvals is reached).
-  - deployer - the principal deploying, will be the owner of the collection;
+max_approvals_per_token_or_collection the maximum number of approvals that can be active for any account, defaults to 10,000;
+max_revoke_approvals - the maximum number of approvals that can be revoked at one time - defaults to the max_batch_update setting in your icrc7 class
+collection_approval_requires_token - will require that any user making a collection approval has a token in ownership;
+max_approvals - the max approvals allowed on the canister - defaults to 100,000;
+settle_to_approvals - the number of approvals that the cleanup will seek to reach if max_approvals is exceeded. Defaults to 99,750(So the default state is that 250 approvals(oldest first) will be removed if 100,001 approvals is reached).
 
-  ## Deduplication
+- deployer - the principal deploying, will be the owner of the collection;
 
-The class uses a Representational Independent Hash map to keep track of duplicate transactions within the permitted drift timeline.  The hash of the "tx" value is used such that provided memos and created_at_time will keep deduplication from triggering.
+## Deduplication
+
+The class uses a Representational Independent Hash map to keep track of duplicate transactions within the permitted drift timeline. The hash of the "tx" value is used such that provided memos and created_at_time will keep deduplication from triggering.
 
 ## Event system
 
@@ -86,7 +88,7 @@ The class uses a Representational Independent Hash map to keep track of duplicat
 
 The class has a register_token_approved_listener, register_collection_approved_listener, register_token_revoked_listener, register_collection_revoked_listener, and register_transfer_from_listener endpoints that allows other objects to register an event listener and be notified whenever a token event occurs from one user to another.
 
-The events are synchronous and cannot directly make calls to other canisters.  We suggest using them to set timers if notifications need to be sent using the Timers API.
+The events are synchronous and cannot directly make calls to other canisters. We suggest using them to set timers if notifications need to be sent using the Timers API.
 
 Note that TransferFrom Notifications will be accompanies by Transfer Notifications from the icrc7 component.
 
@@ -106,7 +108,7 @@ Note that TransferFrom Notifications will be accompanies by Transfer Notificatio
     spender : Account;             // Approval is given to an ICRC Account
     memo :  ?Blob;
     expires_at : ?Nat64;
-    created_at_time : ?Nat64; 
+    created_at_time : ?Nat64;
   };
 
   public type CollectionApprovalNotification = {
@@ -114,7 +116,7 @@ Note that TransferFrom Notifications will be accompanies by Transfer Notificatio
     spender : Account;             // Approval is given to an ICRC Account
     memo :  ?Blob;
     expires_at : ?Nat64;
-    created_at_time : ?Nat64; 
+    created_at_time : ?Nat64;
   };
 
   public type RevokeTokenNotification = {
@@ -141,7 +143,7 @@ Note that TransferFrom Notifications will be accompanies by Transfer Notificatio
 
 ### Overrides
 
-The user may assign a function to intercept each transaction type just before it is committed to the transaction log.  These functions are optional. The user may manipulate the values and return them to the processing transaction and the new values will be used for the transaction block information and for notifying subscribed components.
+The user may assign a function to intercept each transaction type just before it is committed to the transaction log. These functions are optional. The user may manipulate the values and return them to the processing transaction and the new values will be used for the transaction block information and for notifying subscribed components.
 
 By returning an #err from these functions you will effectively cancel the transaction and the caller will receive back a #GenericError for that request with the message you provide.
 

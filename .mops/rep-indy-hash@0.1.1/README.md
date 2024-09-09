@@ -9,17 +9,17 @@ See https://github.com/dfinity/ICRC-1/blob/icrc-3/standards/ICRC-3/HASHINGVALUES
 ICRC3 requires that transactions be held in a Value type:
 
 ```
-type Value = variant { 
-    Blob : blob; 
-    Text : text; 
+type Value = variant {
+    Blob : blob;
+    Text : text;
     Nat : nat; // do we need this or can we just use Int?
     Int : int;
-    Array : vec Value; 
-    Map : vec record { text; Value }; 
+    Array : vec Value;
+    Map : vec record { text; Value };
 };
 ```
 
-Each transaction type is defined as a map of a "phash"(not included in the first block) and "tx".  The phash is the hash of the previous transaction.  
+Each transaction type is defined as a map of a "phash"(not included in the first block) and "tx". The phash is the hash of the previous transaction.
 
 ```
 type ICRC1_Transaction = {
@@ -35,11 +35,13 @@ type ICRC1_Transaction = {
 To get this hash you need to take Representationally Independent Hash of that object
 
 ## Install
+
 ```
 mops add rep-indy-hash
 ```
 
 ## Usage
+
 ```motoko
 import RepIndy "mo:rep-indy-hash";
 
@@ -100,7 +102,6 @@ the hash of an Int is the sleb128 encoding of the number
 the hash of an Array is the hash of the concatenation of the hashes of all the elements of the array
 the hash of a Map is the hash of the concatenation of all the hashed items of the map sorted. A hashed item is the tuple composed by the hash of the key and the hash of the value.
 
-
 # Credit
 
-This library was almost completely lifted from @nomeata and the https://github.com/nomeata/ic-certification library.  It did not include the encodings for Integer and I had to add the sleb128 encoding, but almost all the credit should go there.
+This library was almost completely lifted from @nomeata and the https://github.com/nomeata/ic-certification library. It did not include the encodings for Integer and I had to add the sleb128 encoding, but almost all the credit should go there.

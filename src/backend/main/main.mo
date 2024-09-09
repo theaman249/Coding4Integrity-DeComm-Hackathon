@@ -178,7 +178,7 @@ actor class Main() {
         newPrice : Types.Price,
         newShortDesc : Text,
         newLongDesc : Text,
-        newIsVisible : Bool
+        newIsVisible : Bool,
     ) : async Result.Result<(), Text> {
         for (product in productsArray.vals()) {
             let prod = await convertProductToType(product);
@@ -425,36 +425,6 @@ actor class Main() {
         productBuffer := Buffer.fromArray<Product.Product>(productsArray);
         transactionBuffer := Buffer.fromArray<Transaction.Transaction>(transactionsArray);
     };
-
-    // public func createTestEnv() : async () {
-    //     await clearDB();
-    //     let user1 = await createUser("user1");
-    //     let user2 = await createUser("user2");
-    //     let price1 : Types.Price = {
-    //         currency = #usd;
-    //         amount = 10;
-    //     };
-    //     let price2 : Types.Price = {
-    //         currency = #usd;
-    //         amount = 15;
-    //     };
-    //     let price3 : Types.Price = {
-    //         currency = #usd;
-    //         amount = 5;
-    //     };
-
-    //     let product1 = await createProduct("user1", "prod1", "cat1", price1, "short", "long", true, "null");
-    //     let _product2 = await createProduct("user2", "prod2", "cat1", price1, "short", "long", true, "null");
-    //     let product3 = await createProduct("user2", "prod3", "cat1", price2, "short", "long", true, "null");
-    //     let _product4 = await createProduct("user2", "prod4", "cat1", price3, "short", "long", true, "null");
-
-    //     await purchase(user2, price1, product1);
-    //     await user2.addToWallet(price1);
-    //     await purchase(user2, price1, product1);
-    //     await user2.addToWallet(price1);
-    //     await purchase(user2, price1, product1);
-    //     await purchase(user1, price2, product3);
-    // };
 
     private func findUser(userName : Text) : async ?User.User {
         for (user in usersArray.vals()) {

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -18,8 +19,11 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git clone --mirror https://${{ secrets.GIT_TOKEN }}@github.com/KnowledgeFound/DeComm.git
-          cd DeComm.git
-          git push --mirror https://${{ secrets.GIT_TOKEN }}@github.com/KnowledgeFound/Coding4Integrity-DeComm-Hackathon.git
+          git clone https://${{ secrets.GIT_TOKEN }}@github.com/KnowledgeFound/Coding4Integrity-DeComm-Hackathon.git
+          cd Coding4Integrity-DeComm-Hackathon
+          git remote add DeComm https://${{ secrets.GIT_TOKEN }}@github.com/KnowledgeFound/DeComm.git
+          git remote update
+          git merge DeComm/main
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}

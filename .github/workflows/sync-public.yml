@@ -23,7 +23,7 @@ jobs:
           cd Coding4Integrity-DeComm-Hackathon
           git remote add DeComm https://${{ secrets.GIT_TOKEN }}@github.com/KnowledgeFound/DeComm.git
           git remote update
-          git merge DeComm/main
-          git push origin main
+          git merge DeComm/master
+          git push origin master
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}

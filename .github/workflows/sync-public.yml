@@ -3,7 +3,7 @@ name: Sync Private to Public Repo
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   sync:
     runs-on: ubuntu-latest

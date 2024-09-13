@@ -103,9 +103,11 @@ npm install
 
 If you want to start working on your project, run the following commands:
 
-**_Note due to source mapping, building the frontend application requires a large amount of memory. Increase the maximum heap size given to Node.js to either 3 or 4 GB. Anything above 2GB will work_**
+**_Note due to source mapping, building the frontend application requires a large amount of memory. Increase the maximum heap size given to Node.js to anything above the default 2GB_**
 
 ```bash
+//2.5GB
+export NODE_OPTIONS="--max-old-space-size=2500"
 //3GB
 export NODE_OPTIONS="--max-old-space-size=3072"
 //4GB

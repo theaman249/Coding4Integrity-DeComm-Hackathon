@@ -25,11 +25,6 @@
       "main": "src/backend/NFTCanister/main.mo",
       "type": "motoko",
       "dependencies": ["backend"]
-    },
-    "sortingFiltering": {
-      "main": "src/backend/sorting/main.mo",
-      "type": "motoko",
-      "dependencies": ["backend"]
     }
   },
   "defaults": {

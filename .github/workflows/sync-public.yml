@@ -24,6 +24,11 @@ jobs:
           git remote add DeComm https://${{ secrets.GIT_TOKEN }}@github.com/KnowledgeFound/DeComm.git
           git remote update
           git merge DeComm/master
+          if [ -d ".github" ]; then
+            rm -rf .github
+            git add -A
+            git commit -m "Remove .github folder"
+          fi
           git push origin master
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}

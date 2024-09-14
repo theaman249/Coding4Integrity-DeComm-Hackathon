@@ -4,6 +4,7 @@ import Cycles "mo:base/ExperimentalCycles";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
+import Nat32 "mo:base/Nat32";
 
 import Types "../commons/Types";
 import Product "Product";
@@ -116,14 +117,17 @@ actor class Main() {
 
     
 
-    public func loginUser(username : Text, password:Text) : async User.User {
+    public func loginUser<system>(username : Text, password:Text) : async User.User {
+        
+        splitCycles<system>();
+        
         let dummyName = "null";
         let dummyEmail = "null";
 
         let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
 
         for (index in usersArray.vals()) {
-            if (Text.equal(username, await index.getName())) {
+            if (Text.equal(username, await index.getEmail())) {
 
                 let foundUser:User.User = index;
                 let hashedPassword = Text.hash(password);
@@ -140,6 +144,8 @@ actor class Main() {
 
         return dummy;
     };
+
+    
 
     
 
@@ -190,7 +196,7 @@ actor class Main() {
     };
 
     public func test(): async Text{
-        return "We are talking!";
+        return "Hello from backend";
     };
 
     public func getAllProductTypesFromObjectArray(productObjList : [Product.Product]) : async [Types.Product] {

@@ -4,8 +4,6 @@ import Cycles "mo:base/ExperimentalCycles";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import Hash "mo:base/Hash";
-
 
 import Types "../commons/Types";
 import Product "Product";
@@ -59,6 +57,16 @@ actor class Main() {
         };
         return Buffer.toArray(namebuffer);
     };
+
+    public func getAllUserEmails() : async [Text] {
+        let emailbuffer = Buffer.Buffer<Text>(0);
+        for (index in usersArray.vals()) {
+            let email = await index.getEmail();
+            emailbuffer.add(email);
+        };
+        return Buffer.toArray(emailbuffer);
+    };
+
     private func numberOfSplits(str : Text, delimiter : Text) : async Nat {
         var count : Nat = 0;
         for (c in str.chars()) {
@@ -71,13 +79,14 @@ actor class Main() {
 
     public func createUser<system>(name : Text, email : Text, password : Text) : async User.User {
         let hashedPassword = Text.hash(password);
-        let fullNameSplits = await numberOfSplits(name, " ");
+        let fullNameSplits = await numberOfSplits(email, " ");
         if (fullNameSplits != 1) {
             var flag : Bool = false;
-            let usernames = await getAllUserNames();
+            let usernames = await getAllUserEmails();
             for (username in usernames.vals()) {
-                if (Text.equal(name, username)) {
+                if (Text.equal(email, username)) {
                     flag := true;
+                    Debug.print("User exists");
                 };
             };
         };

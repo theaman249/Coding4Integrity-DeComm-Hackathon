@@ -57,6 +57,7 @@
         if (form.valid) {
           await actorBackend.loginUser(form.data.Email);
           $Email = form.data.Email;
+          $Password = form.data.Password;
           $loginStore = false;
           $loggedIn = true;
           $isValidUser = true;
@@ -116,8 +117,10 @@
               on:input={checkRegex}
               {...$constraints.Password}
             />
-            {#if $errors.Password}
-              <small class="text-red-700 mb-2">{$errors.Password}</small>
+            {#if isValid}
+              <small class="text-red-700 mb-2"><p>Valid input!</p></small>
+              {:else}
+              <small class="text-red-700 mb-2"><p style="color: red;">Invalid input!</p></small>
             {/if}
           {#if !formSubmitted}
             <Button type="submit">Log in</Button>

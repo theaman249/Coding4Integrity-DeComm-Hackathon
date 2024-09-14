@@ -32,7 +32,7 @@
   let formSubmitted = false;
 
   const newContactSchema = z.object({
-    fullName: z.string().min(2).max(15),
+    fullName: z.string().min(2).max(25),
   });
 
   const { form, errors, enhance, constraints, capture, restore } = superForm(

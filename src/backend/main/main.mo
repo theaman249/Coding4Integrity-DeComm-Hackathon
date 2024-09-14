@@ -133,6 +133,8 @@ actor class Main() {
     public func convertUserToType(user : User.User) : async Types.User {
         return {
             name = await user.getName();
+            email = await user.getEmail();
+            pHash = await user.getPHash();
             buyersCart = await user.getBuyersCart();
             sellersStock = await user.getSellersStock();
             purchases = await user.getPurchases();

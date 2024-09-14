@@ -4,6 +4,8 @@ import Cycles "mo:base/ExperimentalCycles";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
+import Hash "mo:base/Hash";
+
 
 import Types "../commons/Types";
 import Product "Product";
@@ -67,7 +69,8 @@ actor class Main() {
         return count;
     };
 
-    public func createUser<system>(name : Text) : async User.User {
+    public func createUser<system>(name : Text, email : Text, password : Text) : async User.User {
+        let hashedPassword = Text.hash(password);
         let fullNameSplits = await numberOfSplits(name, " ");
         if (fullNameSplits != 1) {
             var flag : Bool = false;
@@ -82,17 +85,13 @@ actor class Main() {
 
         let user = await User.User(
             name,
+            email,
+            hashedPassword,
             [],
             [],
             [],
             [],
             [
-                { currency = #eth; amount = 1000000000000 },
-                { currency = #btc; amount = 1000000000000 },
-                { currency = #icp; amount = 1000000000000 },
-                { currency = #usd; amount = 1000000000000 },
-                { currency = #gbp; amount = 1000000000000 },
-                { currency = #eur; amount = 1000000000000 },
                 { currency = #kt; amount = 1000000000000 },
             ],
         );
@@ -100,19 +99,20 @@ actor class Main() {
         await updateUserArray(user);
         return user;
     };
+
     private func updateUserArray(user : User.User) : async () {
         userBuffer.add(user);
         usersArray := Buffer.toArray<User.User>(userBuffer);
     };
 
-    public func loginUser(name : Text) : async User.User {
+    /*public func loginUser(name : Text) : async User.User {
         for (index in usersArray.vals()) {
             if (Text.equal(name, await index.getName())) {
                 return index;
             };
         };
         return await createUser(name);
-    };
+    };*/
 
     public query func getAllUsers() : async [User.User] {
         return usersArray;

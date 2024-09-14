@@ -4,6 +4,8 @@ import { join } from "path";
 import type { UserConfig } from "vite";
 import { defineConfig, loadEnv } from "vite";
 import path from "path";
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 const network = process.env.DFX_NETWORK ?? "local";
 let host: string;
@@ -116,4 +118,10 @@ export default defineConfig(({ mode }: UserConfig): UserConfig => {
       "global.Buffer": "globalThis.Buffer",
     },
   };
+
+  css: {
+    postcss: {
+        plugins: [tailwindcss(), autoprefixer()]
+    }
+  }
 });

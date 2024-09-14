@@ -102,7 +102,7 @@
 <svelte:window bind:innerWidth />
 
 <div
-  class="text-black fixed lg:hidden inset-0 z-40 top-0 right-0 h-full w-80svw bg-white transform translate-x-full transition-transform duration-300 navbarVisible pointer-events-auto thisIsNav bg-zinc-50"
+  class="text-black fixed lg:hidden inset-0 z-40 top-0 right-0 h-full w-80svw bg-white transform translate-x-full transition-transform duration-300 navbarVisible pointer-events-auto thisIsNav bg-zinc-50 dark:bg-background dark:text-white"
 >
   <div
     class="flex justify-end h-[20%] item-center content-center max-[500px]:mb-10"
@@ -131,7 +131,7 @@
 </div>
 
 <header
-  class="w-full mx-auto py-3 lg:py-7 z-20 transition-all duration-300 ease-in-out border-b-4 border-zinc-400 top-0 absolute bg-white"
+  class="w-full mx-auto py-3 lg:py-7 z-20 transition-all duration-300 ease-in-out border-b-4 border-primary top-0 absolute bg-background dark:bg-background dark:text-white"
 >
   <nav
     class="grid grid-cols-12 gap-4 items-center py-2 text-stone-500 hover:text-stone-500 focus:text-stone-700 lg:py-1 data-te-navbar-ref"
@@ -140,7 +140,7 @@
       <div class="ml-5 lg:ml-10">
         <a
           href="/"
-          class="font-bold text-xl lg:text-2xl text-black hover:cursor-pointer active:text-black/50"
+          class="font-bold text-xl lg:text-2xl text-black hover:cursor-pointer active:text-black/50 dark:text-white dark:active:text-black/50 dark:text-white"
           on:click|preventDefault={goHomeTitle}
           >D&nbspE&nbspC&nbspO&nbspM&nbspM</a
         >
@@ -154,8 +154,8 @@
       {/if}
       <div class="col-span-12 lg:hidden content-end flex justify-end mr-5">
         <button aria-label="Toggle navigation" on:click={toggleNavBar}>
-          <div class="w-6 h-1 my-1 bg-stone-900"></div>
-          <div class="w-6 h-1 my-1 bg-stone-900"></div>
+          <div class="w-6 h-1 my-1 bg-background"></div>
+          <div class="w-6 h-1 my-1 bg-background"></div>
           <div class="w-6 h-1 bg-black"></div>
         </button>
       </div>
@@ -171,6 +171,8 @@
           <Select.Content class="shadow-lg backdrop-blur-xl">
             <p class="text-sm text-center my-3">{$fullName}</p>
             <hr />
+            <hr />
+            <ThemeToggler/>
             <Select.Item value="Personal Account" on:click={pAccount}
               >Personal Account</Select.Item
             >
@@ -181,17 +183,15 @@
             <Button class="ghost w-full h-full" on:click={logOut}
               >Log Out</Button
             >
-            <hr>
-            <ThemeToggler/>
           </Select.Content>
         </Select.Root>
       {/key}
       <div>
         <button
-          class="hover:bg-zinc-200 hover:rounded-lg flex items-center justify-center cursor-pointer"
+          class="hover:bg-secondary hover:rounded-lg flex items-center justify-center cursor-pointer"
           on:click={() => goto("/cart")}
         >
-          <IconShoppingCart size={48} stroke={1} color={"#71717a"} />
+          <IconShoppingCart size={48} stroke={1} color={"#71717A"} />
           <div
             class="absolute top-[2.54rem] right-[3.25rem] flex items-center justify-center w-5 h-5 text-zinc-500 text-xs font-bold rounded-full"
           >
@@ -205,7 +205,7 @@
 
 {#if $accountType.value === "Personal Account" && $page.url.pathname === "/" && innerWidth < 1024}
   <div
-    class="fixed bottom-0 bg-white z-20 w-full border-t-2 border-zinc-300 p-2"
+    class="fixed bottom-0 bg-background z-20 w-full border-t-2 p-2 dark:bg-background"
   >
     <div class="w-full flex justify-center items-center">
       <Search />

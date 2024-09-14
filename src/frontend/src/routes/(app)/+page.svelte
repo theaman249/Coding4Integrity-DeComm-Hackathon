@@ -14,7 +14,7 @@
 </script>
 
 <main
-  class="bg-zinc-50 min-h-screen flex justify-center items-center pb-16 2xl:mb-0 overflow-y-scroll no-scrollbar z-50"
+  class="bg-background min-h-screen flex justify-center items-center pb-16 2xl:mb-0 overflow-y-scroll no-scrollbar z-50"
 >
   {#if $loggedIn.value !== false}
     {#if loaded == true}

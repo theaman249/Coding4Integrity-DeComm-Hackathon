@@ -82,7 +82,7 @@
 
 <button
   use:melt={$trigger}
-  class="flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-[20px] font-semibold w-full md:w-[50vh] xl:w-full"
+  class="flex items-center justify-center gap-2 px-4 py-2 border-2 border-primary rounded-[20px] font-semibold w-full md:w-[50vh] xl:w-full"
 >
   <SearchIcon />
   <span class="hidden sm:block">Search</span>

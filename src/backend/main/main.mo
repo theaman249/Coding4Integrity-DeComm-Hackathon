@@ -105,14 +105,34 @@ actor class Main() {
         usersArray := Buffer.toArray<User.User>(userBuffer);
     };
 
-    /*public func loginUser(name : Text) : async User.User {
+    
+
+    public func loginUser(username : Text, password:Text) : async User.User {
+        let dummyName = "null";
+        let dummyEmail = "null";
+
+        let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
+
         for (index in usersArray.vals()) {
-            if (Text.equal(name, await index.getName())) {
-                return index;
+            if (Text.equal(username, await index.getName())) {
+
+                let foundUser:User.User = index;
+                let hashedPassword = Text.hash(password);
+
+                if(foundUser.getPHash() == hashedPassword)
+                {
+                    return foundUser;
+                }
+                else{
+                    return dummy; 
+                }
             };
         };
-        return await createUser(name);
-    };*/
+
+        return dummy;
+    };
+
+    
 
     public query func getAllUsers() : async [User.User] {
         return usersArray;

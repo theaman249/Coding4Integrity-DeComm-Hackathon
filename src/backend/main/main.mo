@@ -67,6 +67,7 @@ actor class Main() {
         return count;
     };
 
+
     public func createUser<system>(name : Text) : async User.User {
         let fullNameSplits = await numberOfSplits(name, " ");
         if (fullNameSplits != 1) {
@@ -94,24 +95,29 @@ actor class Main() {
                 { currency = #gbp; amount = 1000000000000 },
                 { currency = #eur; amount = 1000000000000 },
                 { currency = #kt; amount = 1000000000000 },
-            ],
+            ]
         );
 
         await updateUserArray(user);
         return user;
     };
+
+
     private func updateUserArray(user : User.User) : async () {
         userBuffer.add(user);
         usersArray := Buffer.toArray<User.User>(userBuffer);
     };
 
-    public func loginUser(name : Text) : async User.User {
+    /**
+    * The loginUser function returns a user object to the frontEnd upon successful login.
+    */
+
+    public func loginUser(name : Text,email: Text, password:Text) : async User.User {
         for (index in usersArray.vals()) {
             if (Text.equal(name, await index.getName())) {
                 return index;
             };
         };
-        return await createUser(name);
     };
 
     public query func getAllUsers() : async [User.User] {
@@ -141,7 +147,7 @@ actor class Main() {
         };
     };
 
-    public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product {
+    public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product{
         splitCycles<system>();
         var product = await Product.Product(user, name, category, price, shortDesc, longDesc, isVisible, picture, productIDNum);
         productIDNum := productIDNum + 1;
@@ -156,6 +162,10 @@ actor class Main() {
 
     public query func getAllProducts() : async [Product.Product] {
         return productsArray;
+    };
+
+    public func test(): async Text{
+        return "We are talking!";
     };
 
     public func getAllProductTypesFromObjectArray(productObjList : [Product.Product]) : async [Types.Product] {

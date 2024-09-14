@@ -11,7 +11,7 @@ actor class User(
     sellersStock : [Types.Product],
     purchases : [Types.Transaction],
     soldItems : [Types.Transaction],
-    wallet : [Types.Price],
+    wallet : [Types.Price]
 ) {
 
     stable var userName : Text = name;
@@ -30,6 +30,8 @@ actor class User(
     public query func getName() : async Text {
         return userName;
     };
+
+
 
     public query func getSellersStock() : async [Types.Product] {
         return userSellersStock;

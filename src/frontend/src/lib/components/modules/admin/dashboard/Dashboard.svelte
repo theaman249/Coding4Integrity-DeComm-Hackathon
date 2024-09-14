@@ -3,6 +3,12 @@
   import ViewProducts from "$lib/components/modules/admin/ViewProducts/ViewProducts.svelte";
   import AddProduct from "$lib/components/modules/admin/AddProduct/AddProduct.svelte";
   import { fullName } from "$lib/data/stores/stores";
+  import { onMount } from "svelte";
+
+  onMount(()=>{
+
+    console.log('Working!!');
+  });
 
   let chosen = "Add Products";
 </script>

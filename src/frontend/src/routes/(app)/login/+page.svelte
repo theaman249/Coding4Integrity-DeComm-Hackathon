@@ -4,11 +4,12 @@
   import { Button } from "$lib/components/ui/button";
   import BG from "$lib/images/bg-1.webp";
   import {
-    fullName,
+    Email,
     loggedIn,
     loginStore,
     registerStore,
     isValidUser,
+    Password,
   } from "$lib/data/stores/stores.js";
   import { goto } from "$app/navigation";
   import { actorBackend } from "$lib/motokoImports/backend";
@@ -17,6 +18,14 @@
   import { zod } from "sveltekit-superforms/adapters";
   import Reload from "svelte-radix/Reload.svelte";
 
+  let inputValue = '';
+  let regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[\W_]).{8,}$/;
+  let isValid = true;
+
+  function checkRegex(): void {
+    isValid = regex.test(inputValue);
+  }
+
   function registerCheck() {
     $registerStore = true;
     $loginStore = false;
@@ -24,7 +33,8 @@
   }
 
   function login(name: string) {
-    $fullName = name;
+    $Email = name;
+    $Password = "";
     $registerStore = false;
     $loggedIn = true;
   }
@@ -45,8 +55,8 @@
       },
       async onUpdate({ form }) {
         if (form.valid) {
-          await actorBackend.loginUser(form.data.fullName);
-          $fullName = form.data.fullName;
+          await actorBackend.loginUser(form.data.Email);
+          $Email = form.data.Email;
           $loginStore = false;
           $loggedIn = true;
           $isValidUser = true;
@@ -85,17 +95,30 @@
       </p>
       <form method="POST" use:enhance>
         <div class="grid w-full max-w-sm items-center gap-1.5 text-start mt-5">
-          <Label for="fullName">Full name</Label>
+          <Label for="Email">Email</Label>
           <Input
-            type="text"
-            id="fullName"
-            name="fullName"
-            bind:value={$form.fullName}
-            {...$constraints.fullName}
+            type="email"
+            id="Email"
+            name="Email"
+            bind:value={$form.Email}
+            {...$constraints.Email}
           />
-          {#if $errors.fullName}
-            <small class="text-red-700 mb-2">{$errors.fullName}</small>
+          {#if $errors.Email}
+            <small class="text-red-700 mb-2">{$errors.Email}</small>
           {/if}
+          <div class="grid w-full max-w-sm items-center gap-1.5 text-start mt-5">
+            <Label for="Password">Password</Label>
+            <Input
+              type="password"
+              id="Password"
+              name="Password"
+              bind:value={$form.Password}
+              on:input={checkRegex}
+              {...$constraints.Password}
+            />
+            {#if $errors.Password}
+              <small class="text-red-700 mb-2">{$errors.Password}</small>
+            {/if}
           {#if !formSubmitted}
             <Button type="submit">Log in</Button>
           {:else}

@@ -20,7 +20,11 @@ export const loginStore = persisted("loginStore", {
   value: false,
 });
 
-export const fullName = persisted("fullName", {
+export const Email = persisted("Email", {
+  value: "",
+});
+
+export const Password = persisted("Password", {
   value: "",
 });
 

@@ -7,6 +7,8 @@ import Types "../commons/Types";
 
 actor class User(
     name : Text,
+    email : Text,
+    pHash : Nat32,
     buyersCart : [Types.Product],
     sellersStock : [Types.Product],
     purchases : [Types.Transaction],
@@ -15,6 +17,8 @@ actor class User(
 ) {
 
     stable var userName : Text = name;
+    stable var userEmail : Text = email;
+    stable var userPHash : Nat32 = pHash;
     stable var userBuyersCart : [Types.Product] = buyersCart;
     stable var userSellersStock : [Types.Product] = sellersStock;
     stable var userPurchases : [Types.Transaction] = purchases;
@@ -31,7 +35,13 @@ actor class User(
         return userName;
     };
 
+    public query func getEmail() : async Text {
+        return userEmail;
+    };
 
+    public query func getPHash() : async Nat32 {
+        return userPHash;
+    };
 
     public query func getSellersStock() : async [Types.Product] {
         return userSellersStock;

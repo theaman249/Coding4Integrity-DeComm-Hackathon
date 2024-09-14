@@ -15,6 +15,7 @@
   import { IconShoppingCart } from "@tabler/icons-svelte";
   import { onMount } from "svelte";
   import { actorBackend } from "$lib/motokoImports/backend";
+  import ThemeToggler from "$lib/components/modules/Header/theme-toggler/theme-toggler.svelte"
 
   $: innerWidth = 0;
   let sideNavBar = false;
@@ -180,6 +181,8 @@
             <Button class="ghost w-full h-full" on:click={logOut}
               >Log Out</Button
             >
+            <hr>
+            <ThemeToggler/>
           </Select.Content>
         </Select.Root>
       {/key}

@@ -1,4 +1,4 @@
-import { createActor as Backend } from "../../../../declarations/backend/";
+import { createActor as Backend } from "../../../../declarations/backend";
 import { createActor as HttpOutcall } from "../../../../declarations/httpOutcalls";
 import { createActor as fileUpload } from "../../../../declarations/fileUpload";
 

@@ -40,7 +40,7 @@
       },
       async onUpdate({ form }) {
         if (form.valid) {
-        //  await actorBackend.createUser(form.data.fullName, form.data.email, form.data.password);
+         await actorBackend.createUser(form.data.fullName, form.data.email, form.data.password);
           $fullName = form.data.fullName;
           $email = form.data.email;
           $password = form.data.password;

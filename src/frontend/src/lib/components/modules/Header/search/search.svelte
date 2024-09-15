@@ -104,7 +104,7 @@
     <div
       in:fade={{ duration: 200 }}
       use:melt={$overlay}
-      class="fixed inset-0 bg-black/80 backdrop-blur-sm z-30"
+      class="fixed inset-0 bg-background/80 backdrop-blur-sm z-30"
     />
     <div
       use:melt={$content}
@@ -117,10 +117,10 @@
         spellcheck="false"
         type="search"
         disabled={!isReady}
-        class="w-full p-4 text-center text-search-input-txt bg-white focus:outline-none border-zinc-400 border-[3px] rounded-t-xl"
+        class="w-full p-4 text-center text-search-input-txt bg-background focus:outline-none border-zinc-400 border-[3px] rounded-t-xl"
       />
       <div
-        class="min-h-[85vh] max-h-[85vh] xl:min-h-[80vh] xl:max-h-[80vh] p-2 bg-white overflow-y-auto scrollbar-thin rounded-b-xl border-zinc-400 border-x-[3px] border-b-[3px]"
+        class="min-h-[85vh] max-h-[85vh] xl:min-h-[80vh] xl:max-h-[80vh] p-2 bg-background overflow-y-auto scrollbar-thin rounded-b-xl border-zinc-400 border-x-[3px] border-b-[3px]"
         id="searchingBox"
       >
         {#if search === "load"}

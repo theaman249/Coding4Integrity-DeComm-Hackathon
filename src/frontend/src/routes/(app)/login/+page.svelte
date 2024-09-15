@@ -55,7 +55,7 @@
       },
       async onUpdate({ form }) {
         if (form.valid) {
-          // await actorBackend.loginUser(form.data.Email, form.data.Password);
+          await actorBackend.loginUser(form.data.Email, form.data.Password);
           $Email = form.data.Email;
           $loginStore = false;
           $loggedIn = true;

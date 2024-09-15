@@ -45,7 +45,7 @@
     --muted-foreground: 240 5% 64.9%;
    
     --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover-foreground: 0 0% 98%; 
    
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -242,7 +242,7 @@ body.nav-open .nonNav:not(.thisIsNav) {
 }
 
 #searchingBox {
-  background-image: url("$lib/images/BG-Desktop2.jpg");
+  /* background-image: url("$lib/images/BG-Desktop2.jpg"); */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

@@ -45,6 +45,7 @@
   const newContactSchema = z.object({
     Email: z.string().min(5).max(45),
     Password: z.string().min(8).max(25),
+
   });
 
   const { form, errors, enhance, constraints, capture, restore } = superForm(

@@ -32,9 +32,9 @@
     goto("/register");
   }
 
-  function login(name: string) {
-    $Email = name;
-    $Password = "";
+  function login(email: string, pass: string) {
+    $Email = email;
+    $Password = pass;
     $registerStore = false;
     $loggedIn = true;
   }
@@ -55,7 +55,7 @@
       },
       async onUpdate({ form }) {
         if (form.valid) {
-          await actorBackend.loginUser(form.data.Email);
+          // await actorBackend.loginUser(form.data.Email, form.data.Password);
           $Email = form.data.Email;
           $loginStore = false;
           $loggedIn = true;
@@ -106,7 +106,6 @@
           {#if $errors.Email}
             <small class="text-red-700 mb-2">{$errors.Email}</small>
           {/if}
-          <div class="grid w-full max-w-sm items-center gap-1.5 text-start mt-5">
             <Label for="Password">Password</Label>
             <Input
               type="password"

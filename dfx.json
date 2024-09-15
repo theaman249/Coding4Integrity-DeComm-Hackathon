@@ -5,6 +5,10 @@
       "type": "motoko",
       "dependencies": ["fileUpload"]
     },
+    "internet_identity": {
+            "type": "pull",
+            "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
     "fileUpload": {
       "main": "src/backend/uploadFile/Assets.mo",
       "type": "motoko"

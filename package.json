@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@dfinity/agent": "^2.0.0",
+    "@dfinity/auth-client": "^2.1.1",
     "@dfinity/candid": "^2.0.0",
     "@dfinity/principal": "^2.0.0",
     "@tabler/icons-svelte": "^3.14.0",

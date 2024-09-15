@@ -41,10 +41,11 @@
       },
       async onUpdate({ form }) {
         if (form.valid) {
-        //  await actorBackend.createUser(form.data.fullName, form.data.email, form.data.password);
-          $fullName = form.data.fullName;
-          $email = form.data.email;
-          $password = form.data.password;
+          let res = await actorBackend.createUser(form.data.fullName, form.data.email, form.data.password);
+          //console.log(JSON.parse(res));
+          // $fullName = form.data.fullName;
+          // $email = form.data.email;
+          // $password = form.data.password;
           $passwordConfirm = form.data.passwordConfirm;
           $registerStore = false;
           $loggedIn = true;
@@ -64,12 +65,11 @@
 
   onMount(async ()=>{
     try{
-      
-      let res = await actorBackend.toJson("21","JSonc","json@123");
+      // let res = await actorBackend.toJson("21","JSonc","json@123");
 
-      console.log(JSON.parse(res));
+      // console.log(JSON.parse(res));
           
-      console.log(res);
+      //console.log(res);
     } catch (err:unknown){
       console.log(err);
     }

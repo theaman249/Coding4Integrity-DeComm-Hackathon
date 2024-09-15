@@ -42,7 +42,8 @@
   let formSubmitted = false;
 
   const newContactSchema = z.object({
-    fullName: z.string().min(2).max(15),
+    Email: z.string().min(5).max(45),
+    Password: z.string().min(8).max(25),
   });
 
   const { form, errors, enhance, constraints, capture, restore } = superForm(
@@ -50,18 +51,24 @@
     {
       SPA: true,
       validators: zod(newContactSchema),
-      onSubmit() {
+      onSubmit()  {
+        console.log('Jericho');
         formSubmitted = true;
+
       },
       async onUpdate({ form }) {
         if (form.valid) {
-          // await actorBackend.loginUser(form.data.Email, form.data.Password);
+          let res = await actorBackend.loginUser(form.data.Email, form.data.Password);
+          //console.log(res);
           $Email = form.data.Email;
           $loginStore = false;
           $loggedIn = true;
           $isValidUser = true;
           formSubmitted = false;
           goto("/");
+        }
+        else{
+          console.log('Unable to validate form');
         }
       },
     },

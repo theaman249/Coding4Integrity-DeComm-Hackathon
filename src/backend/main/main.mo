@@ -79,24 +79,19 @@ actor class Main() {
     };
 
     public func createUser<system>(name : Text, email : Text, password : Text) : async Text{
+        
+        splitCycles<system>();
+
         let hashedPassword = Text.hash(password);
         let fullNameSplits = await numberOfSplits(email, " ");
 
         let dummyName = "null";
         let dummyEmail = "null";
+        
+        splitCycles<system>();
 
         let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
 
-        if (fullNameSplits != 1) {
-            var flag : Bool = false;
-            let usernames = await getAllUserEmails();
-            for (username in usernames.vals()) {
-                if (Text.equal(email, username)) {
-                    flag := true;
-                    return await toJsonUser(dummy,"user already exists");
-                };
-            };
-        };
         splitCycles<system>();
 
         let user = await User.User(
@@ -112,9 +107,26 @@ actor class Main() {
             ]
         );
 
+        splitCycles<system>();
+
+        if (fullNameSplits != 1) {
+            var flag : Bool = false;
+            let usernames = await getAllUserEmails();
+            for (username in usernames.vals()) {
+                if (Text.equal(email, username)) {
+                    flag := true;
+                    return await toJsonUser(dummyName,dummyEmail,"user already exists");
+                };
+            };
+        };
+
+        splitCycles<system>();
+
         await updateUserArray(user);
-        return await toJsonUser(user,"user successfully created");
+        return await toJsonUser(name,email,"user successfully created");
     };
+
+ 
 
 
     private func updateUserArray(user : User.User) : async () {
@@ -126,7 +138,7 @@ actor class Main() {
 
     public func loginUser<system>(username : Text, password:Text) : async Text {
         
-        splitCycles<system>();
+        Cycles.add<system>(2000000000000);
         
         let dummyName = "null";
         let dummyEmail = "null";
@@ -138,18 +150,20 @@ actor class Main() {
 
                 let foundUser:User.User = index;
                 let hashedPassword = Text.hash(password);
+                let name = await foundUser.getName();
+                let email = await foundUser.getEmail();
 
                 if(foundUser.getPHash() == hashedPassword)
                 {
-                    return await toJsonUser(foundUser,"user successfully logged in");
+                    return await toJsonUser(name,email,"user successfully logged in");
                 }
                 else{
-                    return await toJsonUser(dummy,"passwords don't match"); 
+                    return await toJsonUser(name,email,"authentication failed"); 
                 }
             };
         };
 
-        return await toJsonUser(dummy,"unable to login user");
+        return await toJsonUser(dummyName,dummyEmail,"unable to login user");
     };
 
 
@@ -489,18 +503,14 @@ actor class Main() {
     };
 
 
-    /**
-    * This function takes in a User object and converts it into a json String.
-    */
-    private func toJsonUser(user: User.User, msg: Text): async Text{
 
-        let name = await user.getName();
-        let email = await user.getEmail();
-
+    private func toJsonUser(name: Text, email: Text, msg: Text): async Text {
         return "{" #
-            "\"name\": " #  name # ", " #
-            "\"email\": \"" # email # "\"," #
+            "\"name\": \"" # name # "\", " #  // Name value in quotes
+            "\"email\": \"" # email # "\", " #
             "\"message\": \"" # msg # "\"" #
         "}";
-    }
+    }   
+
+
 };

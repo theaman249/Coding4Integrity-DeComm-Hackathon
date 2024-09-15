@@ -1,6 +1,7 @@
 <script lang="ts">
   import { loggedIn, accountType } from "$lib/data/stores/stores";
-  import ProductCards from "$lib/components/modules/app/ProductCards/ProductCards.svelte";
+
+  import Landing from "$lib/components/modules/landing/Landing/Landing.svelte";
   import { onMount } from "svelte";
 
   let loaded = false;
@@ -16,9 +17,9 @@
 <main
   class="bg-background min-h-screen flex justify-center items-center pb-16 2xl:mb-0 overflow-y-scroll no-scrollbar z-50"
 >
-  {#if $loggedIn.value !== false}
-    {#if loaded == true}
-      <ProductCards />
-    {/if}
-  {/if}
+{#if $loggedIn.value !== false}
+ <Landing/>
+ {/if}
+
+ 
 </main>

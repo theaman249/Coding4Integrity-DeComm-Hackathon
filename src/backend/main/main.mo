@@ -5,7 +5,6 @@ import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Nat32 "mo:base/Nat32";
-
 import Types "../commons/Types";
 import Product "Product";
 import Transaction "Transaction";
@@ -125,8 +124,6 @@ actor class Main() {
         await updateUserArray(user);
         return await toJsonUser(name,email,"user successfully created");
     };
-
- 
 
 
     private func updateUserArray(user : User.User) : async () {

@@ -4,8 +4,6 @@ import Cycles "mo:base/ExperimentalCycles";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import ICRC1 "mo:icrc1/ICRC1"; 
-import Array "mo:base/Array";
 
 import Types "../commons/Types";
 import Product "Product";

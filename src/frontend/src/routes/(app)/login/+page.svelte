@@ -17,6 +17,7 @@
   import { z } from "zod";
   import { zod } from "sveltekit-superforms/adapters";
   import Reload from "svelte-radix/Reload.svelte";
+  import * as Alert from "$lib/components/ui/alert";
 
   let inputValue = '';
   let regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[\W_]).{8,}$/;
@@ -128,6 +129,12 @@
           {#if !formSubmitted}
             <Button type="submit">Log in</Button>
           {:else}
+            <Alert.Root>
+              <Alert.Title>Heads up!</Alert.Title>
+              <Alert.Description>
+                Please doubble check your password.
+              </Alert.Description>
+            </Alert.Root>
             <Button disabled>
               <Reload class="mr-2 h-4 w-4 animate-spin" />
               Please wait

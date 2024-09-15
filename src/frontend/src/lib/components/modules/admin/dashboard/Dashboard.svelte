@@ -3,6 +3,12 @@
   import ViewProducts from "$lib/components/modules/admin/ViewProducts/ViewProducts.svelte";
   import AddProduct from "$lib/components/modules/admin/AddProduct/AddProduct.svelte";
   import { fullName } from "$lib/data/stores/stores";
+  import { onMount } from "svelte";
+
+  onMount(()=>{
+
+    console.log('Working!!');
+  });
 
   let chosen = "Add Products";
 </script>
@@ -23,7 +29,7 @@
           <Button
             class="w-full my-1 justify-start hover:underline {chosen ===
             'Add Products'
-              ? 'bg-stone-100'
+              ? 'bg-mute'
               : ''}"
             variant="ghost"
             on:click={() => (chosen = "Add Products")}>Add Producs</Button
@@ -33,7 +39,7 @@
           <Button
             class="w-full my-1 justify-start hover:underline {chosen ===
             'View Products'
-              ? 'bg-stone-100'
+              ? 'bg-mute'
               : ''}"
             variant="ghost"
             on:click={() => (chosen = "View Products")}>View Products</Button
@@ -45,7 +51,7 @@
           <Button
             class="w-full my-1 justify-start hover:underline {chosen ===
             'Add Products'
-              ? 'bg-stone-100'
+              ? 'bg-secondary text-black dark:text-black'
               : ''}"
             variant="ghost"
             on:click={() => (chosen = "Add Products")}>Add Producs</Button
@@ -55,7 +61,7 @@
           <Button
             class="w-full my-1 justify-start hover:underline {chosen ===
             'View Products'
-              ? 'bg-stone-100'
+              ? 'bg-secondary text-black dark:text-black'
               : ''}"
             variant="ghost"
             on:click={() => (chosen = "View Products")}>View Products</Button

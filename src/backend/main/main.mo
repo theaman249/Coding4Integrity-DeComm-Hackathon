@@ -4,7 +4,7 @@ import Cycles "mo:base/ExperimentalCycles";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-
+import Nat32 "mo:base/Nat32";
 import Types "../commons/Types";
 import Product "Product";
 import Transaction "Transaction";
@@ -57,6 +57,16 @@ actor class Main() {
         };
         return Buffer.toArray(namebuffer);
     };
+
+    public func getAllUserEmails() : async [Text] {
+        let emailbuffer = Buffer.Buffer<Text>(0);
+        for (index in usersArray.vals()) {
+            let email = await index.getEmail();
+            emailbuffer.add(email);
+        };
+        return Buffer.toArray(emailbuffer);
+    };
+
     private func numberOfSplits(str : Text, delimiter : Text) : async Nat {
         var count : Nat = 0;
         for (c in str.chars()) {
@@ -67,52 +77,92 @@ actor class Main() {
         return count;
     };
 
-    public func createUser<system>(name : Text) : async User.User {
-        let fullNameSplits = await numberOfSplits(name, " ");
-        if (fullNameSplits != 1) {
-            var flag : Bool = false;
-            let usernames = await getAllUserNames();
-            for (username in usernames.vals()) {
-                if (Text.equal(name, username)) {
-                    flag := true;
-                };
-            };
-        };
+    public func createUser<system>(name : Text, email : Text, password : Text) : async Text{
+        
+        splitCycles<system>();
+
+        let hashedPassword = Text.hash(password);
+        let fullNameSplits = await numberOfSplits(email, " ");
+
+        let dummyName = "null";
+        let dummyEmail = "null";
+        
+        splitCycles<system>();
+
+        let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
+
         splitCycles<system>();
 
         let user = await User.User(
             name,
+            email,
+            hashedPassword,
             [],
             [],
             [],
             [],
             [
-                { currency = #eth; amount = 1000000000000 },
-                { currency = #btc; amount = 1000000000000 },
-                { currency = #icp; amount = 1000000000000 },
-                { currency = #usd; amount = 1000000000000 },
-                { currency = #gbp; amount = 1000000000000 },
-                { currency = #eur; amount = 1000000000000 },
                 { currency = #kt; amount = 1000000000000 },
-            ],
+            ]
         );
 
+        splitCycles<system>();
+
+        if (fullNameSplits != 1) {
+            var flag : Bool = false;
+            let usernames = await getAllUserEmails();
+            for (username in usernames.vals()) {
+                if (Text.equal(email, username)) {
+                    flag := true;
+                    return await toJsonUser(dummyName,dummyEmail,"user already exists");
+                };
+            };
+        };
+
+        splitCycles<system>();
+
         await updateUserArray(user);
-        return user;
+        return await toJsonUser(name,email,"user successfully created");
     };
+
+
     private func updateUserArray(user : User.User) : async () {
         userBuffer.add(user);
         usersArray := Buffer.toArray<User.User>(userBuffer);
     };
 
-    public func loginUser(name : Text) : async User.User {
+    
+
+    public func loginUser<system>(username : Text, password:Text) : async Text {
+        
+        Cycles.add<system>(2000000000000);
+        
+        let dummyName = "null";
+        let dummyEmail = "null";
+
+        let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
+
         for (index in usersArray.vals()) {
-            if (Text.equal(name, await index.getName())) {
-                return index;
+            if (Text.equal(username, await index.getEmail())) {
+
+                let foundUser:User.User = index;
+                let hashedPassword = Text.hash(password);
+                let name = await foundUser.getName();
+                let email = await foundUser.getEmail();
+
+                if(foundUser.getPHash() == hashedPassword)
+                {
+                    return await toJsonUser(name,email,"user successfully logged in");
+                }
+                else{
+                    return await toJsonUser(name,email,"authentication failed"); 
+                }
             };
         };
-        return await createUser(name);
+
+        return await toJsonUser(dummyName,dummyEmail,"unable to login user");
     };
+
 
     public query func getAllUsers() : async [User.User] {
         return usersArray;
@@ -133,6 +183,8 @@ actor class Main() {
     public func convertUserToType(user : User.User) : async Types.User {
         return {
             name = await user.getName();
+            email = await user.getEmail();
+            pHash = await user.getPHash();
             buyersCart = await user.getBuyersCart();
             sellersStock = await user.getSellersStock();
             purchases = await user.getPurchases();
@@ -141,7 +193,7 @@ actor class Main() {
         };
     };
 
-    public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product {
+    public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product{
         splitCycles<system>();
         var product = await Product.Product(user, name, category, price, shortDesc, longDesc, isVisible, picture, productIDNum);
         productIDNum := productIDNum + 1;
@@ -157,6 +209,18 @@ actor class Main() {
     public query func getAllProducts() : async [Product.Product] {
         return productsArray;
     };
+
+    public func test(): async Text{
+        return "Hello from backend";
+    };
+
+    // public query func toJson(id: Text,name: Text,email: Text): async Text {
+    //     return "{" #
+    //         "\"id\": " # id # ", " #
+    //         "\"name\": \"" # name # "\"," #
+    //         "\"email\": \"" # email # "\"" #
+    //     "}";
+    // };
 
     public func getAllProductTypesFromObjectArray(productObjList : [Product.Product]) : async [Types.Product] {
         let typeBuffer = Buffer.Buffer<Types.Product>(0);
@@ -434,4 +498,16 @@ actor class Main() {
         };
         null;
     };
+
+
+
+    private func toJsonUser(name: Text, email: Text, msg: Text): async Text {
+        return "{" #
+            "\"name\": \"" # name # "\", " #  // Name value in quotes
+            "\"email\": \"" # email # "\", " #
+            "\"message\": \"" # msg # "\"" #
+        "}";
+    }   
+
+
 };

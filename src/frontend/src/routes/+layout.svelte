@@ -14,6 +14,7 @@
   import { goto } from "$app/navigation";
   import Header from "$lib/components/modules/Header/Header.svelte";
   import { actorBackend } from "$lib/motokoImports/backend";
+  import {ModeWatcher} from "mode-watcher";
 
   let loaded = false;
 
@@ -113,6 +114,7 @@
 
 {#if $loggedIn.value !== false && $isValidUser}
   <Header />
+  <ModeWatcher/>
 {/if}
 
 <Toaster />

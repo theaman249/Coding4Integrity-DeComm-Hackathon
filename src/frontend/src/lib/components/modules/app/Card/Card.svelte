@@ -81,7 +81,7 @@
 </script>
 
 <div
-  class="p-2 max-w-xs lg:max-w-md mx-auto border-[3.5px] border-zinc-400 bg-white shadow-md xl:shadow-lg rounded-lg overflow-hidden min-h-[650px] max-h-[650px] relative"
+  class="p-2 max-w-xs lg:max-w-md mx-auto border-[3.5px] border-muted bg-background shadow-md xl:shadow-lg rounded-lg overflow-hidden min-h-[650px] max-h-[650px] relative"
 >
   <Carousel.Root>
     <Carousel.Content>
@@ -107,13 +107,13 @@
         {/each}
       </h2>
     </div>
-    <p class="text-gray-600 mb-4">{@html product.productShortDesc}</p>
+    <p class="text-muted-foreground mb-4">{@html product.productShortDesc}</p>
   </div>
   <div class="p-4 absolute bottom-0 w-full">
     <div class="flex justify-between gap-x-2">
       <Drawer.Root>
         <Drawer.Trigger
-          class="border-2 border-zinc-200 p-1 w-3/5 h-full rounded-md hover:bg-zinc-300 hover:border-zinc-400"
+          class="border-2 border-primary p-1 w-3/5 h-full rounded-md hover:bg-secondary hover:border-muted"
           >More details</Drawer.Trigger
         >
         <Drawer.Content>

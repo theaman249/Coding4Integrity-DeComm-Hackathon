@@ -162,7 +162,7 @@
 </script>
 
 {#if !checkout}
-  <div class="flex flex-col min-h-screen w-full mt-32 lg:mt-40 p-2 bg-zinc-50">
+  <div class="flex flex-col min-h-screen w-full mt-32 lg:mt-40 p-2 bg-background">
     <div class="col-span-12 grid grid-cols-12 px-2 lg:px-10 flex-none">
       <div class="col-span-12 mb-5">
         <a href="/" class="flex" on:click|preventDefault={() => homePage()}>
@@ -235,9 +235,9 @@
                   {/if}
                 {/each}
                 {#if !product.isSold}
-                  <p class="text-green-500">In stock</p>
+                  <p class="text-primary">In stock</p>
                 {:else}
-                  <p class="text-red-500">Out of Stock</p>
+                  <p class="text-destructive">Out of Stock</p>
                 {/if}
                 {#if !formSubmitted}
                   <Button

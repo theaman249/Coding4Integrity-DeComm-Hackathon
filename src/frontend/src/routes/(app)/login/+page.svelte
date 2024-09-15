@@ -2,13 +2,14 @@
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Button } from "$lib/components/ui/button";
-  import BG from "$lib/images/bg-1.webp";
+  import BG from "$lib/images/shubham-dhage-HyxJ0yqa_8Q-unsplash.jpg";
   import {
-    fullName,
+    Email,
     loggedIn,
     loginStore,
     registerStore,
     isValidUser,
+    Password,
   } from "$lib/data/stores/stores.js";
   import { goto } from "$app/navigation";
   import { actorBackend } from "$lib/motokoImports/backend";
@@ -16,6 +17,15 @@
   import { z } from "zod";
   import { zod } from "sveltekit-superforms/adapters";
   import Reload from "svelte-radix/Reload.svelte";
+  import * as Alert from "$lib/components/ui/alert";
+
+  let inputValue = '';
+  let regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[\W_]).{8,}$/;
+  let isValid = true;
+
+  function checkRegex(): void {
+    isValid = regex.test(inputValue);
+  }
 
   function registerCheck() {
     $registerStore = true;
@@ -23,8 +33,9 @@
     goto("/register");
   }
 
-  function login(name: string) {
-    $fullName = name;
+  function login(email: string, pass: string) {
+    $Email = email;
+    $Password = pass;
     $registerStore = false;
     $loggedIn = true;
   }
@@ -32,7 +43,9 @@
   let formSubmitted = false;
 
   const newContactSchema = z.object({
-    fullName: z.string().min(2).max(25),
+    Email: z.string().min(5).max(45),
+    Password: z.string().min(8).max(25),
+
   });
 
   const { form, errors, enhance, constraints, capture, restore } = superForm(
@@ -40,18 +53,24 @@
     {
       SPA: true,
       validators: zod(newContactSchema),
-      onSubmit() {
+      onSubmit()  {
+        console.log('Jericho');
         formSubmitted = true;
+
       },
       async onUpdate({ form }) {
         if (form.valid) {
-          await actorBackend.loginUser(form.data.fullName);
-          $fullName = form.data.fullName;
+          let res = await actorBackend.loginUser(form.data.Email, form.data.Password);
+          console.log(JSON.parse(res));
+          $Email = form.data.Email;
           $loginStore = false;
           $loggedIn = true;
           $isValidUser = true;
           formSubmitted = false;
           goto("/");
+        }
+        else{
+          console.log('Unable to validate form');
         }
       },
     },
@@ -85,20 +104,38 @@
       </p>
       <form method="POST" use:enhance>
         <div class="grid w-full max-w-sm items-center gap-1.5 text-start mt-5">
-          <Label for="fullName">Full name</Label>
+          <Label for="Email">Email</Label>
           <Input
-            type="text"
-            id="fullName"
-            name="fullName"
-            bind:value={$form.fullName}
-            {...$constraints.fullName}
+            type="email"
+            id="Email"
+            name="Email"
+            bind:value={$form.Email}
+            {...$constraints.Email}
           />
-          {#if $errors.fullName}
-            <small class="text-red-700 mb-2">{$errors.fullName}</small>
+          {#if $errors.Email}
+            <small class="text-red-700 mb-2">{$errors.Email}</small>
           {/if}
+            <Label for="Password">Password</Label>
+            <Input
+              type="password"
+              id="Password"
+              name="Password"
+              bind:value={$form.Password}
+              on:input={checkRegex}
+              {...$constraints.Password}
+            />
+            {#if $errors.Password}
+              <small class="text-red-700 mb-2">{$errors.Password}</small>
+            {/if}
           {#if !formSubmitted}
             <Button type="submit">Log in</Button>
           {:else}
+            <Alert.Root>
+              <Alert.Title>Heads up!</Alert.Title>
+              <Alert.Description>
+                Please doubble check your password.
+              </Alert.Description>
+            </Alert.Root>
             <Button disabled>
               <Reload class="mr-2 h-4 w-4 animate-spin" />
               Please wait

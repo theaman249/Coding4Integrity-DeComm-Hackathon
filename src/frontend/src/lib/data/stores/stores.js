@@ -1,4 +1,5 @@
 import { persisted } from "svelte-persisted-store";
+import { Value } from "svelte-radix";
 
 export const loggedIn = persisted("loggedIn", {
   value: false,
@@ -10,6 +11,10 @@ export const isValidUser = persisted("isValidUser", {
 
 export const accountType = persisted("accountType", {
   value: "Personal Account",
+});
+
+export const fullName = persisted("fullName", {
+  Value: "",
 });
 
 export const registerStore = persisted("registerStore", {

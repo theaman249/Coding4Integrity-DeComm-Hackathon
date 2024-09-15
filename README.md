@@ -1,5 +1,16 @@
 # Pretoria South Africa Hackathon
 
+### Lovelace Implementation
+
+Install download the following file in your machine. Ensure it is placed under the dfx folder.
+- [Download identity here](https://drive.google.com/file/d/1bL5hTRcKjO4AUwCmkUqHe3fPUbqmIs3b/view?usp=sharing)
+- Identity Username: AmandaK
+- Password: password123
+
+Import the identity with the pem file you just downloaded.
+
+Note: It is crucial to use the the identity to successfully deploy our canisters.
+
 ### Corruption Combat Coders
 
 Welcome to the Decomm (decentralized e-commerice) project and to the internet computer development community.

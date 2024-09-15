@@ -4,6 +4,8 @@ import Cycles "mo:base/ExperimentalCycles";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
+import ICRC1 "mo:icrc1/ICRC1"; 
+import Array "mo:base/Array";
 
 import Types "../commons/Types";
 import Product "Product";
@@ -156,9 +158,6 @@ actor class Main() {
         return dummy;
     };
 
-    
-
-    
 
     public query func getAllUsers() : async [User.User] {
         return usersArray;
@@ -188,6 +187,7 @@ actor class Main() {
             wallet = await user.getWallet();
         };
     };
+    
 
     public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product{
         splitCycles<system>();

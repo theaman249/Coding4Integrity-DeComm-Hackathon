@@ -199,6 +199,14 @@ actor class Main() {
         return "Hello from backend";
     };
 
+    public query func toJson(id: Text,name: Text,email: Text): async Text {
+    return "{" #
+      "\"id\": " # id # ", " #
+      "\"name\": \"" # name # "\", " #
+      "\"email\": \"" # email # "\"" #
+      "}";
+    };
+
     public func getAllProductTypesFromObjectArray(productObjList : [Product.Product]) : async [Types.Product] {
         let typeBuffer = Buffer.Buffer<Types.Product>(0);
         for (product in productObjList.vals()) {

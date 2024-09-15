@@ -19,6 +19,7 @@
   import Reload from "svelte-radix/Reload.svelte";
   import { actorBackend } from "$lib/motokoImports/backend";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
 
   let formSubmitted = false;
 
@@ -40,7 +41,9 @@
       },
       async onUpdate({ form }) {
         if (form.valid) {
-         await actorBackend.createUser(form.data.fullName, form.data.email, form.data.password);
+          //let res = await actorBackend.createUser(form.data.fullName, form.data.email, form.data.password);
+          
+          //console.log(res);
           $fullName = form.data.fullName;
           $email = form.data.email;
           $password = form.data.password;
@@ -60,6 +63,20 @@
     $registerStore = false;
     goto("/login");
   }
+
+  onMount(async ()=>{
+    try{
+      
+      let res = await actorBackend.toJson("21","JSonc","json@123");
+
+      console.log(JSON.parse(res));
+          
+      console.log(res);
+    } catch (err:unknown){
+      console.log(err);
+    }
+
+  });
 
   export const snapshot = { capture, restore };
 </script>

@@ -18,6 +18,9 @@
 >
   {#if $loggedIn.value !== false}
     {#if loaded == true}
+      <div class="hidden flex-col md:flex">
+
+      </div>
       <ProductCards />
     {/if}
   {/if}

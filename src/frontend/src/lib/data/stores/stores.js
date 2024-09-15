@@ -13,10 +13,6 @@ export const accountType = persisted("accountType", {
   value: "Personal Account",
 });
 
-export const fullName = persisted("fullName", {
-  Value: "",
-});
-
 export const registerStore = persisted("registerStore", {
   value: true,
 });

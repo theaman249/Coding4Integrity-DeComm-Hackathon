@@ -59,7 +59,7 @@
       async onUpdate({ form }) {
         if (form.valid) {
           let res = await actorBackend.loginUser(form.data.Email, form.data.Password);
-          //console.log(res);
+          console.log(JSON.parse(res));
           $Email = form.data.Email;
           $loginStore = false;
           $loggedIn = true;

@@ -78,16 +78,22 @@ actor class Main() {
         return count;
     };
 
-    public func createUser<system>(name : Text, email : Text, password : Text) : async User.User {
+    public func createUser<system>(name : Text, email : Text, password : Text) : async Text{
         let hashedPassword = Text.hash(password);
         let fullNameSplits = await numberOfSplits(email, " ");
+
+        let dummyName = "null";
+        let dummyEmail = "null";
+
+        let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
+
         if (fullNameSplits != 1) {
             var flag : Bool = false;
             let usernames = await getAllUserEmails();
             for (username in usernames.vals()) {
                 if (Text.equal(email, username)) {
                     flag := true;
-                    Debug.print("User exists");
+                    return await toJsonUser(dummy,"user already exists");
                 };
             };
         };
@@ -107,8 +113,9 @@ actor class Main() {
         );
 
         await updateUserArray(user);
-        return user;
+        return await toJsonUser(user,"user successfully created");
     };
+
 
     private func updateUserArray(user : User.User) : async () {
         userBuffer.add(user);
@@ -117,7 +124,7 @@ actor class Main() {
 
     
 
-    public func loginUser<system>(username : Text, password:Text) : async User.User {
+    public func loginUser<system>(username : Text, password:Text) : async Text {
         
         splitCycles<system>();
         
@@ -134,20 +141,17 @@ actor class Main() {
 
                 if(foundUser.getPHash() == hashedPassword)
                 {
-                    return foundUser;
+                    return await toJsonUser(foundUser,"user successfully logged in");
                 }
                 else{
-                    return dummy; 
+                    return await toJsonUser(dummy,"passwords don't match"); 
                 }
             };
         };
 
-        return dummy;
+        return await toJsonUser(dummy,"unable to login user");
     };
 
-    
-
-    
 
     public query func getAllUsers() : async [User.User] {
         return usersArray;
@@ -199,13 +203,13 @@ actor class Main() {
         return "Hello from backend";
     };
 
-    public query func toJson(id: Text,name: Text,email: Text): async Text {
-    return "{" #
-      "\"id\": " # id # ", " #
-      "\"name\": \"" # name # "\", " #
-      "\"email\": \"" # email # "\"" #
-      "}";
-    };
+    // public query func toJson(id: Text,name: Text,email: Text): async Text {
+    //     return "{" #
+    //         "\"id\": " # id # ", " #
+    //         "\"name\": \"" # name # "\"," #
+    //         "\"email\": \"" # email # "\"" #
+    //     "}";
+    // };
 
     public func getAllProductTypesFromObjectArray(productObjList : [Product.Product]) : async [Types.Product] {
         let typeBuffer = Buffer.Buffer<Types.Product>(0);
@@ -483,4 +487,20 @@ actor class Main() {
         };
         null;
     };
+
+
+    /**
+    * This function takes in a User object and converts it into a json String.
+    */
+    private func toJsonUser(user: User.User, msg: Text): async Text{
+
+        let name = await user.getName();
+        let email = await user.getEmail();
+
+        return "{" #
+            "\"name\": " #  name # ", " #
+            "\"email\": \"" # email # "\"," #
+            "\"message\": \"" # msg # "\"" #
+        "}";
+    }
 };

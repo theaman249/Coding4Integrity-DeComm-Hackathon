@@ -41,9 +41,7 @@
       },
       async onUpdate({ form }) {
         if (form.valid) {
-          //let res = await actorBackend.createUser(form.data.fullName, form.data.email, form.data.password);
-          
-          //console.log(res);
+        //  await actorBackend.createUser(form.data.fullName, form.data.email, form.data.password);
           $fullName = form.data.fullName;
           $email = form.data.email;
           $password = form.data.password;
@@ -136,11 +134,13 @@
         {/if} 
         <Label for="passwordConfirm">Confirm Password</Label>
         <Input
-          type="text"
+          type="password"
           id="passwordConfirm"
           name="passwordConfirm"
+          bind:value={$form.passwordConfirm}
           {...$constraints.passwordConfirm}
-          />{#if $errors.passwordConfirm}
+          />
+          {#if $errors.passwordConfirm}
             <small class="text-red-700 mb-2">{$errors.passwordConfirm}</small>
         {/if}
           {#if !formSubmitted}

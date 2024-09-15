@@ -4,7 +4,6 @@ import Cycles "mo:base/ExperimentalCycles";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import Nat32 "mo:base/Nat32";
 
 import Types "../commons/Types";
 import Product "Product";
@@ -79,35 +78,47 @@ actor class Main() {
     };
 
     public func createUser<system>(name : Text, email : Text, password : Text) : async User.User {
-        let hashedPassword = Text.hash(password);
-        let fullNameSplits = await numberOfSplits(email, " ");
-        if (fullNameSplits != 1) {
-            var flag : Bool = false;
-            let usernames = await getAllUserEmails();
-            for (username in usernames.vals()) {
-                if (Text.equal(email, username)) {
-                    flag := true;
-                    Debug.print("User exists");
-                };
+    let hashedPassword = Text.hash(password);
+    let existingUserOpt = await getUserByEmail(email);
+
+    switch (existingUserOpt) {
+        case (?existingUser) {
+            // If the user already exists, return or handle as needed
+            Debug.print("User exists");
+            return existingUser; // Return the existing user
+        };
+        case null {
+            // User doesn't exist, proceed to create a new one
+            splitCycles<system>();
+
+            let newUser = await User.User(
+                name,
+                email,
+                hashedPassword,
+                [],
+                [],
+                [],
+                [],
+                [
+                    { currency = #kt; amount = 1000000000000 },
+                ],
+            );
+
+            await updateUserArray(newUser);
+            return newUser; // Return the newly created user
+        };
+    };
+};
+
+
+    private func getUserByEmail(email: Text) : async ?User.User {
+        let existingUsers = await getAllUsers();
+        for (user in existingUsers.vals()) {
+            if (Text.equal(await user.getEmail(), email)) {
+                return ?user;
             };
         };
-        splitCycles<system>();
-
-        let user = await User.User(
-            name,
-            email,
-            hashedPassword,
-            [],
-            [],
-            [],
-            [],
-            [
-                { currency = #kt; amount = 1000000000000 },
-            ]
-        );
-
-        await updateUserArray(user);
-        return user;
+        return null;
     };
 
     private func updateUserArray(user : User.User) : async () {

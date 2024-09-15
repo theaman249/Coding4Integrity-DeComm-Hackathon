@@ -130,17 +130,14 @@ actor class Main() {
 
     
 
-    public func loginUser<system>(username : Text, password:Text) : async User.User {
-        
-        splitCycles<system>();
-        
+    public func loginUser(username : Text, password:Text) : async User.User {
         let dummyName = "null";
         let dummyEmail = "null";
 
         let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
 
         for (index in usersArray.vals()) {
-            if (Text.equal(username, await index.getEmail())) {
+            if (Text.equal(username, await index.getName())) {
 
                 let foundUser:User.User = index;
                 let hashedPassword = Text.hash(password);
@@ -207,7 +204,7 @@ actor class Main() {
     };
 
     public func test(): async Text{
-        return "Hello from backend";
+        return "We are talking!";
     };
 
     public func getAllProductTypesFromObjectArray(productObjList : [Product.Product]) : async [Types.Product] {

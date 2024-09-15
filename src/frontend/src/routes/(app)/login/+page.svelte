@@ -2,7 +2,7 @@
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Button } from "$lib/components/ui/button";
-  import BG from "$lib/images/bg-1.webp";
+  import BG from "$lib/images/shubham-dhage-HyxJ0yqa_8Q-unsplash.jpg";
   import {
     Email,
     loggedIn,
@@ -17,6 +17,7 @@
   import { z } from "zod";
   import { zod } from "sveltekit-superforms/adapters";
   import Reload from "svelte-radix/Reload.svelte";
+  import * as Alert from "$lib/components/ui/alert";
 
   let inputValue = '';
   let regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[\W_]).{8,}$/;
@@ -128,6 +129,12 @@
           {#if !formSubmitted}
             <Button type="submit">Log in</Button>
           {:else}
+            <Alert.Root>
+              <Alert.Title>Heads up!</Alert.Title>
+              <Alert.Description>
+                Please doubble check your password.
+              </Alert.Description>
+            </Alert.Root>
             <Button disabled>
               <Reload class="mr-2 h-4 w-4 animate-spin" />
               Please wait

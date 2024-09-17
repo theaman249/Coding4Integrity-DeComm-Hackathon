@@ -82,16 +82,9 @@ actor class Main() {
         splitCycles<system>();
 
         let hashedPassword = Text.hash(password);
-        let fullNameSplits = await numberOfSplits(email, " ");
 
         let dummyName = "null";
         let dummyEmail = "null";
-        
-        splitCycles<system>();
-
-        let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
-
-        splitCycles<system>();
 
         let user = await User.User(
             name,
@@ -106,20 +99,14 @@ actor class Main() {
             ]
         );
 
-        splitCycles<system>();
-
-        if (fullNameSplits != 1) {
-            var flag : Bool = false;
-            let usernames = await getAllUserEmails();
-            for (username in usernames.vals()) {
-                if (Text.equal(email, username)) {
-                    flag := true;
-                    return await toJsonUser(dummyName,dummyEmail,"user already exists");
-                };
+        var flag : Bool = false;
+        let usernames = await getAllUserEmails();
+        for (username in usernames.vals()) {
+            if (Text.equal(email, username)) {
+                flag := true;
+                return await toJsonUser(dummyName,dummyEmail,"user already exists");
             };
         };
-
-        splitCycles<system>();
 
         await updateUserArray(user);
         return await toJsonUser(name,email,"user successfully created");
@@ -139,8 +126,6 @@ actor class Main() {
         
         let dummyName = "null";
         let dummyEmail = "null";
-
-        let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
 
         for (index in usersArray.vals()) {
             if (Text.equal(username, await index.getEmail())) {

@@ -23,6 +23,8 @@ actor class Main() {
     var transactionBuffer = Buffer.fromArray<Transaction.Transaction>(transactionsArray);
     private var inCarts : Buffer.Buffer<(Text, Nat)> = Buffer.Buffer<(Text, Nat)>(0);
 
+    var loggedInUserEmail:Text = "";
+
     public func addToCart(userID : Text, productID : Nat) : async Bool {
         if (not Buffer.contains(inCarts, (userID, productID), func(a : (Text, Nat), b : (Text, Nat)) : Bool { a.0 == b.0 and a.1 == b.1 })) {
             inCarts.add((userID, productID));
@@ -83,9 +85,6 @@ actor class Main() {
 
         let hashedPassword = Text.hash(password);
 
-        let dummyName = "null";
-        let dummyEmail = "null";
-
         let user = await User.User(
             name,
             email,
@@ -104,7 +103,7 @@ actor class Main() {
         for (username in usernames.vals()) {
             if (Text.equal(email, username)) {
                 flag := true;
-                return await toJsonUser(dummyName,dummyEmail,"user already exists");
+                return await toJsonUser("null","null","user already exists");
             };
         };
 
@@ -122,11 +121,8 @@ actor class Main() {
 
     public func loginUser<system>(username : Text, password:Text) : async Text {
         
-        Cycles.add<system>(2000000000000);
+        Cycles.add<system>(200_000_000_000); // 200 billion cycles
         
-        let dummyName = "null";
-        let dummyEmail = "null";
-
         for (index in usersArray.vals()) {
             if (Text.equal(username, await index.getEmail())) {
 
@@ -134,9 +130,11 @@ actor class Main() {
                 let hashedPassword = Text.hash(password);
                 let name = await foundUser.getName();
                 let email = await foundUser.getEmail();
+                let pHash = await foundUser.getPHash();
 
-                if(foundUser.getPHash() == hashedPassword)
+                if(pHash == hashedPassword)
                 {
+                    loggedInUserEmail := username;
                     return await toJsonUser(name,email,"user successfully logged in");
                 }
                 else{
@@ -145,7 +143,11 @@ actor class Main() {
             };
         };
 
-        return await toJsonUser(dummyName,dummyEmail,"unable to login user");
+        return await toJsonUser("null","null","unable to login user");
+    };
+
+    public func WhoIsLoggedIn(): async Text{
+        return loggedInUserEmail;
     };
 
 

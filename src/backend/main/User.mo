@@ -2,13 +2,14 @@ import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-
+import Wallet "Wallet";
 import Types "../commons/Types";
 
 actor class User(
     name : Text,
     email : Text,
     pHash : Nat32,
+    walletID: Text,
     buyersCart : [Types.Product],
     sellersStock : [Types.Product],
     purchases : [Types.Transaction],
@@ -24,6 +25,7 @@ actor class User(
     stable var userPurchases : [Types.Transaction] = purchases;
     stable var userSoldItems : [Types.Transaction] = soldItems;
     stable var userWallet : [Types.Price] = wallet;
+    stable var userWalletID: Text = walletID;
 
     var buyersCartBuffer = Buffer.fromArray<Types.Product>(userBuyersCart);
     var sellersStockBuffer = Buffer.fromArray<Types.Product>(userSellersStock);
@@ -41,6 +43,10 @@ actor class User(
 
     public query func getPHash() : async Nat32 {
         return userPHash;
+    };
+
+    public query func getWalletID(): async Text {
+        return userWalletID;
     };
 
     public query func getSellersStock() : async [Types.Product] {

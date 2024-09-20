@@ -9,6 +9,7 @@ import Types "../commons/Types";
 import Product "Product";
 import Transaction "Transaction";
 import User "User";
+import Random "mo:base/Random";
 
 //Actor
 actor class Main() {
@@ -109,6 +110,28 @@ actor class Main() {
 
         await updateUserArray(user);
         return await toJsonUser(name,email,"user successfully created");
+    };
+
+    public func generateWalletID(): async Text {
+        // Initialize an empty Text variable for the wallet ID
+        var walletID: Text = "";
+        
+        // Generate a random character from the charset by random index
+        func randomChar(): Text {
+            let randomIndex = Random.range(Nat32.fromInt(0), Nat32.fromNat(charset.size() - 1));
+            return Text.fromChar(charset.charAt(randomIndex));
+        };
+
+        // Construct the wallet ID in the format XXXX-XXXX-XXXX-XXXX
+        var partCount: Int = 0;
+        for (i in Iter.range(0, 15)) {
+            if (i > 0 and i % 4 == 0) {
+                walletID #= "-";  // Insert a dash after every 4 characters
+            };
+            walletID #= randomChar();  // Add a random character to the wallet ID
+        };
+
+        return walletID;
     };
 
 

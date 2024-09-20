@@ -4,56 +4,71 @@
 	const data = [
 		{
 			name: "Jan",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Feb",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Mar",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Apr",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "May",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Jun",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Jul",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Aug",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Sep",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Oct",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Nov",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 		{
 			name: "Dec",
-			total: Math.floor(Math.random() * 5000) + 1000,
+			totalA: Math.floor(Math.random() * 500) + 100,
+			totalB: Math.floor(Math.random() * 500) + 100,
 		},
 	];
 
+	// Space between bars
+	let barSpacing = 10;
+
 	const xTicks = data.map((d) => d.name);
-	const yTicks = [0, 1500, 3000, 4500, 6000];
+	const yTicks = [0, 150, 300, 450, 600];
 	const padding = { top: 20, right: 15, bottom: 20, left: 45 };
 
 	let width = 500;
@@ -72,7 +87,7 @@
 		.range([height - padding.bottom, padding.top]);
 
 	$: innerWidth = width - (padding.left + padding.right);
-	$: barWidth = innerWidth / xTicks.length;
+	$: barWidth = (innerWidth / xTicks.length) + - barSpacing;
 </script>
 
 <div class="chart" bind:clientWidth={width} bind:clientHeight={height}>
@@ -90,7 +105,7 @@
 						x="57"
 						y="-4"
 						fill="#888888"
-						text-anchor="end"><tspan x="36" dy="0.355em">${tick}</tspan></text
+						text-anchor="end"><tspan x="36" dy="0.355em">KT {tick}</tspan></text
 					>
 				</g>
 			{/each}
@@ -120,13 +135,25 @@
 
 		<g>
 			{#each data as point, i}
+				<!-- First bar (A) -->
 				<rect
 					class="bg-primary"
 					x={xScale(i) + 2}
-					y={yScale(point.total)}
-					width={barWidth - 8}
-					height={yScale(0) - yScale(point.total)}
+					y={yScale(point.totalA)}
+					width={(barWidth / 2) - 4}
+					height={yScale(0) - yScale(point.totalA)}
 					fill="#5eba61"
+					rx="4"
+					ry="4"
+				/>
+				<!-- Second bar (B) -->
+				<rect
+					class="bg-secondary"
+					x={xScale(i) + (barWidth / 2) + 2}
+					y={yScale(point.totalB)}
+					width={(barWidth / 2) - 4}
+					height={yScale(0) - yScale(point.totalB)}
+					fill="#b8e3c3"
 					rx="4"
 					ry="4"
 				/>

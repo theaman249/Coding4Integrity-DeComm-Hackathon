@@ -10,6 +10,11 @@ import Product "Product";
 import Transaction "Transaction";
 import User "User";
 import Random "mo:base/Random";
+import Iter "mo:base/Iter";
+import Nat8 "mo:base/Nat8";
+import Char "mo:base/Char";
+
+
 
 //Actor
 actor class Main() {
@@ -80,9 +85,33 @@ actor class Main() {
         return count;
     };
 
-    public func createUser<system>(name : Text, email : Text, password : Text) : async Text{
+    public func createUser<system>(name : Text, email : Text, password : Text) : async Types.User{
+
+        Cycles.add<system>(100_000_000_000); // 8 billion cycles
+
+        let dummy = await User.User(
+            "null",
+            "null",
+            0,
+            "null", // insert generateWalletID here
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var flag : Bool = false;
+        let usernames = await getAllUserEmails();
+        for (username in usernames.vals()) {
+            if (Text.equal(email, username)) {
+                flag := true;
+                let result = await convertUserToType(dummy,"user already exists");
+                return result;
+            };
+        };
         
-        splitCycles<system>();
+        Cycles.add<system>(100_000_000_000); // 8 billion cycles
 
         let hashedPassword = Text.hash(password);
 
@@ -90,6 +119,7 @@ actor class Main() {
             name,
             email,
             hashedPassword,
+            "auto", // insert generateWalletID here
             [],
             [],
             [],
@@ -99,40 +129,63 @@ actor class Main() {
             ]
         );
 
-        var flag : Bool = false;
-        let usernames = await getAllUserEmails();
-        for (username in usernames.vals()) {
-            if (Text.equal(email, username)) {
-                flag := true;
-                return await toJsonUser("null","null","user already exists");
-            };
-        };
+        
 
         await updateUserArray(user);
-        return await toJsonUser(name,email,"user successfully created");
+        let result = await convertUserToType(user,"user created successfully");
+        return result;
     };
 
-    public func generateWalletID(): async Text {
-        // Initialize an empty Text variable for the wallet ID
-        var walletID: Text = "";
+    // public func generateWalletID<system>(): async Text {
+    //     // Initialize an empty Text variable for the wallet ID
+    //     var walletID: Text = "";
+
+    //     let charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    //     Cycles.add<system>(200_000_000_000);
+
+    //     let user = await getUserByEmail(await WhoIsLoggedIn());
+
+
+    //     return await user.getEmail();
+    // };
+
+    public func testObject(): async Types.test {
+        return {
+            name = "James";
+            surname = "May";
+        };
+    };
+
+    public func getCharAtIndex(index: Nat,word: Text): async Text {
         
-        // Generate a random character from the charset by random index
-        func randomChar(): Text {
-            let randomIndex = Random.range(Nat32.fromInt(0), Nat32.fromNat(charset.size() - 1));
-            return Text.fromChar(charset.charAt(randomIndex));
-        };
-
-        // Construct the wallet ID in the format XXXX-XXXX-XXXX-XXXX
-        var partCount: Int = 0;
-        for (i in Iter.range(0, 15)) {
-            if (i > 0 and i % 4 == 0) {
-                walletID #= "-";  // Insert a dash after every 4 characters
+        // Get an iterator for the string
+        let iter = Text.toIter(word);
+        
+        // Iterate over the characters until you reach the desired index
+        var currentIndex: Nat = 0;
+        
+        // Loop over the iterator and get the character at the specified index
+        while (currentIndex <= index) {
+            switch (iter.next()) {
+                case (?c) {
+                    if (currentIndex == index) {
+                        return Text.fromChar(c);  // Return the character as Text when index is found
+                    };
+                    currentIndex += 1;
+                };
+                case null {
+                    // If we reach the end of the string before finding the index
+                    return " ";  // Return a default character or handle out of bounds as needed
+                };
             };
-            walletID #= randomChar();  // Add a random character to the wallet ID
         };
-
-        return walletID;
+    
+        return " ";  // Return a default character if index is out of bounds
     };
+
+
+
 
 
     private func updateUserArray(user : User.User) : async () {
@@ -141,8 +194,7 @@ actor class Main() {
     };
 
     
-
-    public func loginUser<system>(username : Text, password:Text) : async Text {
+    public func loginUser<system>(username : Text, password:Text) : async ?Types.User {
         
         Cycles.add<system>(200_000_000_000); // 200 billion cycles
         
@@ -158,15 +210,16 @@ actor class Main() {
                 if(pHash == hashedPassword)
                 {
                     loggedInUserEmail := username;
-                    return await toJsonUser(name,email,"user successfully logged in");
+                    let result = await convertUserToType(foundUser,"user successfully logged in");
+                    return ?result;
                 }
                 else{
-                    return await toJsonUser(name,email,"authentication failed"); 
+                    return null; 
                 }
             };
         };
 
-        return await toJsonUser("null","null","unable to login user");
+        return null;
     };
 
     public func WhoIsLoggedIn(): async Text{
@@ -181,7 +234,7 @@ actor class Main() {
     public func getAllUsersTypesFromObjectArray(userObjList : [User.User]) : async [Types.User] {
         let typeBuffer = Buffer.Buffer<Types.User>(0);
         for (user in userObjList.vals()) {
-            typeBuffer.add(await (convertUserToType(user)));
+            typeBuffer.add(await (convertUserToType(user,"getAllUsersTypesFromObjectArray")));
         };
         return Buffer.toArray(typeBuffer);
     };
@@ -190,11 +243,13 @@ actor class Main() {
         return await (getAllUsersTypesFromObjectArray(await getAllUsers()));
     };
 
-    public func convertUserToType(user : User.User) : async Types.User {
+    public func convertUserToType(user : User.User,msg: Text) : async Types.User {
         return {
             name = await user.getName();
             email = await user.getEmail();
             pHash = await user.getPHash();
+            walletID = await user.getWalletID();
+            message = msg;
             buyersCart = await user.getBuyersCart();
             sellersStock = await user.getSellersStock();
             purchases = await user.getPurchases();
@@ -434,6 +489,17 @@ actor class Main() {
         return null;
     };
 
+    public func getUserByEmail(email : Text) : async ?User.User {
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let userEmail = await user.getEmail();
+            if (Text.equal(email, userEmail)) {
+                return ?user;
+            };
+        };
+        return null;
+    };
+
     public func getProductById(productID : Nat) : async Result.Result<Product.Product, Text> {
         for (product in productsArray.vals()) {
             let id = await product.getProductID();
@@ -508,16 +574,6 @@ actor class Main() {
         };
         null;
     };
-
-
-
-    private func toJsonUser(name: Text, email: Text, msg: Text): async Text {
-        return "{" #
-            "\"name\": \"" # name # "\", " #  // Name value in quotes
-            "\"email\": \"" # email # "\", " #
-            "\"message\": \"" # msg # "\"" #
-        "}";
-    }   
 
 
 };

@@ -1,4 +1,5 @@
 import Nat "mo:base/Nat";
+import Text "mo:base/Text";
 
 module Types {
     public type Timestamp = Nat64;
@@ -41,10 +42,18 @@ module Types {
 
     public type User = {
         name : Text;
+        email: Text;
+        walletID: Text;
+        message: Text;
         buyersCart : [Product];
         sellersStock : [Product];
         purchases : [Transaction];
         soldItems : [Transaction];
         wallet : [Types.Price];
+    };
+
+    public type test = {
+        name: Text;
+        surname : Text;
     };
 };

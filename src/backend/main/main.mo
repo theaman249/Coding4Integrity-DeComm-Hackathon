@@ -194,9 +194,23 @@ actor class Main() {
     };
 
     
-    public func loginUser<system>(username : Text, password:Text) : async ?Types.User {
+    public func loginUser<system>(username : Text, password:Text) : async Types.User {
         
-        Cycles.add<system>(200_000_000_000); // 200 billion cycles
+        Cycles.add<system>(100_000_000_000); // 200 billion cycles
+
+
+        let dummy = await User.User(
+            "null",
+            "null",
+            0,
+            "null", // insert generateWalletID here
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        
         
         for (index in usersArray.vals()) {
             if (Text.equal(username, await index.getEmail())) {
@@ -211,15 +225,17 @@ actor class Main() {
                 {
                     loggedInUserEmail := username;
                     let result = await convertUserToType(foundUser,"user successfully logged in");
-                    return ?result;
+                    return result;
                 }
                 else{
-                    return null; 
+                    let result = await convertUserToType(dummy,"authentication failed");
+                    return result;
                 }
             };
         };
 
-        return null;
+        let result = await convertUserToType(dummy,"user does not exist");
+        return result;
     };
 
     public func WhoIsLoggedIn(): async Text{

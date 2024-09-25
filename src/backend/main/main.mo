@@ -111,15 +111,19 @@ actor class Main() {
             };
         };
         
-        Cycles.add<system>(100_000_000_000); // 8 billion cycles
+        Cycles.add<system>(1_000_000_000); // 8 billion cycles
 
         let hashedPassword = Text.hash(password);
+
+        let walletID = await generateWalletID();
+
+        Cycles.add<system>(400_000_000_000); // 8 billion cycles
 
         let user = await User.User(
             name,
             email,
             hashedPassword,
-            "auto", // insert generateWalletID here
+            walletID, // insert generateWalletID here
             [],
             [],
             [],
@@ -129,26 +133,47 @@ actor class Main() {
             ]
         );
 
-        
-
         await updateUserArray(user);
         let result = await convertUserToType(user,"user created successfully");
         return result;
     };
 
-    // public func generateWalletID<system>(): async Text {
-    //     // Initialize an empty Text variable for the wallet ID
-    //     var walletID: Text = "";
+    public func generateWalletID<system>(): async Text {
+        // Initialize an empty Text variable for the wallet ID
+        var walletID: Text = "";
 
-    //     let charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var f = Random.Finite(await Random.blob());
 
-    //     Cycles.add<system>(200_000_000_000);
+        var n = 0;
+        while(n < 4){
+            
+            for(j in Iter.range(0, 4)) //upper bound is inclusive
+            {
+                let ran = generateRandomNumber(f,35);
+            
+                switch(ran){
+                    case(?value){
 
-    //     let user = await getUserByEmail(await WhoIsLoggedIn());
+                        let character = await getCharAtIndex(value,charset);
 
+                        walletID :=  walletID # character;
+                    };
+                    case _{
+                        Debug.print("Unable to obtain random value");
+                    };
+                };
+            };
 
-    //     return await user.getEmail();
-    // };
+            if(n < 3){
+                walletID := walletID # "-";
+            };
+
+            n := n+1;
+        };
+
+        return walletID;
+    };
 
     public func testObject(): async Types.test {
         return {
@@ -184,7 +209,30 @@ actor class Main() {
         return " ";  // Return a default character if index is out of bounds
     };
 
+    public func testRandomiser(): async ?Nat{
+        var f = Random.Finite(await Random.blob());
+        let result = generateRandomNumber(f,32);
+        return result;
+    };
 
+
+    func generateRandomNumber(f : Random.Finite, max : Nat) : ? Nat {
+        assert max > 0;
+        do ? {
+        var n = max - 1 : Nat;
+        var k = 0;
+        while (n != 0) {
+            k *= 2;
+            k += bit(f.coin()!);
+            n /= 2;
+        };
+        if (k < max) k else generateRandomNumber(f, max)!;
+        };
+    };
+
+    func bit(b : Bool) : Nat {
+        if (b) 1 else 0;
+    };
 
 
 

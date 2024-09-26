@@ -19,6 +19,12 @@ module Types {
         amount : Nat;
     };
 
+    public type PersonalDashboard = {
+        fullname:Text;
+        marketValueOfKT: Nat;
+        walletBallanceKT: Nat;
+    };
+
     //User Object Types
     public type Product = {
         sellerID : Text;

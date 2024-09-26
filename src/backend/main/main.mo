@@ -286,6 +286,10 @@ actor class Main() {
         return result;
     };
 
+    /*
+    * This function returns the email of the current user
+    * that is logged in
+    */
     public func WhoIsLoggedIn(): async Text{
         return loggedInUserEmail;
     };
@@ -343,13 +347,40 @@ actor class Main() {
         return "Hello from backend";
     };
 
-    // public query func toJson(id: Text,name: Text,email: Text): async Text {
-    //     return "{" #
-    //         "\"id\": " # id # ", " #
-    //         "\"name\": \"" # name # "\"," #
-    //         "\"email\": \"" # email # "\"" #
-    //     "}";
-    // };
+    public func getDataForPersonalDashboard(): async Types.PersonalDashboard{
+        let email = await WhoIsLoggedIn();
+        let userOpt = await getUserByEmail(email);
+        
+        switch (userOpt) {
+            case (?user) {
+
+                var balanceOfKT = 0;
+                let userWallet = await user.getWallet();
+                let name = await user.getName();
+
+                for (j in userWallet.vals())
+                {
+                    if(j.currency == #kt) {
+                        balanceOfKT += j.amount;
+                    }   
+                };
+
+                return {
+                    fullname = name;
+                    marketValueOfKT = 10000;
+                    walletBallanceKT = balanceOfKT;
+                };
+            };
+            case (null) {
+                Debug.print("User not found");
+                return {
+                    fullname = "null";
+                    marketValueOfKT = 0;
+                    walletBallanceKT = 0;
+                }
+            };
+        };
+    };
 
     public func getAllProductTypesFromObjectArray(productObjList : [Product.Product]) : async [Types.Product] {
         let typeBuffer = Buffer.Buffer<Types.Product>(0);

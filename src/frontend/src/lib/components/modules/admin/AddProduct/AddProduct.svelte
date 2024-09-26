@@ -227,7 +227,7 @@
                 >{category.label}</Select.Item
               >
             {/each}
-          </Select.Group>
+          </Select.Group> 
         </Select.Content>
         <Select.Input name="favoriteFruit" />
       </Select.Root>

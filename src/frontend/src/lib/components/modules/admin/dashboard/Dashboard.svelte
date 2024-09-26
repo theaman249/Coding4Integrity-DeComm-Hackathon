@@ -9,19 +9,11 @@
 
   let loaded = false;
 
-  onMount(async () => {
+  onMount(() => {
     // const resProduct = await actorBackend.getAllProductTypes();
-  if ($accountType.value !== "undefined") {
-    $accountType.value = "Personal Account";
-    loaded = true;
-  }
+  console.log('Workinhg');
 });
 
-async function viewItems()
-{
-  console.log ('OPENING ORIGINAL LANDING PAGE');
-   goto("/MyProducts");
-}
 
   let chosen = "Dashboard"; 
 

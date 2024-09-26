@@ -13,7 +13,7 @@ import Random "mo:base/Random";
 import Iter "mo:base/Iter";
 import Nat8 "mo:base/Nat8";
 import Char "mo:base/Char";
-
+import Time "mo:base/Time"
 
 
 //Actor
@@ -98,6 +98,7 @@ actor class Main() {
             [],
             [],
             [],
+            [],
             []
         );
 
@@ -130,7 +131,8 @@ actor class Main() {
             [],
             [
                 { currency = #kt; amount = 1000000000000 },
-            ]
+            ],
+            []
         );
 
         await updateUserArray(user);
@@ -181,6 +183,65 @@ actor class Main() {
             surname = "May";
         };
     };
+
+    public func transferTokens(destinationWalletID: Text, amount:Nat): async Types.Message  {
+        
+        //check if receiver exists
+
+        let reciever = await getUserByWalletID(destinationWalletID);
+
+        switch (reciever) {
+            case (?recieverUser) {
+                //get sender
+                let sender = await getUserByEmail(await WhoIsLoggedIn());
+
+                switch(sender) {
+
+                    case(?senderUser){
+
+                        let money: Types.Price={
+                            currency = #kt;
+                            amount = amount;
+                        };
+
+                        await recieverUser.addToWallet(money);
+
+                        let result = await senderUser.takeFromWallet(money);
+
+                        switch (result) {
+                            case (#ok(())) {
+                                return {
+                                    msg = "sent amount to wallet " # destinationWalletID;
+                                    timestamp = Time.now();
+                                };
+                            };
+                            case (#err(errorMsg)) {
+                                return {
+                                    msg = errorMsg;
+                                    timestamp = Time.now();
+                                };
+                            };
+                        };
+                    };
+
+                    case(null){
+                        return {
+                            msg = "Sender not found";
+                            timestamp = Time.now();
+                        };
+                    };
+                };
+            };
+            case (null) {
+                return {
+                    msg = "Reciever not found";
+                    timestamp = Time.now();
+                }
+                
+            };
+        };
+    };
+
 
     public func getCharAtIndex(index: Nat,word: Text): async Text {
         
@@ -256,6 +317,7 @@ actor class Main() {
             [],
             [],
             [],
+            [],
             []
         );
         
@@ -316,7 +378,7 @@ actor class Main() {
             name = await user.getName();
             email = await user.getEmail();
             pHash = await user.getPHash();
-            walletID = await user.getWalletID();
+            walletID = await user.getWalletid();
             message = msg;
             buyersCart = await user.getBuyersCart();
             sellersStock = await user.getSellersStock();
@@ -350,7 +412,7 @@ actor class Main() {
     public func getDataForPersonalDashboard(): async Types.PersonalDashboard{
         let email = await WhoIsLoggedIn();
         let userOpt = await getUserByEmail(email);
-        
+
         switch (userOpt) {
             case (?user) {
 
@@ -447,6 +509,11 @@ actor class Main() {
         transactionsArray := Buffer.toArray<Transaction.Transaction>(transactionBuffer);
     };
 
+    
+    /*
+    * This function returns all transactions made by the user.
+    * The transactions cover the buying and selling products 
+    */
     public query func getAllTransactions() : async [Transaction.Transaction] {
         return transactionsArray;
     };
@@ -589,6 +656,45 @@ actor class Main() {
         for (user in users.vals()) {
             let userEmail = await user.getEmail();
             if (Text.equal(email, userEmail)) {
+                return ?user;
+            };
+        };
+        return null;
+    };
+
+    public func viewProfile(email:Text): async Types.User{
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let userEmail = await user.getEmail();
+            if (Text.equal(email, userEmail)) {
+                return await convertUserToType(user,"view profile");
+            };
+        };
+
+        Cycles.add<system>(100_000_000_000); // 200 billion cycles
+
+
+        let dummy = await User.User(
+            "null",
+            "null",
+            0,
+            "null", // insert generateWalletID here
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return await convertUserToType(dummy, "profile not found");
+    };
+
+    public func getUserByWalletID(walletID: Text): async ?User.User {
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let userWalletID = await user.walletID;
+            if (Text.equal(userWalletID, walletID)) {
                 return ?user;
             };
         };

@@ -1,5 +1,6 @@
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
+import Time "mo:base/Time";
 
 module Types {
     public type Timestamp = Nat64;
@@ -25,6 +26,11 @@ module Types {
         walletBallanceKT: Nat;
     };
 
+    public type Message = {
+        msg: Text;
+        timestamp: Time.Time;
+    };
+
     //User Object Types
     public type Product = {
         sellerID : Text;
@@ -44,6 +50,13 @@ module Types {
         productID : Nat;
         buyerID : Text;
         paidPrice : Types.Price;
+    };
+
+    public type Transfer ={
+        sourceWalletID: Text;
+        destinationWalletID : Text;
+        amount : Types.Price;
+        timestamp : Types.Timestamp;
     };
 
     public type User = {

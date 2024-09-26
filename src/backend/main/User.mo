@@ -2,7 +2,6 @@ import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import Wallet "Wallet";
 import Types "../commons/Types";
 
 actor class User(
@@ -14,7 +13,8 @@ actor class User(
     sellersStock : [Types.Product],
     purchases : [Types.Transaction],
     soldItems : [Types.Transaction],
-    wallet : [Types.Price]
+    wallet : [Types.Price],
+    transfers: [Types.Transfer]
 ) {
 
     stable var userName : Text = name;
@@ -24,6 +24,7 @@ actor class User(
     stable var userSellersStock : [Types.Product] = sellersStock;
     stable var userPurchases : [Types.Transaction] = purchases;
     stable var userSoldItems : [Types.Transaction] = soldItems;
+    stable var userTransfers: [Types.Transfer] = transfers;
     stable var userWallet : [Types.Price] = wallet;
     stable var userWalletID: Text = walletID;
 
@@ -32,6 +33,7 @@ actor class User(
     var purchasesBuffer = Buffer.fromArray<Types.Transaction>(userPurchases);
     var soldItemsBuffer = Buffer.fromArray<Types.Transaction>(userSoldItems);
     var _walletBuffer = Buffer.fromArray<Types.Price>(userWallet);
+    var transfersBuffer = Buffer.fromArray<Types.Transfer>(userTransfers);
 
     public query func getName() : async Text {
         return userName;
@@ -45,7 +47,7 @@ actor class User(
         return userPHash;
     };
 
-    public query func getWalletID(): async Text {
+    public query func getWalletid(): async Text {
         return userWalletID;
     };
 
@@ -89,6 +91,10 @@ actor class User(
         userWallet := newWallet;
     };
 
+    public  func  setTransfers(newTransfers : [Types.Transfer]) : async () {
+        userTransfers := newTransfers;
+    };
+
     public func listItem(product : Types.Product) : async () {
         sellersStockBuffer.add(product);
         await setSellersStock(Buffer.toArray(sellersStockBuffer));
@@ -97,6 +103,11 @@ actor class User(
     public func addToPurchases(transaction : Types.Transaction) : async () {
         purchasesBuffer.add(transaction);
         await setPurchases(Buffer.toArray(purchasesBuffer));
+    };
+
+    public  func addToTransfer(transfer: Types.Transfer):async (){
+        transfersBuffer.add(transfer);
+        await setTransfers(Buffer.toArray(transfersBuffer)); //overload existing stable variable
     };
 
     public func addToSoldItems(transaction : Types.Transaction) : async () {

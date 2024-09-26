@@ -6,6 +6,7 @@
     import { fullName } from "$lib/data/stores/stores";
     import * as Tabs from "$lib/components/ui/tabs";
     import { Wallet } from "$lib/components/modules/landing/index.ts";
+    import ScrollText from "lucide-svelte/icons/scroll-text";
     import { Bar , Line} from "$lib/components/modules/landing/index.ts";
     import {Button} from "$lib/components/ui/button";
     import {Transactions} from "$lib/components/modules/landing/index.ts";
@@ -49,22 +50,23 @@
               <Tabs.Trigger value="Transactions">Transactions</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="Overview">
-                <div class="flex">
-                  <div class="w-1/4 row-span-2"><Line/></div>
-                  <div class="w-2/4 p-1 grid grid-rows-2 grid-cols-2 "> 
-                      <div class="h-1/3 col-span-1 p-1"><Spending/> </div>
-                       <div class="h-1/3 col-span-1 p-1"><Income/> </div>
-                    <div class="h-2/3 row-span-1 col-span-2"><Bar/></div>
+                <div class="grid grid-cols-8">
+                  <div class="col-span-3 p-1 h-full"><Line/></div>
+                  <div class="col-span-3 p-1 grid grid-cols-2 gap-2 "> 
+                      <div class="h-1/3 p-1"><Spending/> </div>
+                      <div class="h-1/3 p-1"><Income/> </div>
+                    <div class=" col-span-2 px-2"><Bar/></div>
                   </div>
-                  <div class="space-y-1 w-1/4 h-full ">
-                    <div class="space-y-2 space-x-2 mt-2"> 
+                  <div class="space-y-1 h-full col-span-2">
+                    <div class="space-y-2 space-x-2 mt-2 h-full"> 
                       <Wallet/>
-                      <Card.Root class="col-span-3 space-y-1 mb-4">
-                               <Card.Header>
-                                 <Card.Title>My Items </Card.Title>
-                                 <Card.Description>View your purchased Items here and shop for more.</Card.Description>
+                      <Card.Root class="col-span-3 space-y-0 mb-2">
+                               <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+                                 <Card.Title  class="text-m font-medium" > My Items </Card.Title>
+                                 <ScrollText class="text-muted-foreground h-8 w-8" />
                                </Card.Header>
                                <Card.Content> 
+                                <Card.Description>View your purchased Items here and shop for more.</Card.Description>
                                  <Button class="w-24 ml-36"on:click={() => {viewItems() }}> View Items  </Button>
                                </Card.Content>
                              </Card.Root> 
@@ -73,7 +75,6 @@
                 </div>
                 
             </Tabs.Content>
-            <!-- come code for transactions here -->
             <Tabs.Content value="Transactions">
               <div class="flex space-x-2 space-y-1"> 
                 <Card.Root class="col-span-3 w-3/4">

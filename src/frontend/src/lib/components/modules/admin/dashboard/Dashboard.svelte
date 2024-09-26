@@ -28,20 +28,23 @@
 
       <Tabs.Root value="Dashboard" class=" space-y-1 mt-3">
         <Tabs.List>
-          <Tabs.Trigger value="Dashbaord">Dashboard</Tabs.Trigger>
+          <Tabs.Trigger value="Dashboard">Dashboard</Tabs.Trigger>
           <Tabs.Trigger value="Add">Add Products</Tabs.Trigger>
           <Tabs.Trigger value="View">View Products</Tabs.Trigger>
         </Tabs.List>
+
         <Tabs.Content value="Dashboard">
-            <div class="flex">
-              </div>
-              <div class="space-y-1 h-full ">
-                <div class="space-y-2 space-x-2 mt-2"> 
-                <Data/>
-                </div>
-            </div>  
+          <div class="flex space-x-2 space-y-1 mt-2"> 
+            <Card.Root class="col-span-3 w-full h-fit">
+              <Card.Content>
+                <br>
+                <Data />
+              </Card.Content>
+            </Card.Root>
+          </div>
         </Tabs.Content>
-        <!-- come code for Add Products here -->
+
+        
         <Tabs.Content value="Add">
           <div class="flex space-x-2 space-y-1"> 
             <Card.Root class="col-span-3 w-full">
@@ -57,7 +60,7 @@
           </div>
         </Tabs.Content>
 
-      <!-- come code for View here -->
+
       <Tabs.Content value="View">
         <div class="flex space-x-2 space-y-1"> 
           <Card.Root class="col-span-3 w-full">
@@ -74,5 +77,4 @@
       </Tabs.Root>
     </div>
   </div>
-
 </div>

@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { scaleLinear } from "d3-scale";
     import { line } from "d3-shape";
+	import * as Card from "$lib/components/ui/card/index.js";
 
 	// Mock data for cryptocurrency values over a period (e.g., 30 days)
 	const data = Array.from({ length: 30 }, (_, i) => ({
 		day: i + 1,
-		value: Math.random() * 1000 + 2000 + Math.sin(i / 2) * 200, // Random crypto value simulation with some wave
+		value: Math.random() * 1000 + 2000 + Math.sin(i / 2) * 20, // Random crypto value simulation with some wave
 	}));
 
 	const yTicks = [2000, 2500, 3000, 3500, 4000];
@@ -29,46 +30,53 @@
 		.y((d) => yScale(d.value));
 </script>
 
-<div class="chart" bind:clientWidth={width} bind:clientHeight={height}>
-	<svg>
-		<!-- y axis -->
-		<g class="axis y-axis">
-			{#each yTicks as tick}
-				<g class="text-xs" transform="translate(0, {yScale(tick)})">
-					<text
-						stroke="none"
-						font-size="12"
-						orientation="left"
-						width="60"
-						height="310"
-						x="57"
-						y="-4"
-						fill="#888888"
-						text-anchor="end"><tspan x="36" dy="0.355em">{tick}</tspan></text
-					>
+<Card.Root class="col-span-3">
+    <Card.Header>
+      <Card.Title>Knowkedge Token Market Value</Card.Title>
+    </Card.Header>
+    <Card.Content>
+		<div class="chart" bind:clientWidth={width} bind:clientHeight={height}>
+			<svg>
+				<!-- y axis -->
+				<g class="axis y-axis">
+					{#each yTicks as tick}
+						<g class="text-xs" transform="translate(0, {yScale(tick)})">
+							<text
+								stroke="none"
+								font-size="12"
+								orientation="left"
+								width="60"
+								height="310"
+								x="57"
+								y="-4"
+								fill="#888888"
+								text-anchor="end"><tspan x="36" dy="0.355em">{tick}</tspan></text
+							>
+						</g>
+					{/each}
 				</g>
-			{/each}
-		</g>
 
-		<!-- Line graph -->
-		<path
-			d={lineGenerator(data)}
-			fill="none"
-			stroke="#5eba61"
-			stroke-width="2"
-		/>
-	</svg>
-</div>
-
+				<!-- Line graph -->
+				<path
+					d={lineGenerator(data)}
+					fill="none"
+					stroke="#5eba61"
+					stroke-width="2"
+				/>
+			</svg>
+		</div>
+</Card.Content>
+</Card.Root> 
 <style>
 	.chart {
 		width: 100%;
 		margin: 0 auto;
+		height: 280px;
 	}
 
 	svg {
 		position: relative;
 		width: 100%;
-		height: 350px;
+		height: 90%;
 	}
 </style>

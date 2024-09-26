@@ -2,6 +2,7 @@
   import { Button } from "$lib/components/ui/button";
   import ViewProducts from "$lib/components/modules/admin/ViewProducts/ViewProducts.svelte";
   import AddProduct from "$lib/components/modules/admin/AddProduct/AddProduct.svelte";
+  import Data from "$lib/components/modules/admin/dashboard/Data.svelte";
   import { fullName } from "$lib/data/stores/stores";
   import * as Tabs from "$lib/components/ui/tabs";
   import { onMount } from "svelte";
@@ -10,20 +11,10 @@
   let loaded = false;
 
   onMount(async () => {
-    // const resProduct = await actorBackend.getAllProductTypes();
-  if ($accountType.value !== "undefined") {
-    $accountType.value = "Personal Account";
-    loaded = true;
-  }
-});
+    console.log ("working!");
+  })
 
-async function viewItems()
-{
-  console.log ('OPENING ORIGINAL LANDING PAGE');
-   goto("/MyProducts");
-}
-
-  let chosen = "Dashboard"; 
+  //let chosen = "Dashboard"; 
 
   //let chosen = "Add Products";
 </script>
@@ -40,19 +31,15 @@ async function viewItems()
           <Tabs.Trigger value="Dashbaord">Dashboard</Tabs.Trigger>
           <Tabs.Trigger value="Add">Add Products</Tabs.Trigger>
           <Tabs.Trigger value="View">View Products</Tabs.Trigger>
-
         </Tabs.List>
         <Tabs.Content value="Dashboard">
             <div class="flex">
               </div>
-              <div class="space-y-1 w-1/4 h-full ">
+              <div class="space-y-1 h-full ">
                 <div class="space-y-2 space-x-2 mt-2"> 
-                <p>DASHBOARD</p> 
-                          <!-- come code for dashboard here -->
-
+                <Data/>
                 </div>
-            </div>
-            
+            </div>  
         </Tabs.Content>
         <!-- come code for Add Products here -->
         <Tabs.Content value="Add">
@@ -76,7 +63,7 @@ async function viewItems()
           <Card.Root class="col-span-3 w-full">
             <Card.Header>
               <Card.Title>View Products</Card.Title>
-              <Card.Description>View a list of all the products you have added on the platforms.</Card.Description>
+              <Card.Description>View a list of all the products you have added on the platform.</Card.Description>
             </Card.Header>
             <Card.Content>
               <ViewProducts />
@@ -85,7 +72,6 @@ async function viewItems()
         </div>
       </Tabs.Content> 
       </Tabs.Root>
-      
     </div>
   </div>
 

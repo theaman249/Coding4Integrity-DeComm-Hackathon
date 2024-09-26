@@ -36,7 +36,7 @@
               </div>
               <div class="space-y-1 w-1/4 h-full ">
                 <div class="space-y-2 space-x-2 mt-2"> 
-                 DASHBOARD
+                <p>DASHBOARD</p> 
                           <!-- come code for dashboard here -->
 
                 </div>
@@ -48,8 +48,9 @@
           <div class="flex space-x-2 space-y-1"> 
             <Card.Root class="col-span-3 w-full">
               <Card.Header>
-                <Card.Title>Add Products</Card.Title>
-                <Card.Description>View the history of how you spent your Knowledge Tokens.</Card.Description>
+                <Card.Title>Add Product</Card.Title>
+                <Card.Description> Fill in the fields below to add your product to the DECOMM customer facing
+                  website</Card.Description>
               </Card.Header>
               <Card.Content>
                 <AddProduct />
@@ -64,18 +65,15 @@
           <Card.Root class="col-span-3 w-full">
             <Card.Header>
               <Card.Title>View Products</Card.Title>
-              <Card.Description>View the history of how you spent your Knowledge Tokens.</Card.Description>
+              <Card.Description>View a list of all the products you have added on the platforms.</Card.Description>
             </Card.Header>
             <Card.Content>
               <ViewProducts />
             </Card.Content>
           </Card.Root>
-          
         </div>
       </Tabs.Content> 
-      
       </Tabs.Root>
-
       
     </div>
   </div>

@@ -693,7 +693,7 @@ actor class Main() {
     public func getUserByWalletID(walletID: Text): async ?User.User {
         let users = await getAllUsers();
         for (user in users.vals()) {
-            let userWalletID = await user.walletID;
+            let userWalletID = await user.getWalletid();
             if (Text.equal(userWalletID, walletID)) {
                 return ?user;
             };

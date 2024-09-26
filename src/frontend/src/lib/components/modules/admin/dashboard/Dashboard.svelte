@@ -7,10 +7,21 @@
   import { onMount } from "svelte";
   import * as Card from "$lib/components/ui/card/index.js";
 
-  onMount(()=>{
+  let loaded = false;
 
-    console.log('Working!!');
-  });
+  onMount(async () => {
+    // const resProduct = await actorBackend.getAllProductTypes();
+  if ($accountType.value !== "undefined") {
+    $accountType.value = "Personal Account";
+    loaded = true;
+  }
+});
+
+async function viewItems()
+{
+  console.log ('OPENING ORIGINAL LANDING PAGE');
+   goto("/MyProducts");
+}
 
   let chosen = "Dashboard"; 
 
@@ -79,4 +90,5 @@
       
     </div>
   </div>
+
 </div>

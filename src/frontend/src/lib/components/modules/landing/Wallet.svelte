@@ -7,6 +7,20 @@
     import { Label } from "$lib/components/ui/label/index.js";
     import { Input } from "$lib/components/ui/input";
     import { toast } from "svelte-sonner";
+    import { actorBackend } from "$lib/motokoImports/backend";
+    import { onMount } from "svelte";
+    import { walletID, walletBalance } from "$lib/data/stores/stores";
+
+    onMount(async () => {
+      const walletDetails = await actorBackend.getDataForPersonalDashboard();
+
+      if(walletDetails)
+    {
+      $walletBalance = walletDetails.walletBallanceKT;
+      console.log(walletDetails)
+    }
+
+  });
 </script>
 
 <Card.Root>
@@ -17,8 +31,8 @@
         <Wallet class="text-muted-foreground h-8 w-8" />
     </Card.Header>
     <Card.Content>
-        <div class="text-2xl font-bold">KT 45,231.89</div>
-        <p class="text-muted-foreground text-xs">**** *** 4321</p>
+        <div class="text-2xl font-bold">KT {$walletBalance}</div>
+        <p class="text-muted-foreground text-xs">{$walletID}</p>
         <div class="space-x-1 space-y-1 justify-center self-center content-center align-center">
             
             <div class="space-x-1 space-y-1">

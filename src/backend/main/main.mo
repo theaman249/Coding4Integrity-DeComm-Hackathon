@@ -130,7 +130,7 @@ actor class Main() {
             [],
             [],
             [
-                { currency = #kt; amount = 1000000000000 },
+                { currency = #kt; amount = 500 },
             ],
             []
         );

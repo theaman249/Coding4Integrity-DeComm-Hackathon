@@ -16,6 +16,7 @@
     import ProductCards from "$lib/components/modules/app/ProductCards/ProductCards.svelte";
     import { accountType } from "$lib/data/stores/stores";
     import { goto } from "$app/navigation";
+    import { actorBackend } from "$lib/motokoImports/backend";
   
     let posts = false;
     let converted;
@@ -23,7 +24,7 @@
     let loaded = false;
 
     onMount(async () => {
-      // const resProduct = await actorBackend.getAllProductTypes();
+     const resProduct = await actorBackend.getAllProductTypes();
     if ($accountType.value !== "undefined") {
       $accountType.value = "Personal Account";
       loaded = true;

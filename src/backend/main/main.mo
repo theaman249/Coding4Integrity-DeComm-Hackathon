@@ -177,11 +177,14 @@ actor class Main() {
         return walletID;
     };
 
-    public func testObject(): async Types.test {
-        return {
-            name = "James";
-            surname = "May";
+    public func testObject(): async Text {
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let walletID = await user.getWalletID();
+            return walletID;
         };
+
+        return "Money for Fun";
     };
 
     public func transferTokens(destinationWalletID: Text, amount:Nat): async Types.Message  {
@@ -199,6 +202,18 @@ actor class Main() {
 
                     case(?senderUser){
 
+                        //Don't allow a user to send money to themselves
+                        let recieverWalletID = await recieverUser.getWalletID();
+                        let senderWalletID = await senderUser.getWalletID();
+
+                        if(recieverWalletID == senderWalletID)
+                        {   
+                            return {
+                                msg = "Transaction failed. Invalid walletID";
+                                timestamp = Time.now();
+                            }; 
+                        };
+
                         let money: Types.Price={
                             currency = #kt;
                             amount = amount;
@@ -211,7 +226,7 @@ actor class Main() {
                         switch (result) {
                             case (#ok(())) {
                                 return {
-                                    msg = "sent amount to wallet " # destinationWalletID;
+                                    msg = "sent" # Nat.toText(amount) # " to wallet " # destinationWalletID;
                                     timestamp = Time.now();
                                 };
                             };
@@ -327,8 +342,6 @@ actor class Main() {
 
                 let foundUser:User.User = index;
                 let hashedPassword = Text.hash(password);
-                let name = await foundUser.getName();
-                let email = await foundUser.getEmail();
                 let pHash = await foundUser.getPHash();
 
                 if(pHash == hashedPassword)
@@ -378,7 +391,7 @@ actor class Main() {
             name = await user.getName();
             email = await user.getEmail();
             pHash = await user.getPHash();
-            walletID = await user.getWalletid();
+            walletID = await user.getWalletID();
             message = msg;
             buyersCart = await user.getBuyersCart();
             sellersStock = await user.getSellersStock();
@@ -693,7 +706,7 @@ actor class Main() {
     public func getUserByWalletID(walletID: Text): async ?User.User {
         let users = await getAllUsers();
         for (user in users.vals()) {
-            let userWalletID = await user.getWalletid();
+            let userWalletID = await user.getWalletID();
             if (Text.equal(userWalletID, walletID)) {
                 return ?user;
             };
@@ -766,6 +779,8 @@ actor class Main() {
         productBuffer := Buffer.fromArray<Product.Product>(productsArray);
         transactionBuffer := Buffer.fromArray<Transaction.Transaction>(transactionsArray);
     };
+
+    // User class functions
 
     private func findUser(userName : Text) : async ?User.User {
         for (user in usersArray.vals()) {

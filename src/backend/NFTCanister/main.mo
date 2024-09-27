@@ -337,7 +337,7 @@ shared (_init_msg) actor class NFTCanister(
         };
         #ok();
     };
-
+/*
     public shared (_msg) func test_workflow(recipient : Text) : async Result.Result<(), Text> {
         //0. find recipient
         let user = await Main.getUserByName(recipient);
@@ -422,7 +422,7 @@ shared (_init_msg) actor class NFTCanister(
         };
 
     };
-
+*/
     public query func get_stats() : async {
         total_supply : Nat;
         total_transactions : Nat;

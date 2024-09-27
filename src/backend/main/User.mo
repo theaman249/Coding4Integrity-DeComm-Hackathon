@@ -47,10 +47,10 @@ actor class User(
         return userPHash;
     };
 
-    public query func getWalletid(): async Text {
+    public query func getWalletID(): async Text {
         return userWalletID;
     };
-
+    
     public query func getSellersStock() : async [Types.Product] {
         return userSellersStock;
     };

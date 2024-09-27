@@ -60,7 +60,7 @@
                                 </div>
                                 <div class="grid gap-2">
                                     <Label for="WalletID">Receiver WalletID</Label>
-                                    <Input type="text" id="WalletID" placeholder="e.g XXXX-XXXX-XXXX-XXXX" />
+                                    <Input type="text" id="WalletID" placeholder="e.g XXXXX-XXXXX-XXXXX-XXXXX" />
                                 </div>
                                 <div class="grid gap-2">
                                     <Label for="amount">Amount</Label>

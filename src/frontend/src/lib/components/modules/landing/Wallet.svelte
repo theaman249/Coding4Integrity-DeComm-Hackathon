@@ -92,7 +92,7 @@
                                         })}>Cancel</AlertDialog.Cancel>
                                     <AlertDialog.Action on:click={() =>
                                         toast.success("Payment Successful", {
-                                         description: "You have successfully sent KT123.12 to user@email.com",
+                                         description: "Transfer Successful!",
                                          action: {
                                           label: "done",
                                           onClick: () => console.info("transferred")

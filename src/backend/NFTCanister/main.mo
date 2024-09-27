@@ -1,4 +1,4 @@
-import Main "canister:backend";
+//import Main "canister:backend";
 
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
@@ -28,6 +28,11 @@ shared (_init_msg) actor class NFTCanister(
         icrc3_args : ICRC3.InitArgs;
     }
 ) = this {
+
+    let main = actor("be2us-64aaa-aaaaa-qaabq-cai") : actor {
+    getUserByName: (name : Text) -> async ?User.User;
+    //addToUserNFTTokens: (newToken : Types.NFT) -> async ();
+};
 
     stable var init_msg = _init_msg;
 
@@ -260,32 +265,18 @@ shared (_init_msg) actor class NFTCanister(
     };
 
     var counter : Nat = 0;
-    public shared (msg) func test_create_collection<system>() : async Result.Result<(), Text> {
+    var lastMintedTokenId: ?Nat = null;
+
+    public shared func get_last_minted_token_id() : async ?Nat {
+        return lastMintedTokenId; 
+    };
+
+    public shared (msg) func test_create_collection<system>(name: Text, shortDesc: Text, picture: Text) : async Bool {
         let nftData = [
             {
-                name = "Image 1";
-                description = "A beautiful space image.";
-                url = "https://i.ytimg.com/vi/oBUpJ4CqmN0/maxresdefault.jpg";
-            },
-            {
-                name = "Image 2";
-                description = "Another stunning image.";
-                url = "https://i.ytimg.com/vi/3WpP8ux1zX0/sddefault.jpg";
-            },
-            {
-                name = "Image 3";
-                description = "A mesmerizing cosmic view.";
-                url = "https://i.ytimg.com/vi/fDMHUdo7m-k/maxresdefault.jpg";
-            },
-            {
-                name = "Image 4";
-                description = "An awe-inspiring celestial scene.";
-                url = "https://i.ytimg.com/vi/mwbRRk9T5Nw/maxresdefault.jpg";
-            },
-            {
-                name = "Image 5";
-                description = "A captivating space phenomenon.";
-                url = "https://i.ytimg.com/vi/sZxbRAwYYMw/hqdefault.jpg";
+                name = name;
+                description = shortDesc;
+                url = picture;
             },
         ];
 
@@ -326,31 +317,91 @@ shared (_init_msg) actor class NFTCanister(
 
         D.print("Actor is createCollection  : " # debug_show (Principal.fromActor(this)));
         D.print("MSG is createCollection : " # debug_show (msg.caller));
+
         let mintResult = await icrc7_mint(mintRequests);
         for (result in mintResult.vals()) {
-            switch (result) {
-                case (#Ok(?_)) {};
-                case (#Ok(null)) {};
-                case (#Err(err)) return #err("Failed to mint NFT: " # debug_show (err));
-                case (#GenericError { error_code; message }) return #err("Generic error occurred: Code " # Nat.toText(error_code) # " - " # message);
+        switch (result) {
+            case (#Ok(?tokenId)) {
+                D.print("NFT minted successfully: " # debug_show (tokenId));
+                lastMintedTokenId := ?tokenId;
+                return true;
+
+            };
+            case (#Ok(null)) {};
+            case (#Err(err)) {
+                D.print("Failed to mint NFT: " # debug_show (err));
+                return false;
+            };
+            case (#GenericError { error_code; message }) {
+                D.print("Generic error occurred: Code " # Nat.toText(error_code) # " - " # message);
+                return false;
             };
         };
-        #ok();
+    };
+    return false;
+    };
+    
+
+    public shared(_msg) func transferNFT(tokenID: Nat) : async Result.Result<(), Text> {
+        let tokenDetails = icrc7().get_nft(tokenID);
+        let buyerPrincipal = _msg.caller;
+
+        switch (tokenDetails) {
+            case (null) {
+                return #err("Failed to get token details: Token not found");
+            };
+            case (?token) {
+            let currentOwnerOpt = token.owner; // Assuming token.owner is of type ?Account
+            
+            // Check if current owner is not null and is different from buyerPrincipal
+            switch (currentOwnerOpt) {
+                case (null) {
+                    return #err("Cannot update NFT: Current owner is null");
+                };
+                case (?currentOwner) {
+                    // Compare the unwrapped currentOwner's principal with buyerPrincipal
+                    let currentOwnerPrincipal = currentOwner.owner;
+
+                    if (currentOwnerPrincipal == buyerPrincipal) {
+                        return #err("Cannot update NFT: Buyer cannot be current owner");
+                    }
+                };
+            };
+
+
+                let transfer_result = await icrc7_transfer({
+                    from_subaccount = null;
+                    to = {
+                        owner = buyerPrincipal;
+                        subaccount = null;
+                    };
+                    token_id = tokenID;
+                    memo = null;
+                    created_at_time = null;
+                });
+
+                switch (transfer_result[0]) {
+                    case (? #Ok(_)) return #ok();
+                    case (? #Err(e)) return #err("Failed to transfer token: " # debug_show (e));
+                    case (null) return #err("Unexpected null result from transfer");
+                };
+            };
+        };
     };
 
-    public shared (_msg) func test_workflow(recipient : Text) : async Result.Result<(), Text> {
+
+    public shared (_msg) func test_workflow(recipient : Text, name: Text, description: Text, url: Text) : async Result.Result<(), Text> {
         //0. find recipient
-        let user = await Main.getUserByName(recipient);
+        let user = await main.getUserByName(recipient);
         switch (user) {
             case (null) return #err("No user was found");
             case (?user) {
                 let principal = await returnPrincipal(user);
                 // 1. Create collection
-                let create_result = await test_create_collection();
-                switch (create_result) {
-                    case (#err(e)) return #err("Failed to create collection: " # e);
-                    case (#ok()) {};
-                };
+                /*let create_result = await test_create_collection(name, description, url);
+                if (not create_result) {
+                    return #err("Failed to create collection");
+                };*/
 
                 // 2. Check balance
                 let balance = await icrc7_balance_of({
@@ -422,6 +473,18 @@ shared (_init_msg) actor class NFTCanister(
         };
 
     };
+
+    /*public func get_user_nfts(user_account : Types.Account) : async [Nat] {
+        var owned_tokens : [Nat] = [];
+        for (token_id in owned_tokens.vals()) {
+            let owner = icrc7_owner_of(token_id);
+            if (owner == ?user_account) {
+                owned_tokens := Array.append(owned_tokens, [token_id]);
+            };
+        };
+        return owned_tokens;
+    };*/
+
 
     public query func get_stats() : async {
         total_supply : Nat;

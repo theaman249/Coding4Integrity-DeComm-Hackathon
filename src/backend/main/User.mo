@@ -2,7 +2,6 @@ import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-
 import Types "../commons/Types";
 
 actor class User(
@@ -51,6 +50,14 @@ actor class User(
         return userPurchases;
     };
 
+    public query func getProductIDs() : async [Nat] {
+        var productIDs = Buffer.Buffer<Nat>(0);
+        for (product in userSellersStock.vals()) {
+            productIDs.add(product.productID);
+        };
+        return Buffer.toArray(productIDs);
+    };
+    
     public query func getSoldItems() : async [Types.Transaction] {
         return userSoldItems;
     };
@@ -82,7 +89,7 @@ actor class User(
     public func setWallet(newWallet : [Types.Price]) : async () {
         userWallet := newWallet;
     };
-
+    
     public func listItem(product : Types.Product) : async () {
         sellersStockBuffer.add(product);
         await setSellersStock(Buffer.toArray(sellersStockBuffer));

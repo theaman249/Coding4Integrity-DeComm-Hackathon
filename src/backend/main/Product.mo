@@ -14,6 +14,7 @@ actor class Product(
     isVisible : Bool,
     picture : Text,
     productIDNum : Nat,
+    tokenID : Nat
 ) {
 
     var productSellerID : Text = sellerID;
@@ -26,6 +27,11 @@ actor class Product(
     var productPicture : Text = picture;
     var productID : Nat = productIDNum;
     var isSold : Bool = false;
+    var productTokenID : Nat = tokenID;
+
+    public query func getTokenID() : async Nat {
+        return productTokenID;
+    };
 
     public query func getProductID() : async Nat {
         return productID;

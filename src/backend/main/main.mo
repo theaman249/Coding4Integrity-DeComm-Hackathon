@@ -5,14 +5,24 @@ import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Nat32 "mo:base/Nat32";
+import Principal "mo:base/Principal";
+import Error "mo:base/Error";
 
 import Types "../commons/Types";
 import Product "Product";
 import Transaction "Transaction";
 import User "User";
+//import NFTCanister "canister:NFT_canister";
 
 //Actor
 actor class Main() {
+    let nftCanister = actor("bw4dl-smaaa-aaaaa-qaacq-cai") : actor {
+        test_create_collection: shared(name: Text, shortDesc: Text, picture: Text) -> async Bool;
+        test_workflow: shared(recipient : Text, name: Text, description: Text, url: Text) -> async Result.Result<(), Text>;
+        get_last_minted_token_id : shared() -> async ?Nat;
+        transferNFT : shared(tokenID: Nat) -> async Result.Result<(), Text>;
+    };
+
     stable var usersArray : [User.User] = [];
     stable var productsArray : [Product.Product] = [];
     stable var productIDNum : Nat = 0;
@@ -79,43 +89,42 @@ actor class Main() {
     };
 
     public func createUser<system>(name : Text, email : Text, password : Text) : async User.User {
-        let hashedPassword = Text.hash(password);
-        let fullNameSplits = await numberOfSplits(email, " ");
-        if (fullNameSplits != 1) {
-            var flag : Bool = false;
-            let usernames = await getAllUserEmails();
-            for (username in usernames.vals()) {
-                if (Text.equal(email, username)) {
-                    flag := true;
-                    Debug.print("User exists");
-                };
+        let existingUserOpt = await getUserByEmail(email);
+
+        switch (existingUserOpt) {
+            case (?existingUser) {
+                // If user exists, return the existing user
+                Debug.print("User exists: " # email);
+                return existingUser;
+            };
+            case (null) {
+                // If user does not exist, create a new one
+                let hashedPassword = Text.hash(password);
+                let newUser = await User.User(name, email, hashedPassword, [], [], [], [], [{ currency = #kt; amount = 1000000000000 }]);
+                
+                // Add the new user to the array and update it
+                await updateUserArray(newUser);
+                Debug.print("Created new user: " # email);
+                return newUser;
             };
         };
-        splitCycles<system>();
-
-        let user = await User.User(
-            name,
-            email,
-            hashedPassword,
-            [],
-            [],
-            [],
-            [],
-            [
-                { currency = #kt; amount = 1000000000000 },
-            ]
-        );
-
-        await updateUserArray(user);
-        return user;
     };
+
+    private func getUserByEmail(email : Text) : async ?User.User {
+        let allUsers = await getAllUsers();
+        for (user in allUsers.vals()) {
+            if (Text.equal(await user.getEmail(), email)) {
+                return ?user; 
+            };
+        };
+        return null;
+    };
+
 
     private func updateUserArray(user : User.User) : async () {
         userBuffer.add(user);
         usersArray := Buffer.toArray<User.User>(userBuffer);
     };
-
-    
 
     public func loginUser<system>(username : Text, password:Text) : async User.User {
         
@@ -178,12 +187,33 @@ actor class Main() {
         };
     };
 
+    //add new nft definition for product (test_create_collection)
     public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product{
         splitCycles<system>();
-        var product = await Product.Product(user, name, category, price, shortDesc, longDesc, isVisible, picture, productIDNum);
-        productIDNum := productIDNum + 1;
-        await updateProductArray(product);
-        return product;
+
+        //Get newly minted nft tokenid
+        let collectionResult = await nftCanister.test_create_collection(name, shortDesc, picture);
+
+        if (collectionResult) {
+            let tokenIdOpt = await nftCanister.get_last_minted_token_id();
+            
+            switch (tokenIdOpt) {
+                case (?tokenId) {
+                    var product = await Product.Product(user, name, category, price, shortDesc, longDesc, isVisible, picture, productIDNum, tokenId);
+                    productIDNum := productIDNum + 1;
+                    await updateProductArray(product);
+                    
+                    return product;
+                };
+                case null {
+                     throw Error.reject("No token ID returned after successful collection creation.");
+                };
+            }
+        } else {
+            // Handle failure of collection creation
+            throw Error.reject("Failure during collection creation.");
+    };
+        throw Error.reject("Unexpected error during collection creation.");
     };
 
     private func updateProductArray(product : Product.Product) : async () {
@@ -248,6 +278,7 @@ actor class Main() {
             productID = await product.getProductID();
             productCategory = await product.getCategory();
             productPicture = await product.getPicture();
+            tokenID = await product.getTokenID();
         };
     };
 
@@ -411,6 +442,23 @@ actor class Main() {
         return #err("Product not found");
     };
 
+    public func getUserProductIDs(name : Text) : async [Nat] {
+        let userObjOpt = await getUserByName(name);
+        
+        switch (userObjOpt) {
+        case (null) {
+            // Handle the case where the user is not found
+            Debug.print("User not found: " # name);
+            return []; // Return an empty array if user is not found
+        };
+        case (?userObj) {
+            // Call getProductIDs on the retrieved user object
+            return await userObj.getProductIDs();
+        };
+    };
+    };
+
+    //add the buyer to nft as subowner 
     public func purchase(name : Text, productID : Nat) : async Result.Result<(), Text> {
         let userObjOpt = await getUserByName(name);
 
@@ -429,7 +477,14 @@ actor class Main() {
                         let sellerName = await product.getSellerID();
                         let productPrice = await product.getPrice();
                         let buyerID = await userObj.getName();
+                        let name = await product.getName();
+                        let descr = await product.getShortDesc();
+                        let picture = await product.getPicture();
+                        let tokenID = await product.getTokenID();
 
+                        let purchaseResult = await nftCanister.transferNFT(tokenID);
+
+                        //let workflowResult = await NFTCanister.test_workflow(name, descr, picture);
                         for (index in usersArray.vals()) {
                             let target = await index.getName();
                             if (Text.equal(target, sellerName)) {

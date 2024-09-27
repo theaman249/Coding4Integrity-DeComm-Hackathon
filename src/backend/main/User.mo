@@ -63,6 +63,10 @@ actor class User(
         return userSoldItems;
     };
 
+    public query func getTransfers(): async [Types.Transfer] {
+        return userTransfers;
+    };
+
     public query func getWallet() : async [Types.Price] {
         return userWallet;
     };

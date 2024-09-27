@@ -55,8 +55,9 @@ module Types {
     public type Transfer ={
         sourceWalletID: Text;
         destinationWalletID : Text;
+        transactionType: Text; //debit or credit
         amount : Types.Price;
-        timestamp : Types.Timestamp;
+        timestamp : Time.Time;
     };
 
     public type User = {

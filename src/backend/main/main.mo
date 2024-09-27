@@ -218,6 +218,25 @@ actor class Main() {
                             currency = #kt;
                             amount = amount;
                         };
+                        
+                        let credit: Types.Transfer = {
+                            sourceWalletID = senderWalletID;
+                            destinationWalletID = destinationWalletID;
+                            transactionType = "credit";
+                            amount = money;
+                            timestamp = Time.now();
+                        };
+
+                        let debit: Types.Transfer = {
+                            sourceWalletID = senderWalletID;
+                            destinationWalletID = destinationWalletID;
+                            transactionType = "debit";
+                            amount = money;
+                            timestamp = Time.now();
+                        };
+
+                        await senderUser.addToTransfer(debit);
+                        await recieverUser.addToTransfer(credit);
 
                         await recieverUser.addToWallet(money);
 
@@ -226,7 +245,7 @@ actor class Main() {
                         switch (result) {
                             case (#ok(())) {
                                 return {
-                                    msg = "sent" # Nat.toText(amount) # " to wallet " # destinationWalletID;
+                                    msg = "tokens sent to wallet " # destinationWalletID;
                                     timestamp = Time.now();
                                 };
                             };
@@ -781,6 +800,16 @@ actor class Main() {
     };
 
     // User class functions
+    public func getAllUserTransfers(email:Text): async [Types.Transfer]{
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let userEmail = await user.getEmail();
+            if (Text.equal(userEmail, email)) {
+                return await user.getTransfers();
+            };
+        };
+        return [];
+    };
 
     private func findUser(userName : Text) : async ?User.User {
         for (user in usersArray.vals()) {

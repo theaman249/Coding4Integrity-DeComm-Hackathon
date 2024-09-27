@@ -1,6 +1,0 @@
-[package]
-name = "ledger-types"
-version = "1.0.0"
-description = "ICP Ledger canister types"
-repository = "https://github.com/ZenVoich/ledger-types"
-keywords = ["icp", "ledger", "types", "interface", "service"]

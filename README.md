@@ -19,7 +19,7 @@
 > We have added a few things to the landing page. Namely:
 > - Wallet Balance
 > 
->   - You are now able to view your Knowledge Token balance,.
+>   - You are now able to view your Knowledge Token balance.
 > 
 > - KT transfer
 >
@@ -63,3 +63,4 @@
 
 ## Group Members
 | Agape Mamphasa | Amanda Khuzwayo | Kea Mothapo | Mbofho Mamatsharaga |
+-----------------------------------------------------------------------

@@ -17,11 +17,15 @@
 > We added a theme toggle button for a light mode and dark mode. We also added a colour scheme (Green) to the application.
 - Personal Dashboard on the landing page
 > We have added a few things to the landing page. Namely:
-> - Wallet Balance and KT transfer
+> - Wallet Balance
 > 
-> You are now able to view your Knowledge Token balance and also transfer Knowledge tokens to other valid Accounts.
+> You are now able to view your Knowledge Token balance,.
 > 
-- KT Market overview
+> - KT transfer
+>
+> You can now transfer Knowledge tokens to other valid Accounts.
+>
+> - KT Market overview
 > 
 > There is a line graph now indicating the value of the Knowledge Tokens over the last 30 days.
 

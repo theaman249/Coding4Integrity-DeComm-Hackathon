@@ -130,7 +130,7 @@ actor class Main() {
             [],
             [],
             [
-                { currency = #kt; amount = 500 },
+                { currency = #kt; amount = 5000 },
             ],
             []
         );
@@ -187,7 +187,7 @@ actor class Main() {
         return "Money for Fun";
     };
 
-    public func transferTokens(destinationWalletID: Text, amount:Nat): async Types.Message  {
+    public func transferTokens(destinationWalletID: Text, amount:Nat, password:Text): async Types.Message  {
         
         //check if receiver exists
 
@@ -201,6 +201,17 @@ actor class Main() {
                 switch(sender) {
 
                     case(?senderUser){
+                        
+                        let hashedPassword = Text.hash(password);
+                        let senderPassword = await senderUser.getPHash();
+
+                        if(hashedPassword != senderPassword)
+                        {
+                            return {
+                                msg = "transaction failed. invalid credentials";
+                                timestamp = Time.now();
+                            }
+                        };
 
                         //Don't allow a user to send money to themselves
                         let recieverWalletID = await recieverUser.getWalletID();
@@ -209,7 +220,7 @@ actor class Main() {
                         if(recieverWalletID == senderWalletID)
                         {   
                             return {
-                                msg = "Transaction failed. Invalid walletID";
+                                msg = "transaction failed. invalid walletID";
                                 timestamp = Time.now();
                             }; 
                         };

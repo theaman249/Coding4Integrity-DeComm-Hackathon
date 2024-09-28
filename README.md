@@ -11,12 +11,16 @@
 
 ## Features Added!
 
-- Test
-> Short Description
-- Test 
-> Another short6 description
-- Test
-> Another Short description still
+- Register + Login
+> We added authentication and security to access the application. We have also added input verification for the email and password.
+- Theming 
+> We added a theme toggle button for a light mode and dark mode. We also added a colour scheme (Green) to the application.
+- Personal Dashboard on the landing page
+> We have added a few things to the landing page. Namely:
+> - Wallet Balance and KT transfer
+> You are now able to view your Knowledge Token balance and also transfer Knowledge tokens to other valid Acoounts.
+> - KT Market overview
+> There is a line graph now indicating the value of the Knowledge Tokens over the last 30 days.
 
 ---
 

@@ -1,6 +1,8 @@
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import Buffer "mo:base/Buffer";
+import ICRC7 "mo:icrc7-mo";
 
 module Types {
     public type Timestamp = Nat64;
@@ -41,6 +43,7 @@ module Types {
         isSold : Bool;
         isVisible : Bool;
         productID : Nat;
+        tokenID : Nat;
         productCategory : Text;
         productPicture : Text;
     };
@@ -77,3 +80,4 @@ module Types {
         surname : Text;
     };
 };
+

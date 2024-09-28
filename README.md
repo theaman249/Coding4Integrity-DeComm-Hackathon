@@ -63,16 +63,18 @@
 
 ## Group Members
 <p>
-  <img width="250" height="240" align='left' src="agape.jpg">
+  <img width="250" height="240" align='left' src="Agape.jpg">
 </p>
 
 #### Agape Mamphasa
 
-#### Role(s): Database Engineer, DevOps Engineer, Backend Engineer
+#### Role(s): Backend Engineer, Integration Engineer
 
 #### BSc(Hons) Computer Science Student at The University Of Pretoria
 
-#### Favourite Language(s): Java, JavaScript, php
+#### [LinkedIn](https://www.linkedin.com/in/agape-mamphasa-92022a2a9/).
+
+#### [GitHub](https://github.com/theaman249)
 
 <br>
 <br>
@@ -85,11 +87,13 @@
 
 #### Amanda Khuzwayo
 
-#### Role(s): Backend Engineer, Frontend Engineer, Database Engineer
+#### Role(s): Backend Engineer, Integration Engineer
 
 #### BSc(Hons) Computer Science Student at The University Of Pretoria
 
-#### Favourite Language(s): Java, C++
+#### [LinkedIn](https://www.linkedin.com/in/amanda-khuzwayo-894130135/).
+
+#### [GitHub](https://github.com/Amanda9805).
 
 <br>
 <br>
@@ -102,11 +106,13 @@
 
 #### Mbofho Mamatsharaga
 
-#### Role(s): Frontend Engineer
+#### Role(s): Frontend Engineer, Integration Engineer
 
 #### 3rd Year Computer Science Student at The University Of Pretoria
 
-#### Favourite Language(s): Java, dart
+#### [LinkedIn](https://www.linkedin.com/in/mbofho-mamatsharaga-54992823b/). 
+
+#### [GitHub](https://github.com/TheStoryOfChampion).
 
 <br>
 <br>
@@ -119,11 +125,12 @@
 
 #### Kea Motapo
 
-#### Role(s): Frontend Engineer
+#### Role(s): Frontend Engineer, Integration Engineer
 
 #### 3rd Year Information Knowledge Systems student at the University Of Pretoria
 
-#### Favourite Language(s): Java, C++, Javascript
+#### [LinkedIn](https://www.linkedin.com/in/mbofho-mamatsharaga-54992823b/).
+#### [GitHub](https://github.com/keamothapo).
 
 <br>
 <br>

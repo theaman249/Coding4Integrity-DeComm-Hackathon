@@ -57,7 +57,7 @@
 ---
 
 > [!NOTE]
-> Here is a link to our [Design Docs](https://github.com/KnowledgeFound/Coding4Integrity-DeComm-Hackathon).
+> Here is a link to our [Design Docs](https://github.com/theaman249/Coding4Integrity-DeComm-Hackathon/tree/develop/DesignDocs).
 
 ---
 
@@ -129,3 +129,10 @@
 <br>
 <br>
 <br>
+
+---
+
+## Tech Stack
+
+| <img width="250" height="240" align='left' src="Motoko.jpg"> | <img width="250" height="240" align='left' src="svelte.jpg"> | <img width="250" height="240" align='left' src="shadcn.jpg"> | <img width="250" height="240" align='left' src="tailwind.jpg"> |
+| --- | --- | --- | --- |

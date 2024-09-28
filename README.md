@@ -25,9 +25,9 @@
 >
 >   - You can now transfer Knowledge tokens to other valid Accounts. Users also have to input their account password for authentication and security purposes. 
 >
-> - KT Market overview
+> - KT Market value overview
 > 
->   - There is a line graph now indicating the value of the Knowledge Tokens over the last 30 days. It is mocked right now but in future we would like for it to be updated in real time.
+>   - There is a line graph now indicating the value of the Knowledge Tokens over the last 30 days. It is mocked right now.
 
 - Personal Transactions
  
@@ -63,4 +63,4 @@
 
 ## Group Members
 | Agape Mamphasa | Amanda Khuzwayo | Kea Mothapo | Mbofho Mamatsharaga |
------------------------------------------------------------------------
+| --- | --- | --- | --- |

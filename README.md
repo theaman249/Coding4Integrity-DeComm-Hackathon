@@ -52,7 +52,7 @@
 
 - Checkout
 
-> The implementation has not been changed from the Corrupt Combat Coders implementation, We just added authentication to the checkout button for security reasons. The user now has to input their account password to checkout any products and NFTs they have bought.
+> The implementation has not been changed from the Corrupt Combat Coders implementation, We just added authentication to the checkout button for security reasons. The user now has to input their account password to checkout any products and NFTs they have placed.
 
 ---
 

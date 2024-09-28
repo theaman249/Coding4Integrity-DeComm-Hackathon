@@ -13,4 +13,13 @@
 
 - Test
 > Short Description
+- Test 
+> Another short6 description
+- Test
+> Another Short description still
+
+---
+
+> [!NOTE]
+> Here is a link to our [Design Docs](https://github.com/KnowledgeFound/Coding4Integrity-DeComm-Hackathon).
 

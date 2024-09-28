@@ -19,15 +19,15 @@
 > We have added a few things to the landing page. Namely:
 > - Wallet Balance
 > 
-> You are now able to view your Knowledge Token balance,.
+>   - You are now able to view your Knowledge Token balance,.
 > 
 > - KT transfer
 >
-> You can now transfer Knowledge tokens to other valid Accounts.
+>   - You can now transfer Knowledge tokens to other valid Accounts.
 >
 > - KT Market overview
 > 
-> There is a line graph now indicating the value of the Knowledge Tokens over the last 30 days.
+>   - There is a line graph now indicating the value of the Knowledge Tokens over the last 30 days.
 
 ---
 

@@ -31,7 +31,7 @@
 
 - Personal Transactions
  
->   - There is now also a tab for you to see the history of your last few personal transactions, which includes items you have bought and Knowledge Tokens you have received and sent.
+>   There is now also a tab for you to see the history of your last few personal transactions, which includes items you have bought and Knowledge Tokens you have received and sent.
 
 - Wallet
 

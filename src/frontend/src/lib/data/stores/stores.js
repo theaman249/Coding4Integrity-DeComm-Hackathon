@@ -1,3 +1,4 @@
+
 import { persisted } from "svelte-persisted-store";
 
 export const loggedIn = persisted("loggedIn", {
@@ -51,3 +52,9 @@ export const cart = persisted("cart", {
 export const cartPage = persisted("cartPage", {
   value: false,
 });
+
+export const walletID = persisted("walletID", {
+  value: "",
+});
+
+ export const walletBalance = persisted("walletBalance", BigInt(0));

@@ -18,8 +18,11 @@
 - Personal Dashboard on the landing page
 > We have added a few things to the landing page. Namely:
 > - Wallet Balance and KT transfer
-> You are now able to view your Knowledge Token balance and also transfer Knowledge tokens to other valid Acoounts.
-> - KT Market overview
+> 
+> You are now able to view your Knowledge Token balance and also transfer Knowledge tokens to other valid Accounts.
+> 
+- KT Market overview
+> 
 > There is a line graph now indicating the value of the Knowledge Tokens over the last 30 days.
 
 ---

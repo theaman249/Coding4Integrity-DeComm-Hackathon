@@ -35,9 +35,9 @@
 >
 > - Wallet
 >
->   - We have generated unique Wallet IDs for every user.
->   - We have added inter wallet transactions (Sending and receiving Knowledge Tokens between valid accounts).
->   - Tracking of wallet balances.
+>   - We have implemented unique Wallet ID generation upon successful registration for every user.
+>   - We have added inter-wallet transactions (Sending and receiving Knowledge Tokens between valid accounts).
+>   - Real-time tracking of wallet balances.
 
 ---
 

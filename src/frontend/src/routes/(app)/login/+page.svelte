@@ -144,7 +144,7 @@
             <Alert.Root>
               <Alert.Title>Heads up!</Alert.Title>
               <Alert.Description>
-                Please doubble check your password.
+                Please double check your password.
               </Alert.Description>
             </Alert.Root>
             <Button disabled>

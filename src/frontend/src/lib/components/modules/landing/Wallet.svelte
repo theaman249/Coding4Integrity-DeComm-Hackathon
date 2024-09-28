@@ -10,17 +10,59 @@
     import { actorBackend } from "$lib/motokoImports/backend";
     import { onMount } from "svelte";
     import { walletID, walletBalance } from "$lib/data/stores/stores";
+    import {
+        Email,
+        Password,
+    } from "$lib/data/stores/stores.js";
+    var receipiantID = "";
+    var amountToSend = 0;
+    var passConfirm = "";
 
     onMount(async () => {
-      const walletDetails = await actorBackend.getDataForPersonalDashboard();
+        const walletDetails = await actorBackend.getDataForPersonalDashboard();
 
-      if(walletDetails)
-    {
-      $walletBalance = walletDetails.walletBallanceKT;
-      console.log(walletDetails)
-    }
+        if(walletDetails)
+        {
+            $walletBalance = walletDetails.walletBallanceKT;
+            console.log(walletDetails)
+        }
+    });
 
-  });
+    async function transferTokens(){
+        console.log('Transfering Token function');
+        // you need => walletID, amount, Password
+        // Convert amountToSend to bigint
+        let amountToSendBigInt = BigInt(amountToSend);
+
+        // console.log(receipiantID);
+        // console.log(amountToSendBigInt);
+        // console.log(passConfirm);
+
+        let res = await actorBackend.transferTokens(receipiantID,amountToSendBigInt,passConfirm);
+
+        if(res.msg = "tokens sent to wallet "+receipiantID)
+        {
+
+            const walletDetails = await actorBackend.getDataForPersonalDashboard();
+
+            if(walletDetails)
+            {
+                $walletBalance = walletDetails.walletBallanceKT;
+            }
+
+            toast.success("Payment Successful", {
+                description: "Transfer Successful!",
+                action: {
+                label: "done",
+                onClick: () => console.info("transferred")
+                }
+            });
+
+        }
+        else{
+            toast.error(res.msg); 
+        }
+    };
 </script>
 
 <Card.Root>
@@ -74,11 +116,11 @@
                                 </div>
                                 <div class="grid gap-2">
                                     <Label for="WalletID">Receiver WalletID</Label>
-                                    <Input type="text" id="WalletID" placeholder="e.g XXXXX-XXXXX-XXXXX-XXXXX" />
+                                    <Input bind:value={receipiantID} type="text" id="WalletID" placeholder="e.g XXXXX-XXXXX-XXXXX-XXXXX" />
                                 </div>
                                 <div class="grid gap-2">
                                     <Label for="amount">Amount</Label>
-                                    <Input type="number" id="amount" placeholder="e.g 2461" />
+                                    <Input bind:value = {amountToSend} type="number" id="amount" placeholder="e.g 2461" />
                                 </div>
                             </Card.Content>
                             <Card.Footer>
@@ -92,7 +134,7 @@
                                 <AlertDialog.Header>
                                     <div class="grid gap-2">
                                         <Label for="pword">To Authorize The Transfer Please Confirm Your Password</Label>
-                                        <Input type="password" id="pword" placeholder="password" />
+                                        <Input bind:value = {passConfirm} type="password" id="pword" placeholder="password" />
                                     </div>
                                 </AlertDialog.Header>
                                 <AlertDialog.Footer>
@@ -104,14 +146,7 @@
                                           onClick: () => console.info("cancelled")
                                          }
                                         })}>Cancel</AlertDialog.Cancel>
-                                    <AlertDialog.Action on:click={() =>
-                                        toast.success("Payment Successful", {
-                                         description: "Transfer Successful!",
-                                         action: {
-                                          label: "done",
-                                          onClick: () => console.info("transferred")
-                                         }
-                                        })}>Continue</AlertDialog.Action>
+                                    <AlertDialog.Action on:click = {() => transferTokens()}>Continue</AlertDialog.Action>
                                 </AlertDialog.Footer>
                             </AlertDialog.Content>
                         </AlertDialog.Root>

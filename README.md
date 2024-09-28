@@ -56,8 +56,10 @@
 
 ---
 
-> [!NOTE]
-> Here is a link to our [Design Docs](https://github.com/theaman249/Coding4Integrity-DeComm-Hackathon/tree/develop/DesignDocs/PlannedImprovements.pdf).
+> [!TIP]
+> Here is a link to our [Planned Improvements Proposal Doc](https://github.com/theaman249/Coding4Integrity-DeComm-Hackathon/tree/develop/DesignDocs/PlannedImprovements.pdf).
+>
+> Here is a link to our [UI Design Doc](https://github.com/theaman249/Coding4Integrity-DeComm-Hackathon/tree/develop/DesignDocs/).
 
 ---
 

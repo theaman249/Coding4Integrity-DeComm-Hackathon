@@ -21,7 +21,7 @@
     "deploy:ic": "dfx deploy --network=ic",
     "generate": "dfx generate && node ./update.types.mjs",
     "startdfx": "dfx start --clean --background",
-    "deploy": "dfx deploy fileUpload && dfx deploy backend && dfx deploy httpOutcalls && dfx deploy NFT_canister && dfx deploy NFT_canister && dfx deploy frontend",
+    "deploy": "dfx deploy NFT_canister && dfx deploy fileUpload && dfx deploy backend && dfx deploy httpOutcalls && dfx deploy NFT_canister && dfx deploy frontend",
     "deployPlayground": "dfx deploy --network playground backend && dfx deploy --network playground httpOutcalls && dfx deploy --network playground fileUpload && dfx deploy --network playground NFT_canister && dfx deploy --network playground frontend",
     "deployPlaygroundFE": "dfx deploy --network playground frontend",
     "deployBackend": "dfx deploy backend",

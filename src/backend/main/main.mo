@@ -491,8 +491,8 @@ actor class Main() {
         return "Hello from backend";
     };
 
-    public func getDataForPersonalDashboard(): async Types.PersonalDashboard{
-        let email = await WhoIsLoggedIn();
+    public func getDataForPersonalDashboard(email: Text): async Types.PersonalDashboard{
+
         let userOpt = await getUserByEmail(email);
 
         switch (userOpt) {

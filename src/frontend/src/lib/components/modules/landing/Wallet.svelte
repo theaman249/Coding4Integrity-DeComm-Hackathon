@@ -19,7 +19,7 @@
     var passConfirm = "";
 
     onMount(async () => {
-        const walletDetails = await actorBackend.getDataForPersonalDashboard();
+        const walletDetails = await actorBackend.getDataForPersonalDashboard($Email);
 
         if(walletDetails)
         {
@@ -43,7 +43,7 @@
         if(res.msg = "tokens sent to wallet "+receipiantID)
         {
 
-            const walletDetails = await actorBackend.getDataForPersonalDashboard();
+            const walletDetails = await actorBackend.getDataForPersonalDashboard($Email);
 
             if(walletDetails)
             {

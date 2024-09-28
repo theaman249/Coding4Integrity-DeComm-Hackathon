@@ -9,7 +9,7 @@
     fullName,
     loginStore,
     isValidUser,
-    email,
+    Email,
     password,
     passwordConfirm,
     walletID,
@@ -48,11 +48,11 @@
           if (res.message == "user created successfully")
           {
             $fullName = form.data.fullName;
-            $email = form.data.email;
+            $Email = form.data.email;
             $walletID = res.walletID;
             goto("/");
 
-            console.log("yaay");
+            
           }
           else{
             toast.error(res.message);

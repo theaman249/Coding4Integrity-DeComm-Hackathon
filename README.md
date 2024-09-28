@@ -23,7 +23,7 @@
 > 
 > - KT transfer
 >
->   - You can now transfer Knowledge tokens to other valid Accounts.
+>   - You can now transfer Knowledge tokens to other valid Accounts. Users also have to input their account password for authentication and security purposes. 
 >
 > - KT Market overview
 > 
@@ -59,3 +59,7 @@
 > [!NOTE]
 > Here is a link to our [Design Docs](https://github.com/KnowledgeFound/Coding4Integrity-DeComm-Hackathon).
 
+---
+
+## Group Members
+| Agape Mamphasa | Amanda Khuzwayo | Kea Mothapo | Mbofho Mamatsharaga |

@@ -14,7 +14,7 @@ import ICRC3 "mo:icrc3-mo";
 import ICRC37 "mo:icrc37-mo";
 import ICRC7 "mo:icrc7-mo";
 import Vec "mo:vector";
-
+import Cycles "mo:base/ExperimentalCycles";
 import Types "../commons/NFTypes";
 import User "../main/User";
 import ICRC3Default "./icrc3";
@@ -272,6 +272,7 @@ shared (_init_msg) actor class NFTCanister(
     };
 
     public shared (msg) func test_create_collection<system>(name: Text, shortDesc: Text, picture: Text) : async Bool {
+        Cycles.add<system>(10_000_000_000_000);
         let nftData = [
             {
                 name = name;
@@ -279,7 +280,8 @@ shared (_init_msg) actor class NFTCanister(
                 url = picture;
             },
         ];
-
+        
+        Cycles.add<system>(10_000_000_000_000);
         let mintRequests = Array.map<{ name : Text; description : Text; url : Text }, ICRC7.SetNFTItemRequest>(
             nftData,
             func(data) {
@@ -318,6 +320,7 @@ shared (_init_msg) actor class NFTCanister(
         D.print("Actor is createCollection  : " # debug_show (Principal.fromActor(this)));
         D.print("MSG is createCollection : " # debug_show (msg.caller));
 
+        Cycles.add<system>(10_000_000_000_000);
         let mintResult = await icrc7_mint(mintRequests);
         for (result in mintResult.vals()) {
         switch (result) {
@@ -342,9 +345,9 @@ shared (_init_msg) actor class NFTCanister(
     };
     
 
-    public shared(_msg) func transferNFT(tokenID: Nat) : async Result.Result<(), Text> {
+    public shared(_msg) func transferNFT(tokenID: Nat, buyer: Principal) : async Result.Result<(), Text> {
         let tokenDetails = icrc7().get_nft(tokenID);
-        let buyerPrincipal = _msg.caller;
+        let buyerPrincipal = buyer;
 
         switch (tokenDetails) {
             case (null) {

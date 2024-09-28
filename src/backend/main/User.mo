@@ -2,6 +2,8 @@ import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
+import Array "mo:base/Array";
+import Principal "mo:base/Principal";
 import Types "../commons/Types";
 
 actor class User(
@@ -59,14 +61,33 @@ actor class User(
         return userPurchases;
     };
 
-    public query func getProductIDs() : async [Nat] {
-        var productIDs = Buffer.Buffer<Nat>(0);
-        for (product in userSellersStock.vals()) {
-            productIDs.add(product.productID);
-        };
-        return Buffer.toArray(productIDs);
+    public func addToSellersStock(product: Types.Product) : async () {
+        sellersStockBuffer.add(product);
+        userSellersStock := Buffer.toArray(sellersStockBuffer);
+        Debug.print("Product added to seller's stock: " # debug_show(product.productID));
     };
-    
+
+    public shared(msg) func getCallerPrincipal() : async Principal {
+        let caller : Principal = msg.caller;
+        return caller;
+    };
+
+   public query func getSellerStockIDs() : async [Nat] {
+        let sellerStockIDs = Array.map<Types.Product, Nat>(userSellersStock, func(product: Types.Product) : Nat {
+            product.productID
+        });
+
+        return sellerStockIDs;
+    };
+
+    public query func getPurchasedStockIDs() : async [Nat] {
+        let purchasedStockIDs = Array.map<Types.Transaction, Nat>(userPurchases, func(transaction: Types.Transaction) : Nat {
+            transaction.productID
+        });
+        
+        return purchasedStockIDs;
+    };
+
     public query func getSoldItems() : async [Types.Transaction] {
         return userSoldItems;
     };

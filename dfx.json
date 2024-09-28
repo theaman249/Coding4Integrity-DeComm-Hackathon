@@ -1,5 +1,10 @@
 {
   "canisters": {
+    "NFT_canister": {
+      "main": "src/backend/NFTCanister/main.mo",
+      "type": "motoko",
+      "dependencies": ["backend"]
+    },
     "backend": {
       "main": "src/backend/main/main.mo",
       "type": "motoko",
@@ -32,11 +37,6 @@
     },
     "KT_canister": {
       "main": "src/backend/KTCanister/main.mo",
-      "type": "motoko",
-      "dependencies": ["backend"]
-    },
-    "NFT_canister": {
-      "main": "src/backend/NFTCanister/main.mo",
       "type": "motoko",
       "dependencies": ["backend"]
     }

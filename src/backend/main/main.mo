@@ -16,18 +16,12 @@ import Random "mo:base/Random";
 import Iter "mo:base/Iter";
 import Nat8 "mo:base/Nat8";
 import Char "mo:base/Char";
-import Time "mo:base/Time"
+import Time "mo:base/Time";
+import NFTCanister "canister:NFT_canister";
 
 
 //Actor
 actor class Main() {
-    let nftCanister = actor("bw4dl-smaaa-aaaaa-qaacq-cai") : actor {
-        test_create_collection: shared(name: Text, shortDesc: Text, picture: Text) -> async Bool;
-        test_workflow: shared(recipient : Text, name: Text, description: Text, url: Text) -> async Result.Result<(), Text>;
-        get_last_minted_token_id : shared() -> async ?Nat;
-        transferNFT : shared(tokenID: Nat, buyer: Principal) -> async Result.Result<(), Text>;
-    };
-
     stable var usersArray : [User.User] = [];
     stable var productsArray : [Product.Product] = [];
     stable var productIDNum : Nat = 0;
@@ -188,12 +182,7 @@ actor class Main() {
     };
 
     public func testObject(): async Text {
-        let users = await getAllUsers();
-        for (user in users.vals()) {
-            let walletID = await user.getWalletID();
-            return walletID;
-        };
-
+        
         return "Money for Fun";
     };
 
@@ -443,20 +432,20 @@ actor class Main() {
 
     //add new nft definition for product (test_create_collection)
     public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product{ 
-        Cycles.add<system>(10_000_000_000);
-        splitCycles<system>();
+        // Cycles.add<system>(200_000_000);
+        // splitCycles<system>();
 
         //Get newly minted nft tokenid
-        Cycles.add<system>(10_000_000_000_000);
-        let collectionResult = await nftCanister.test_create_collection(name, shortDesc, picture);
+        Cycles.add<system>(100_000_000_000);
+        let collectionResult = await NFTCanister.test_create_collection(name, shortDesc, picture);
         
         if (collectionResult) {
-            Cycles.add<system>(10_000_000_000_000);
-            let tokenIdOpt = await nftCanister.get_last_minted_token_id();
+            Cycles.add<system>(100_000_000_000);
+            let tokenIdOpt = await NFTCanister.get_last_minted_token_id();
             
             switch (tokenIdOpt) {
                 case (?tokenId) {
-                    Cycles.add<system>(10_000_000_000_000);
+                    Cycles.add<system>(100_000_000_000);
                     var product = await Product.Product(user, name, category, price, shortDesc, longDesc, isVisible, picture, productIDNum, tokenId);
                     Debug.print(debug_show((user, name, category, price, shortDesc, longDesc, isVisible, picture, productIDNum)));
                     productIDNum := productIDNum + 1;
@@ -480,10 +469,12 @@ actor class Main() {
                      throw Error.reject("No token ID returned after successful collection creation.");
                 };
             }
-        } else {
+        } 
+        else {
             // Handle failure of collection creation
             throw Error.reject("Failure during collection creation.");
-    };
+        };
+        
         throw Error.reject("Unexpected error during collection creation.");
     };
 
@@ -632,11 +623,15 @@ actor class Main() {
     };
 
     private func splitCycles<system>() {
-        Cycles.add<system>(200000000000);
+        Cycles.add<system>(100_000_000_000);
     };
 
     public func addToUserCart(userName : Text, product : Types.Product) : async Bool {
         let userOpt = await findUser(userName);
+
+        Debug.print("addToUser");
+        Debug.print(userName);
+
         switch (userOpt) {
             case (?user) {
                 if (await addToCart(userName, product.productID)) {
@@ -844,7 +839,7 @@ actor class Main() {
                         let tokenID = await product.getTokenID();
                         let userPrincipal = msg.caller;
 
-                        let purchaseResult = await nftCanister.transferNFT(tokenID, userPrincipal);
+                        let purchaseResult = await NFTCanister.transferNFT(tokenID, userPrincipal);
 
                         //let workflowResult = await NFTCanister.test_workflow(name, descr, picture);
                         for (index in usersArray.vals()) {

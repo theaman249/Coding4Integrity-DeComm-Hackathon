@@ -48,9 +48,14 @@
   };
 
   async function add() {
+    console.log('add()');
     formSubmitted = true;
     try {
-      await actorBackend.addToUserCart($fullName, product);
+      console.log(product);
+      console.log($fullName);
+      
+      let res = await actorBackend.addToUserCart($fullName, product);
+      console.log(res);
       toast("Added " + product.name + " to cart");
       $cart.value = $cart.value + 1;
       formSubmitted = false;

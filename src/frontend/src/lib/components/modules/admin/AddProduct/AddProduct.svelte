@@ -150,7 +150,8 @@
 
     try {
       if (selectedCurrency === "Knowledge Token") {
-        await actorBackend.createProduct(
+        
+        let res = await actorBackend.createProduct(
           $fullName,
           formName,
           selectedCategory,
@@ -160,6 +161,8 @@
           true,
           img,
         );
+
+        console.log(res);
       }
       toast.success("Product has been added", {
         description: getFormattedDateTime(),

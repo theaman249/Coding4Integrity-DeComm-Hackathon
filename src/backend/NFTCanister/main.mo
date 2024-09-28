@@ -29,10 +29,7 @@ shared (_init_msg) actor class NFTCanister(
     }
 ) = this {
 
-    let main = actor("be2us-64aaa-aaaaa-qaabq-cai") : actor {
-    getUserByName: (name : Text) -> async ?User.User;
-    //addToUserNFTTokens: (newToken : Types.NFT) -> async ();
-};
+    
 
     stable var init_msg = _init_msg;
 
@@ -272,7 +269,8 @@ shared (_init_msg) actor class NFTCanister(
     };
 
     public shared (msg) func test_create_collection<system>(name: Text, shortDesc: Text, picture: Text) : async Bool {
-        Cycles.add<system>(10_000_000_000_000);
+        
+        // Cycles.add<system>(100_000_000_000);
         let nftData = [
             {
                 name = name;
@@ -281,7 +279,7 @@ shared (_init_msg) actor class NFTCanister(
             },
         ];
         
-        Cycles.add<system>(10_000_000_000_000);
+        Cycles.add<system>(100_000_000_000);
         let mintRequests = Array.map<{ name : Text; description : Text; url : Text }, ICRC7.SetNFTItemRequest>(
             nftData,
             func(data) {
@@ -320,7 +318,7 @@ shared (_init_msg) actor class NFTCanister(
         D.print("Actor is createCollection  : " # debug_show (Principal.fromActor(this)));
         D.print("MSG is createCollection : " # debug_show (msg.caller));
 
-        Cycles.add<system>(10_000_000_000_000);
+        Cycles.add<system>(100_000_000_000);
         let mintResult = await icrc7_mint(mintRequests);
         for (result in mintResult.vals()) {
         switch (result) {
@@ -341,7 +339,7 @@ shared (_init_msg) actor class NFTCanister(
             };
         };
     };
-    return false;
+        return false;
     };
     
 
@@ -393,20 +391,20 @@ shared (_init_msg) actor class NFTCanister(
     };
 
 
-    public shared (_msg) func test_workflow(recipient : Text, name: Text, description: Text, url: Text) : async Result.Result<(), Text> {
-        //0. find recipient
+   /* public shared (_msg) func test_workflow(recipient : Text, name: Text, description: Text, url: Text) : async Result.Result<(), Text> {
+        
         let user = await main.getUserByName(recipient);
         switch (user) {
             case (null) return #err("No user was found");
             case (?user) {
                 let principal = await returnPrincipal(user);
-                // 1. Create collection
-                /*let create_result = await test_create_collection(name, description, url);
+                
+                let create_result = await test_create_collection(name, description, url);
                 if (not create_result) {
                     return #err("Failed to create collection");
-                };*/
+                };
 
-                // 2. Check balance
+               
                 let balance = await icrc7_balance_of({
                     owner = icrc7().get_state().owner;
                     subaccount = null;
@@ -415,7 +413,6 @@ shared (_init_msg) actor class NFTCanister(
                     return #err("Unexpected balance. Expected 5, got " # Nat.toText(balance));
                 };
 
-                // 3. Approve transfer
                 let approve_result = await icrc37_approve_tokens({
                     token_id = 0;
                     approval_info = {
@@ -434,7 +431,6 @@ shared (_init_msg) actor class NFTCanister(
                     case (#ok(_)) {};
                 };
 
-                // 4. Check approval
                 let is_approved = await icrc37_is_approved({
                     spender = {
                         owner = principal;
@@ -476,19 +472,8 @@ shared (_init_msg) actor class NFTCanister(
         };
 
     };
-
-    /*public func get_user_nfts(user_account : Types.Account) : async [Nat] {
-        var owned_tokens : [Nat] = [];
-        for (token_id in owned_tokens.vals()) {
-            let owner = icrc7_owner_of(token_id);
-            if (owner == ?user_account) {
-                owned_tokens := Array.append(owned_tokens, [token_id]);
-            };
-        };
-        return owned_tokens;
-    };*/
-
-
+*/
+   
     public query func get_stats() : async {
         total_supply : Nat;
         total_transactions : Nat;

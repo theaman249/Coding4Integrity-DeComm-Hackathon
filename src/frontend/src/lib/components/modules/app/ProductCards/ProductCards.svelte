@@ -9,7 +9,7 @@
 
   onMount(async () => {
     const resProduct = await actorBackend.getAllProductTypes();
-    console.log( await actorBackend.test());
+    console.log( (await actorBackend.testObject()).name);
     converted = await convertBigIntToNumber(resProduct);
     posts = true;
   });
@@ -40,25 +40,25 @@
   }
 </script>
 
-<div class="grid grid-cols-12 mt-22 pt-20 lg:pt-0 xl:mt-0 bg-zinc-50 w-full">
+<div class="grid grid-cols-12 mt-22 pt-20 lg:pt-0 xl:mt-0 w-full bg-background">
   {#if !posts}
     <div
       class="col-span-12 grid grid-cols-12 justify-center items-center w-full h-screen"
     >
       <div
-        class="col-span-12 flex h-full w-full justify-center items-center text-3xl lg:text-7xl font-medium animate-pulse-custom"
+        class="col-span-12 flex text-foreground h-full w-full justify-center items-center text-3xl lg:text-7xl font-medium animate-pulse-custom"
       >
         Loading Items...
       </div>
     </div>
   {:else if posts && converted.length >= 1}
     <div
-      class="min-h-full bg-zinc-50 col-span-12 grid grid-cols-12 justify-center gap-10 lg:mb-0 md:p-8 xl:p-5 2xl:px-40 h-fit w-full overflow-hidden"
+      class="min-h-full col-span-12 grid grid-cols-12 justify-center gap-10 lg:mb-0 md:p-8 xl:p-5 2xl:px-40 h-fit w-full overflow-hidden"
       transition:combineTransitions={{ duration: 800 }}
     >
       {#each converted as post, i}
         <div
-          class="col-span-12 bg-zinc-50 md:col-span-6 lg:col-span-3 w-full h-1/6 border-zinc-300 {i >=
+          class="col-span-12 md:col-span-6 lg:col-span-3 w-full h-1/6 border-muted {i >=
           4
             ? '2xl:mt-10'
             : '2xl:mt-44'}"

@@ -193,11 +193,7 @@
 </script>
 
 <div class="pl-2 w-full h-full overflow-hidden">
-  <h2 class="text-xl font-semibold mb-5">Add Product</h2>
-  <p class="mb-5">
-    Fill in the fields below to add your product to the DECOMM customer facing
-    website
-  </p>
+
   <hr />
   <form method="POST" use:enhance>
     <div class="grid w-full max-w-sm items-center gap-1.5 mt-5">
@@ -231,7 +227,7 @@
                 >{category.label}</Select.Item
               >
             {/each}
-          </Select.Group>
+          </Select.Group> 
         </Select.Content>
         <Select.Input name="favoriteFruit" />
       </Select.Root>

@@ -141,7 +141,8 @@
   }
 </script>
 
-<h2 class="text-xl font-semibold ml-2 mb-5">Products</h2>
+<hr />
+<h2 class="text-l font-semibold ml-2 mb-5 mt-4">My Products</h2>
 {#if showSkeleton}
   <div class="col-span-1"></div>
   <div class="col-span-10">

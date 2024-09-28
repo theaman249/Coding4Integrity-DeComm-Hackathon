@@ -1,4 +1,6 @@
 import Nat "mo:base/Nat";
+import Text "mo:base/Text";
+import Time "mo:base/Time";
 import Buffer "mo:base/Buffer";
 import ICRC7 "mo:icrc7-mo";
 
@@ -18,6 +20,17 @@ module Types {
     public type Price = {
         currency : Currency;
         amount : Nat;
+    };
+
+    public type PersonalDashboard = {
+        fullname:Text;
+        marketValueOfKT: Nat;
+        walletBallanceKT: Nat;
+    };
+
+    public type Message = {
+        msg: Text;
+        timestamp: Time.Time;
     };
 
     //User Object Types
@@ -42,13 +55,29 @@ module Types {
         paidPrice : Types.Price;
     };
 
+    public type Transfer ={
+        sourceWalletID: Text;
+        destinationWalletID : Text;
+        transactionType: Text; //debit or credit
+        amount : Types.Price;
+        timestamp : Time.Time;
+    };
+
     public type User = {
         name : Text;
+        email: Text;
+        walletID: Text;
+        message: Text;
         buyersCart : [Product];
         sellersStock : [Product];
         purchases : [Transaction];
         soldItems : [Transaction];
         wallet : [Types.Price];
+    };
+
+    public type test = {
+        name: Text;
+        surname : Text;
     };
 };
 

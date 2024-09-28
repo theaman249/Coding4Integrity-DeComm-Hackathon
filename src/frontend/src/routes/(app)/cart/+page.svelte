@@ -6,6 +6,9 @@
   import { goto } from "$app/navigation";
   import { actorBackend } from "$lib/motokoImports/backend";
   import { onMount } from "svelte";
+  import * as AlertDialog from "$lib/components/ui/alert-dialog";
+  import { Label } from "$lib/components/ui/label/index.js";
+    import { Input } from "$lib/components/ui/input";
 
   let checkout = false;
   let buttonClicked = false;
@@ -162,7 +165,7 @@
 </script>
 
 {#if !checkout}
-  <div class="flex flex-col min-h-screen w-full mt-32 lg:mt-40 p-2 bg-zinc-50">
+  <div class="flex flex-col min-h-screen w-full mt-32 lg:mt-40 p-2 bg-background">
     <div class="col-span-12 grid grid-cols-12 px-2 lg:px-10 flex-none">
       <div class="col-span-12 mb-5">
         <a href="/" class="flex" on:click|preventDefault={() => homePage()}>
@@ -197,8 +200,7 @@
               Clearing Cart
             </Button>
           {/if}
-          <Button on:click={() => (checkout = true)}>Proceed to Checkout</Button
-          >
+          <Button on:click={() => (checkout = true)}>Proceed to Checkout</Button>
         </div>
       </div>
       <div
@@ -235,9 +237,9 @@
                   {/if}
                 {/each}
                 {#if !product.isSold}
-                  <p class="text-green-500">In stock</p>
+                  <p class="text-primary">In stock</p>
                 {:else}
-                  <p class="text-red-500">Out of Stock</p>
+                  <p class="text-destructive">Out of Stock</p>
                 {/if}
                 {#if !formSubmitted}
                   <Button
@@ -311,7 +313,28 @@
           class="col-span-12 my-2 flex items-end justify-end place-items-end"
         >
           {#if !buttonClicked}
-            <Button on:click={() => purchase()}>Purchase</Button>
+          <AlertDialog.Root>
+            <Button><AlertDialog.Trigger>Purchase</AlertDialog.Trigger></Button>
+            <AlertDialog.Content>
+              <AlertDialog.Header>
+                <div class="grid gap-2">
+                    <Label for="pword">To Authorize The Transfer Please Confirm Your Password</Label>
+                    <Input type="password" id="pword" placeholder="password" />
+                </div>
+              </AlertDialog.Header>
+              <AlertDialog.Footer>
+                <AlertDialog.Cancel on:click={() =>
+                    toast.error("Checkout Cancelled", {
+                     description: "You have cancelled the checkout",
+                     action: {
+                      label: "close",
+                      onClick: () => console.info("cancelled")
+                     }
+                    })}>Cancel</AlertDialog.Cancel>
+                <AlertDialog.Action on:click={() => purchase()}>Continue</AlertDialog.Action>
+              </AlertDialog.Footer>
+            </AlertDialog.Content>
+          </AlertDialog.Root>
           {:else}
             <Button disabled>
               <Reload class="mr-2 h-4 w-4 animate-spin" />

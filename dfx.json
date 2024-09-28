@@ -25,12 +25,27 @@
       "source": ["build/"],
       "type": "assets"
     },
+    "main": {
+      "main": "src/backend/main/main.mo",
+      "type": "motoko",
+      "dependencies": ["backend"]
+    },
+    "KT_canister": {
+      "main": "src/backend/KTCanister/main.mo",
+      "type": "motoko",
+      "dependencies": ["backend"]
+    },
     "NFT_canister": {
       "main": "src/backend/NFTCanister/main.mo",
       "type": "motoko",
       "dependencies": ["backend"]
     }
   },
+  "metadata": [
+  {
+    "name": "candid:service"
+  }
+],
   "defaults": {
     "build": {
       "args": "",

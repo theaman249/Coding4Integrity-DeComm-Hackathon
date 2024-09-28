@@ -28,13 +28,13 @@
 > - KT Market overview
 > 
 >   - There is a line graph now indicating the value of the Knowledge Tokens over the last 30 days. It is mocked right now but in future we would like for it to be updated in real time.
->
-> - Personal Transactions
-> 
+
+- Personal Transactions
+ 
 >   - There is now also a tab for you to see the history of your personal transactions over the last 30 days, which includes things you have bought and Knowledge Tokens you have recieved and sent.
->
-> - Wallet
->
+
+- Wallet
+
 >   - We have implemented unique Wallet ID generation upon successful registration for every user.
 >   - We have added inter-wallet transactions (Sending and receiving Knowledge Tokens between valid accounts).
 >   - Real-time tracking of wallet balances.

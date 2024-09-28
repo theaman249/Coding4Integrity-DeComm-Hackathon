@@ -134,5 +134,5 @@
 
 ## Tech Stack
 
-| <img width="250" height="240" align='left' src="Motoko.jpg"> | <img width="250" height="240" align='left' src="svelte.jpg"> | <img width="250" height="240" align='left' src="shadcn.jpg"> | <img width="250" height="240" align='left' src="tailwind.jpg"> |
+| <img width="100" height="100" align='left' src="Motoko.png"> | <img width="100" height="100" align='left' src="svelte.png"> | <img width="100" height="100" align='left' src="shadcn.png"> | <img width="100" height="100" align='left' src="tailwind.png"> |
 | --- | --- | --- | --- |

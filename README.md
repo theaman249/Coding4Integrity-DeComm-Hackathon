@@ -7,3 +7,5 @@
 
 <span style="color: red;">Please visit their repo for more information on how to set the environment up after cloning our repository. </span>
 
+<span style="color: red;">This text will be red.</span>
+

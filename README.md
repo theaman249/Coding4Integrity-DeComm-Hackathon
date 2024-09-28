@@ -31,7 +31,7 @@
 
 - Personal Transactions
  
->   - There is now also a tab for you to see the history of your personal transactions over the last 30 days, which includes items you have bought and Knowledge Tokens you have recieved and sent.
+>   - There is now also a tab for you to see the history of your personal transactions over the last 30 days, which includes items you have bought and Knowledge Tokens you have received and sent.
 
 - Wallet
 
@@ -62,5 +62,70 @@
 ---
 
 ## Group Members
-| Agape Mamphasa | Amanda Khuzwayo | Kea Mothapo | Mbofho Mamatsharaga |
-| --- | --- | --- | --- |
+<p>
+  <img width="250" height="240" align='left' src="agape.jpg">
+</p>
+
+#### Agape Mamphasa
+
+#### Role(s): Database Engineer, DevOps Engineer, Backend Engineer
+
+#### BSc(Hons) Computer Science Student at The University Of Pretoria
+
+#### Favourite Language(s): Java, JavaScript, php
+
+<br>
+<br>
+<br>
+<br>
+
+<p>
+  <img width="250" height="240" align='left' src="amanda.jfif">
+</p>
+
+#### Amanda Khuzwayo
+
+#### Role(s): Backend Engineer, Frontend Engineer, Database Engineer
+
+#### BSc(Hons) Computer Science Student at The University Of Pretoria
+
+#### Favourite Language(s): Java, C++
+
+<br>
+<br>
+<br>
+<br>
+
+<p>
+  <img width="250" height="240" align='left' src="mbofho.jfif">
+</p>
+
+#### Mbofho Mamatsharaga
+
+#### Role(s): Frontend Engineer
+
+#### 3rd Year Computer Science Student at The University Of Pretoria
+
+#### Favourite Language(s): Java, dart
+
+<br>
+<br>
+<br>
+<br>
+
+<p>
+  <img width="250" height="240" align='left' src="kea.jpg">
+</p>
+
+#### Kea Motapo
+
+#### Role(s): Frontend Engineer
+
+#### 3rd Year Information Knowledge Systems student at the University Of Pretoria
+
+#### Favourite Language(s): Java, C++, Javascript
+
+<br>
+<br>
+<br>
+<br>

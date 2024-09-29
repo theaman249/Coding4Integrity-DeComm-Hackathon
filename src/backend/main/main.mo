@@ -183,7 +183,7 @@ actor class Main() {
 
     public func testObject(): async Text {
         
-        return "Money for Fun";
+        return "Money for Fun!";
     };
 
     public func transferTokens(email:Text,destinationWalletID: Text, amount:Nat, password:Text): async Types.Message  {
@@ -630,7 +630,6 @@ actor class Main() {
     public func addToUserCart(userName : Text, product : Types.Product) : async Bool {
         let userOpt = await findUser(userName);
 
-        Debug.print("addToUser");
         Debug.print(userName);
 
         switch (userOpt) {
@@ -650,6 +649,43 @@ actor class Main() {
             };
         };
     };
+
+    public func addToUserCart2(email : Text, productID: Nat) : async Bool {
+        let userOpt = await getUserByEmail(email);
+        
+        Debug.print("Heaven. Jewish heaven");
+
+        switch (userOpt) {
+            case (?user) {
+                let userName = await user.getName();
+
+                //find the product
+
+                let productOpt = await getProductById(productID);
+
+                switch  (productOpt){
+                    case (#ok(product)) {
+                        
+                        let productType = await convertProductToType(product);
+                        await user.addToCart(productType);
+
+                        return true;
+                    };
+                    case (#err(message)) {
+                        Debug.print(message);
+                        return false;
+                    };
+                };
+
+            };
+            case (null) {
+                Debug.print("User not found: ");
+                return false;
+            };
+        };
+    };
+
+    
 
     public func removeFromUserCart(userName : Text, productID : Nat) : async Bool {
         let userOpt = await findUser(userName);
@@ -891,6 +927,8 @@ actor class Main() {
         };
         return [];
     };
+
+    
 
     private func findUser(userName : Text) : async ?User.User {
         for (user in usersArray.vals()) {

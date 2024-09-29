@@ -38,7 +38,7 @@
         // console.log(amountToSendBigInt);
         // console.log(passConfirm);
 
-        let res = await actorBackend.transferTokens(receipiantID,amountToSendBigInt,passConfirm);
+        let res = await actorBackend.transferTokens($Email,receipiantID,amountToSendBigInt,passConfirm);
 
         if(res.msg = "tokens sent to wallet "+receipiantID)
         {

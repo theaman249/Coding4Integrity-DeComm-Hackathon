@@ -186,16 +186,17 @@ actor class Main() {
         return "Money for Fun";
     };
 
-    public func transferTokens(destinationWalletID: Text, amount:Nat, password:Text): async Types.Message  {
+    public func transferTokens(email:Text,destinationWalletID: Text, amount:Nat, password:Text): async Types.Message  {
         
         //check if receiver exists
+        Debug.print("transfer token");
 
         let reciever = await getUserByWalletID(destinationWalletID);
 
         switch (reciever) {
             case (?recieverUser) {
                 //get sender
-                let sender = await getUserByEmail(await WhoIsLoggedIn());
+                let sender = await getUserByEmail(email);
 
                 switch(sender) {
 

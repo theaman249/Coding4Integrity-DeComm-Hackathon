@@ -8,7 +8,7 @@
 > Please visit their repo for more information on how to set the environment up after cloning our repository.
 
 >[!IMPORTANT]
-> Please find attached a link to our [deployed system]().
+> Please find attached a link to our [deployed system](https://gigsl-oqaaa-aaaah-qdsfq-cai.icp0.io/login).
 
 ---
 

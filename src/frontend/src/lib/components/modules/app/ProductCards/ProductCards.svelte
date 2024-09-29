@@ -9,7 +9,7 @@
 
   onMount(async () => {
     const resProduct = await actorBackend.getAllProductTypes();
-    //console.log( await actorBackend.test());
+    console.log( (await actorBackend.testObject()).name);
     converted = await convertBigIntToNumber(resProduct);
     posts = true;
   });

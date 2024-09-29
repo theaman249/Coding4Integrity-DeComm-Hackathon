@@ -9,9 +9,10 @@
     fullName,
     loginStore,
     isValidUser,
-    email,
+    Email,
     password,
     passwordConfirm,
+    walletID,
   } from "$lib/data/stores/stores.js";
   import { superForm, defaults } from "sveltekit-superforms/client";
   import { z } from "zod";
@@ -20,6 +21,7 @@
   import { actorBackend } from "$lib/motokoImports/backend";
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
+    import { toast } from "svelte-sonner";
 
   let formSubmitted = false;
 
@@ -42,16 +44,26 @@
       async onUpdate({ form }) {
         if (form.valid) {
           let res = await actorBackend.createUser(form.data.fullName, form.data.email, form.data.password);
-          //console.log(JSON.parse(res));
-          // $fullName = form.data.fullName;
-          // $email = form.data.email;
-          // $password = form.data.password;
+          // console.log(res); 
+          if (res.message == "user created successfully")
+          {
+            $fullName = form.data.fullName;
+            $Email = form.data.email;
+            $walletID = res.walletID;
+            goto("/");
+
+            
+          }
+          else{
+            toast.error(res.message);
+          }
+
           $passwordConfirm = form.data.passwordConfirm;
           $registerStore = false;
           $loggedIn = true;
           $isValidUser = true;
           formSubmitted = false;
-          goto("/");
+          
         }
       },
     },

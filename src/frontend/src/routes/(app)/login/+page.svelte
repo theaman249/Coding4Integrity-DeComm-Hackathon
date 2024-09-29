@@ -10,6 +10,8 @@
     registerStore,
     isValidUser,
     Password,
+    fullName,
+    walletID
   } from "$lib/data/stores/stores.js";
   import { goto } from "$app/navigation";
   import { actorBackend } from "$lib/motokoImports/backend";
@@ -18,6 +20,7 @@
   import { zod } from "sveltekit-superforms/adapters";
   import Reload from "svelte-radix/Reload.svelte";
   import * as Alert from "$lib/components/ui/alert";
+  import { toast } from "svelte-sonner";
 
   let inputValue = '';
   let regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[\W_]).{8,}$/;
@@ -54,20 +57,28 @@
       SPA: true,
       validators: zod(newContactSchema),
       onSubmit()  {
-        console.log('Jericho');
         formSubmitted = true;
 
       },
       async onUpdate({ form }) {
         if (form.valid) {
           let res = await actorBackend.loginUser(form.data.Email, form.data.Password);
-          console.log(JSON.parse(res));
-          $Email = form.data.Email;
-          $loginStore = false;
-          $loggedIn = true;
-          $isValidUser = true;
-          formSubmitted = false;
-          goto("/");
+
+          if(res.message == "user successfully logged in"){
+            $fullName = res.name;
+            $walletID = res.walletID;
+            $Email = form.data.Email;
+            $loginStore = false;
+            $loggedIn = true;
+            $isValidUser = true;
+            formSubmitted = false;
+            goto("/");
+          }
+          else{
+            toast.error(res.message);
+          }
+
+          
         }
         else{
           console.log('Unable to validate form');
@@ -133,7 +144,7 @@
             <Alert.Root>
               <Alert.Title>Heads up!</Alert.Title>
               <Alert.Description>
-                Please doubble check your password.
+                Please double check your password.
               </Alert.Description>
             </Alert.Root>
             <Button disabled>

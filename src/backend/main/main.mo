@@ -5,10 +5,20 @@ import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Nat32 "mo:base/Nat32";
+import Principal "mo:base/Principal";
+import Error "mo:base/Error";
+
 import Types "../commons/Types";
 import Product "Product";
 import Transaction "Transaction";
 import User "User";
+import Random "mo:base/Random";
+import Iter "mo:base/Iter";
+import Nat8 "mo:base/Nat8";
+import Char "mo:base/Char";
+import Time "mo:base/Time";
+import NFTCanister "canister:NFT_canister";
+
 
 //Actor
 actor class Main() {
@@ -22,6 +32,8 @@ actor class Main() {
     var productBuffer = Buffer.fromArray<Product.Product>(productsArray);
     var transactionBuffer = Buffer.fromArray<Transaction.Transaction>(transactionsArray);
     private var inCarts : Buffer.Buffer<(Text, Nat)> = Buffer.Buffer<(Text, Nat)>(0);
+
+    var loggedInUserEmail:Text = "";
 
     public func addToCart(userID : Text, productID : Nat) : async Bool {
         if (not Buffer.contains(inCarts, (userID, productID), func(a : (Text, Nat), b : (Text, Nat)) : Bool { a.0 == b.0 and a.1 == b.1 })) {
@@ -77,53 +89,257 @@ actor class Main() {
         return count;
     };
 
-    public func createUser<system>(name : Text, email : Text, password : Text) : async Text{
+    public func createUser<system>(name : Text, email : Text, password : Text) : async Types.User{
+
+        Cycles.add<system>(100_000_000_000); // 8 billion cycles
+
+        let dummy = await User.User(
+            "null",
+            "null",
+            0,
+            "null", // insert generateWalletID here
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var flag : Bool = false;
+        let usernames = await getAllUserEmails();
+        for (username in usernames.vals()) {
+            if (Text.equal(email, username)) {
+                flag := true;
+                let result = await convertUserToType(dummy,"user already exists");
+                return result;
+            };
+        };
         
-        splitCycles<system>();
+        Cycles.add<system>(1_000_000_000); // 8 billion cycles
 
         let hashedPassword = Text.hash(password);
-        let fullNameSplits = await numberOfSplits(email, " ");
 
-        let dummyName = "null";
-        let dummyEmail = "null";
-        
-        splitCycles<system>();
+        let walletID = await generateWalletID();
 
-        let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
-
-        splitCycles<system>();
+        Cycles.add<system>(400_000_000_000); // 8 billion cycles
 
         let user = await User.User(
             name,
             email,
             hashedPassword,
+            walletID, // insert generateWalletID here
             [],
             [],
             [],
             [],
             [
-                { currency = #kt; amount = 1000000000000 },
-            ]
+                { currency = #kt; amount = 5000 },
+            ],
+            []
         );
 
-        splitCycles<system>();
+        await updateUserArray(user);
+        let result = await convertUserToType(user,"user created successfully");
+        return result;
+    };
 
-        if (fullNameSplits != 1) {
-            var flag : Bool = false;
-            let usernames = await getAllUserEmails();
-            for (username in usernames.vals()) {
-                if (Text.equal(email, username)) {
-                    flag := true;
-                    return await toJsonUser(dummyName,dummyEmail,"user already exists");
+    public func generateWalletID<system>(): async Text {
+        // Initialize an empty Text variable for the wallet ID
+        var walletID: Text = "";
+
+        let charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var f = Random.Finite(await Random.blob());
+
+        var n = 0;
+        while(n < 4){
+            
+            for(j in Iter.range(0, 4)) //upper bound is inclusive
+            {
+                let ran = generateRandomNumber(f,35);
+            
+                switch(ran){
+                    case(?value){
+
+                        let character = await getCharAtIndex(value,charset);
+
+                        walletID :=  walletID # character;
+                    };
+                    case _{
+                        Debug.print("Unable to obtain random value");
+                    };
+                };
+            };
+
+            if(n < 3){
+                walletID := walletID # "-";
+            };
+
+            n := n+1;
+        };
+
+        return walletID;
+    };
+
+    public func testObject(): async Text {
+        
+        return "Money for Fun!";
+    };
+
+    public func transferTokens(email:Text,destinationWalletID: Text, amount:Nat, password:Text): async Types.Message  {
+        
+        //check if receiver exists
+        Debug.print("transfer token");
+
+        let reciever = await getUserByWalletID(destinationWalletID);
+
+        switch (reciever) {
+            case (?recieverUser) {
+                //get sender
+                let sender = await getUserByEmail(email);
+
+                switch(sender) {
+
+                    case(?senderUser){
+                        
+                        let hashedPassword = Text.hash(password);
+                        let senderPassword = await senderUser.getPHash();
+
+                        if(hashedPassword != senderPassword)
+                        {
+                            return {
+                                msg = "transaction failed. invalid credentials";
+                                timestamp = Time.now();
+                            }
+                        };
+
+                        //Don't allow a user to send money to themselves
+                        let recieverWalletID = await recieverUser.getWalletID();
+                        let senderWalletID = await senderUser.getWalletID();
+
+                        if(recieverWalletID == senderWalletID)
+                        {   
+                            return {
+                                msg = "transaction failed. invalid walletID";
+                                timestamp = Time.now();
+                            }; 
+                        };
+
+                        let money: Types.Price={
+                            currency = #kt;
+                            amount = amount;
+                        };
+                        
+                        let credit: Types.Transfer = {
+                            sourceWalletID = senderWalletID;
+                            destinationWalletID = destinationWalletID;
+                            transactionType = "credit";
+                            amount = money;
+                            timestamp = Time.now();
+                        };
+
+                        let debit: Types.Transfer = {
+                            sourceWalletID = senderWalletID;
+                            destinationWalletID = destinationWalletID;
+                            transactionType = "debit";
+                            amount = money;
+                            timestamp = Time.now();
+                        };
+
+                        await senderUser.addToTransfer(debit);
+                        await recieverUser.addToTransfer(credit);
+
+                        await recieverUser.addToWallet(money);
+
+                        let result = await senderUser.takeFromWallet(money);
+
+                        switch (result) {
+                            case (#ok(())) {
+                                return {
+                                    msg = "tokens sent to wallet " # destinationWalletID;
+                                    timestamp = Time.now();
+                                };
+                            };
+                            case (#err(errorMsg)) {
+                                return {
+                                    msg = errorMsg;
+                                    timestamp = Time.now();
+                                };
+                            };
+                        };
+                    };
+
+                    case(null){
+                        return {
+                            msg = "Sender not found";
+                            timestamp = Time.now();
+                        };
+                    };
+                };
+            };
+            case (null) {
+                return {
+                    msg = "Reciever not found";
+                    timestamp = Time.now();
+                }
+                
+            };
+        };
+    };
+
+
+    public func getCharAtIndex(index: Nat,word: Text): async Text {
+        
+        // Get an iterator for the string
+        let iter = Text.toIter(word);
+        
+        // Iterate over the characters until you reach the desired index
+        var currentIndex: Nat = 0;
+        
+        // Loop over the iterator and get the character at the specified index
+        while (currentIndex <= index) {
+            switch (iter.next()) {
+                case (?c) {
+                    if (currentIndex == index) {
+                        return Text.fromChar(c);  // Return the character as Text when index is found
+                    };
+                    currentIndex += 1;
+                };
+                case null {
+                    // If we reach the end of the string before finding the index
+                    return " ";  // Return a default character or handle out of bounds as needed
                 };
             };
         };
-
-        splitCycles<system>();
-
-        await updateUserArray(user);
-        return await toJsonUser(name,email,"user successfully created");
+    
+        return " ";  // Return a default character if index is out of bounds
     };
+
+    public func testRandomiser(): async ?Nat{
+        var f = Random.Finite(await Random.blob());
+        let result = generateRandomNumber(f,32);
+        return result;
+    };
+
+
+    func generateRandomNumber(f : Random.Finite, max : Nat) : ? Nat {
+        assert max > 0;
+        do ? {
+        var n = max - 1 : Nat;
+        var k = 0;
+        while (n != 0) {
+            k *= 2;
+            k += bit(f.coin()!);
+            n /= 2;
+        };
+        if (k < max) k else generateRandomNumber(f, max)!;
+        };
+    };
+
+    func bit(b : Bool) : Nat {
+        if (b) 1 else 0;
+    };
+
 
 
     private func updateUserArray(user : User.User) : async () {
@@ -132,35 +348,55 @@ actor class Main() {
     };
 
     
-
-    public func loginUser<system>(username : Text, password:Text) : async Text {
+    public func loginUser<system>(username : Text, password:Text) : async Types.User {
         
-        Cycles.add<system>(2000000000000);
+        Cycles.add<system>(100_000_000_000); // 200 billion cycles
+
+
+        let dummy = await User.User(
+            "null",
+            "null",
+            0,
+            "null", // insert generateWalletID here
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
         
-        let dummyName = "null";
-        let dummyEmail = "null";
-
-        let dummy = await User.User(dummyName,dummyEmail,0,[],[],[],[],[]);
-
+        
         for (index in usersArray.vals()) {
             if (Text.equal(username, await index.getEmail())) {
 
                 let foundUser:User.User = index;
                 let hashedPassword = Text.hash(password);
-                let name = await foundUser.getName();
-                let email = await foundUser.getEmail();
+                let pHash = await foundUser.getPHash();
 
-                if(foundUser.getPHash() == hashedPassword)
+                if(pHash == hashedPassword)
                 {
-                    return await toJsonUser(name,email,"user successfully logged in");
+                    loggedInUserEmail := username;
+                    let result = await convertUserToType(foundUser,"user successfully logged in");
+                    return result;
                 }
                 else{
-                    return await toJsonUser(name,email,"authentication failed"); 
+                    let result = await convertUserToType(dummy,"authentication failed");
+                    return result;
                 }
             };
         };
 
-        return await toJsonUser(dummyName,dummyEmail,"unable to login user");
+        let result = await convertUserToType(dummy,"user does not exist");
+        return result;
+    };
+
+    /*
+    * This function returns the email of the current user
+    * that is logged in
+    */
+    public func WhoIsLoggedIn(): async Text{
+        return loggedInUserEmail;
     };
 
 
@@ -171,7 +407,7 @@ actor class Main() {
     public func getAllUsersTypesFromObjectArray(userObjList : [User.User]) : async [Types.User] {
         let typeBuffer = Buffer.Buffer<Types.User>(0);
         for (user in userObjList.vals()) {
-            typeBuffer.add(await (convertUserToType(user)));
+            typeBuffer.add(await (convertUserToType(user,"getAllUsersTypesFromObjectArray")));
         };
         return Buffer.toArray(typeBuffer);
     };
@@ -180,11 +416,13 @@ actor class Main() {
         return await (getAllUsersTypesFromObjectArray(await getAllUsers()));
     };
 
-    public func convertUserToType(user : User.User) : async Types.User {
+    public func convertUserToType(user : User.User,msg: Text) : async Types.User {
         return {
             name = await user.getName();
             email = await user.getEmail();
             pHash = await user.getPHash();
+            walletID = await user.getWalletID();
+            message = msg;
             buyersCart = await user.getBuyersCart();
             sellersStock = await user.getSellersStock();
             purchases = await user.getPurchases();
@@ -193,12 +431,52 @@ actor class Main() {
         };
     };
 
-    public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product{
-        splitCycles<system>();
-        var product = await Product.Product(user, name, category, price, shortDesc, longDesc, isVisible, picture, productIDNum);
-        productIDNum := productIDNum + 1;
-        await updateProductArray(product);
-        return product;
+    //add new nft definition for product (test_create_collection)
+    public func createProduct<system>(user : Text, name : Text, category : Text, price : Types.Price, shortDesc : Text, longDesc : Text, isVisible : Bool, picture : Text) : async Product.Product{ 
+        // Cycles.add<system>(200_000_000);
+        // splitCycles<system>();
+
+        //Get newly minted nft tokenid
+        Cycles.add<system>(100_000_000_000);
+        let collectionResult = await NFTCanister.test_create_collection(name, shortDesc, picture);
+        
+        if (collectionResult) {
+            Cycles.add<system>(100_000_000_000);
+            let tokenIdOpt = await NFTCanister.get_last_minted_token_id();
+            
+            switch (tokenIdOpt) {
+                case (?tokenId) {
+                    Cycles.add<system>(100_000_000_000);
+                    var product = await Product.Product(user, name, category, price, shortDesc, longDesc, isVisible, picture, productIDNum, tokenId);
+                    Debug.print(debug_show((user, name, category, price, shortDesc, longDesc, isVisible, picture, productIDNum)));
+                    productIDNum := productIDNum + 1;
+                    await updateProductArray(product);
+
+                    let currentUserOpt = await getUserByName(user);
+                    switch (currentUserOpt) {
+                        case (?currentUser) {
+                            let productData = await convertProductToType(product);
+                            await currentUser.addToSellersStock(productData);
+                            Debug.print("Product added to seller's stock: " # debug_show(productData.productID));
+                        };
+                        case null {
+                            Debug.print("User not found: " # debug_show(user));
+                        };
+                    };
+                    
+                    return product;
+                };
+                case null {
+                     throw Error.reject("No token ID returned after successful collection creation.");
+                };
+            }
+        } 
+        else {
+            // Handle failure of collection creation
+            throw Error.reject("Failure during collection creation.");
+        };
+        
+        throw Error.reject("Unexpected error during collection creation.");
     };
 
     private func updateProductArray(product : Product.Product) : async () {
@@ -214,13 +492,40 @@ actor class Main() {
         return "Hello from backend";
     };
 
-    // public query func toJson(id: Text,name: Text,email: Text): async Text {
-    //     return "{" #
-    //         "\"id\": " # id # ", " #
-    //         "\"name\": \"" # name # "\"," #
-    //         "\"email\": \"" # email # "\"" #
-    //     "}";
-    // };
+    public func getDataForPersonalDashboard(email: Text): async Types.PersonalDashboard{
+
+        let userOpt = await getUserByEmail(email);
+
+        switch (userOpt) {
+            case (?user) {
+
+                var balanceOfKT = 0;
+                let userWallet = await user.getWallet();
+                let name = await user.getName();
+
+                for (j in userWallet.vals())
+                {
+                    if(j.currency == #kt) {
+                        balanceOfKT += j.amount;
+                    }   
+                };
+
+                return {
+                    fullname = name;
+                    marketValueOfKT = 10000;
+                    walletBallanceKT = balanceOfKT;
+                };
+            };
+            case (null) {
+                Debug.print("User not found");
+                return {
+                    fullname = "null";
+                    marketValueOfKT = 0;
+                    walletBallanceKT = 0;
+                }
+            };
+        };
+    };
 
     public func getAllProductTypesFromObjectArray(productObjList : [Product.Product]) : async [Types.Product] {
         let typeBuffer = Buffer.Buffer<Types.Product>(0);
@@ -271,6 +576,7 @@ actor class Main() {
             productID = await product.getProductID();
             productCategory = await product.getCategory();
             productPicture = await product.getPicture();
+            tokenID = await product.getTokenID();
         };
     };
 
@@ -287,6 +593,11 @@ actor class Main() {
         transactionsArray := Buffer.toArray<Transaction.Transaction>(transactionBuffer);
     };
 
+    
+    /*
+    * This function returns all transactions made by the user.
+    * The transactions cover the buying and selling products 
+    */
     public query func getAllTransactions() : async [Transaction.Transaction] {
         return transactionsArray;
     };
@@ -313,11 +624,14 @@ actor class Main() {
     };
 
     private func splitCycles<system>() {
-        Cycles.add<system>(200000000000);
+        Cycles.add<system>(100_000_000_000);
     };
 
     public func addToUserCart(userName : Text, product : Types.Product) : async Bool {
         let userOpt = await findUser(userName);
+
+        Debug.print(userName);
+
         switch (userOpt) {
             case (?user) {
                 if (await addToCart(userName, product.productID)) {
@@ -335,6 +649,43 @@ actor class Main() {
             };
         };
     };
+
+    public func addToUserCart2(email : Text, productID: Nat) : async Bool {
+        let userOpt = await getUserByEmail(email);
+        
+        Debug.print("Heaven. Jewish heaven");
+
+        switch (userOpt) {
+            case (?user) {
+                let userName = await user.getName();
+
+                //find the product
+
+                let productOpt = await getProductById(productID);
+
+                switch  (productOpt){
+                    case (#ok(product)) {
+                        
+                        let productType = await convertProductToType(product);
+                        await user.addToCart(productType);
+
+                        return true;
+                    };
+                    case (#err(message)) {
+                        Debug.print(message);
+                        return false;
+                    };
+                };
+
+            };
+            case (null) {
+                Debug.print("User not found: ");
+                return false;
+            };
+        };
+    };
+
+    
 
     public func removeFromUserCart(userName : Text, productID : Nat) : async Bool {
         let userOpt = await findUser(userName);
@@ -424,6 +775,56 @@ actor class Main() {
         return null;
     };
 
+    public func getUserByEmail(email : Text) : async ?User.User {
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let userEmail = await user.getEmail();
+            if (Text.equal(email, userEmail)) {
+                return ?user;
+            };
+        };
+        return null;
+    };
+
+    public func viewProfile(email:Text): async Types.User{
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let userEmail = await user.getEmail();
+            if (Text.equal(email, userEmail)) {
+                return await convertUserToType(user,"view profile");
+            };
+        };
+
+        Cycles.add<system>(100_000_000_000); // 200 billion cycles
+
+
+        let dummy = await User.User(
+            "null",
+            "null",
+            0,
+            "null", // insert generateWalletID here
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return await convertUserToType(dummy, "profile not found");
+    };
+
+    public func getUserByWalletID(walletID: Text): async ?User.User {
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let userWalletID = await user.getWalletID();
+            if (Text.equal(userWalletID, walletID)) {
+                return ?user;
+            };
+        };
+        return null;
+    };
+
     public func getProductById(productID : Nat) : async Result.Result<Product.Product, Text> {
         for (product in productsArray.vals()) {
             let id = await product.getProductID();
@@ -434,7 +835,24 @@ actor class Main() {
         return #err("Product not found");
     };
 
-    public func purchase(name : Text, productID : Nat) : async Result.Result<(), Text> {
+    public func getStockProductIDs(name : Text) : async [Nat] {
+        let userObjOpt = await getUserByName(name);
+        
+        switch (userObjOpt) {
+        case (null) {
+            // Handle the case where the user is not found
+            Debug.print("User not found: " # name);
+            return []; // Return an empty array if user is not found
+        };
+        case (?userObj) {
+            // Call getProductIDs on the retrieved user object
+            return await userObj.getSellerStockIDs();
+        };
+    };
+    };
+
+    //add the buyer to nft as subowner 
+    public shared (msg) func purchase(name : Text, productID : Nat) : async Result.Result<(), Text> {
         let userObjOpt = await getUserByName(name);
 
         switch (userObjOpt) {
@@ -452,7 +870,15 @@ actor class Main() {
                         let sellerName = await product.getSellerID();
                         let productPrice = await product.getPrice();
                         let buyerID = await userObj.getName();
+                        let name = await product.getName();
+                        let descr = await product.getShortDesc();
+                        let picture = await product.getPicture();
+                        let tokenID = await product.getTokenID();
+                        let userPrincipal = msg.caller;
 
+                        let purchaseResult = await NFTCanister.transferNFT(tokenID, userPrincipal);
+
+                        //let workflowResult = await NFTCanister.test_workflow(name, descr, picture);
                         for (index in usersArray.vals()) {
                             let target = await index.getName();
                             if (Text.equal(target, sellerName)) {
@@ -490,6 +916,20 @@ actor class Main() {
         transactionBuffer := Buffer.fromArray<Transaction.Transaction>(transactionsArray);
     };
 
+    // User class functions
+    public func getAllUserTransfers(email:Text): async [Types.Transfer]{
+        let users = await getAllUsers();
+        for (user in users.vals()) {
+            let userEmail = await user.getEmail();
+            if (Text.equal(userEmail, email)) {
+                return await user.getTransfers();
+            };
+        };
+        return [];
+    };
+
+    
+
     private func findUser(userName : Text) : async ?User.User {
         for (user in usersArray.vals()) {
             if (Text.equal(userName, await user.getName())) {
@@ -498,16 +938,6 @@ actor class Main() {
         };
         null;
     };
-
-
-
-    private func toJsonUser(name: Text, email: Text, msg: Text): async Text {
-        return "{" #
-            "\"name\": \"" # name # "\", " #  // Name value in quotes
-            "\"email\": \"" # email # "\", " #
-            "\"message\": \"" # msg # "\"" #
-        "}";
-    }   
 
 
 };

@@ -3,7 +3,7 @@
   import * as Carousel from "$lib/components/ui/carousel";
   import * as Drawer from "$lib/components/ui/drawer";
   import { toast } from "svelte-sonner";
-  import { fullName, cart } from "$lib/data/stores/stores";
+  import { fullName, cart, Email } from "$lib/data/stores/stores";
   import Reload from "svelte-radix/Reload.svelte";
   import { actorBackend } from "$lib/motokoImports/backend";
 
@@ -48,10 +48,15 @@
   };
 
   async function add() {
+    console.log('add()');
     formSubmitted = true;
     try {
-      await actorBackend.addToUserCart($fullName, product);
-      toast("Added " + product.name + " to cart");
+      console.log(product);
+      console.log($Email);
+      
+      let res = await actorBackend.addToUserCart2($Email, product.productID);
+      console.log(res);
+      toast("Product Added to cart");
       $cart.value = $cart.value + 1;
       formSubmitted = false;
     } catch (error) {

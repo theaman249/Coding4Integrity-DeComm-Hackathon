@@ -35,7 +35,7 @@
   },
   "networks": {
     "local": {
-      "bind": "localhost:8000",
+      "bind": "localhost:8001", 
       "type": "ephemeral"
     }
   },

@@ -158,7 +158,7 @@
               Forgot Password?
             </a>
           </p>
-          <!-- //////////////////////////////Terms of Service\\\\\\\\\\\\\\\\\\\\\ \\\\\\\\\\\\ -->
+          <!-- //////////////////////////////Terms of Service\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ -->
           <p class="text-muted-foreground px-8 text-center text-sm">
             By clicking continue, you agree to our
             <a href="/terms" class="hover:text-primary underline underline-offset-4">

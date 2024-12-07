@@ -93,7 +93,7 @@
 
 <svelte:head>
   <title>Register - DeComm</title>
-  <meta name="description" content="Donation Engine Home Page" />
+  <meta name="description" content="Donation Engine Home Page"/>
 </svelte:head>
 
 <div class="grid grid-cols-12 min-h-screen max-h-screen w-full z-50">

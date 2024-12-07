@@ -148,10 +148,28 @@
               </Alert.Description>
             </Alert.Root>
             <Button disabled>
-              <Reload class="mr-2 h-4 w-4 animate-spin" />
+              <Reload class="mr-2 h-4 w-4 animate-spin"/>
               Please wait
             </Button>
           {/if}
+          <!-- ///////////////////////////////FORGOT PASSWORD\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ -->
+          <p class="text-muted-foreground px-8 text-center text-sm">
+            <a href="/terms" class="hover:text-primary underline underline-offset-4">
+              Forgot Password?
+            </a>
+          </p>
+          <!-- //////////////////////////////Terms of Service\\\\\\\\\\\\\\\\\\\\\ \\\\\\\\\\\\ -->
+          <p class="text-muted-foreground px-8 text-center text-sm">
+            By clicking continue, you agree to our
+            <a href="/terms" class="hover:text-primary underline underline-offset-4">
+              Terms of Service
+            </a>
+            and
+            <a href="/privacy" class="hover:text-primary underline underline-offset-4">
+              Privacy Policy
+            </a>
+            .
+          </p>
         </div>
       </form>
     </div>
